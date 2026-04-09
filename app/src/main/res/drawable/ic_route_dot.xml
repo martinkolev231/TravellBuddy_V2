@@ -1,0 +1,43 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="80dp"
+    android:viewportWidth="24"
+    android:viewportHeight="80">
+    <!-- Dotted route line motif: origin dot → dashes → destination dot -->
+
+    <!-- Origin dot (top) -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M12,6m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+
+    <!-- Dash 1 -->
+    <path
+        android:fillColor="@color/divider"
+        android:pathData="M11,18h2v6h-2z" />
+
+    <!-- Dash 2 -->
+    <path
+        android:fillColor="@color/divider"
+        android:pathData="M11,28h2v6h-2z" />
+
+    <!-- Dash 3 -->
+    <path
+        android:fillColor="@color/divider"
+        android:pathData="M11,38h2v6h-2z" />
+
+    <!-- Dash 4 -->
+    <path
+        android:fillColor="@color/divider"
+        android:pathData="M11,48h2v6h-2z" />
+
+    <!-- Dash 5 -->
+    <path
+        android:fillColor="@color/divider"
+        android:pathData="M11,58h2v6h-2z" />
+
+    <!-- Destination dot (bottom) -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M12,74m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>
+

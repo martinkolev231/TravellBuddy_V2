@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bottom sheet drag handle indicator -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/divider" />
+    <corners android:radius="@dimen/radius_xs" />
+    <size
+        android:width="@dimen/bottom_sheet_drag_handle_width"
+        android:height="@dimen/bottom_sheet_drag_handle_height" />
+</shape>
+

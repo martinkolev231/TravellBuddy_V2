@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding page indicator: active dot -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/secondary" />
+    <corners android:radius="@dimen/radius_pill" />
+    <size
+        android:width="24dp"
+        android:height="@dimen/onboarding_indicator_size" />
+</shape>
+

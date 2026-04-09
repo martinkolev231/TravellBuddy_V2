@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Search bar background: rounded pill, subtle gray -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/input_background" />
+    <corners android:radius="@dimen/radius_pill" />
+    <padding
+        android:left="@dimen/spacing_lg"
+        android:top="@dimen/spacing_md"
+        android:right="@dimen/spacing_lg"
+        android:bottom="@dimen/spacing_md" />
+</shape>
+

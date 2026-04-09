@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Avatar with icon overlay -->
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="top|start"
+            android:src="@drawable/bg_profile_placeholder" />
+
+        <!-- Type Icon Badge positioned at bottom-right of avatar -->
+        <FrameLayout
+            android:id="@+id/iconBadgeContainer"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="4dp">
+
+            <View
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@drawable/bg_icon_circle_orange" />
+
+            <ImageView
+                android:id="@+id/ivTypeIcon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_person_add"
+                app:tint="#F59E0B"
+                android:contentDescription="@null" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Content container -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:orientation="vertical">
+
+        <!-- Message text -->
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_primary"
+            android:textSize="14sp"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            tools:text="David Chen wants to join your Alpine Lake Hiking adventure." />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/text_hint"
+            android:textSize="12sp"
+            tools:text="2h ago" />
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:id="@+id/actionButtonsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="start"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Accept button -->
+            <TextView
+                android:id="@+id/btnAccept"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="100dp"
+                android:paddingHorizontal="16dp"
+                android:gravity="center"
+                android:background="@drawable/bg_accept_button"
+                android:text="Accept"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:drawableStart="@drawable/ic_check"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/white" />
+
+            <!-- Decline button -->
+            <TextView
+                android:id="@+id/btnDecline"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:minWidth="100dp"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="8dp"
+                android:gravity="center"
+                android:background="@drawable/bg_decline_button"
+                android:text="Decline"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:drawableStart="@drawable/ic_close"
+                android:drawablePadding="6dp"
+                android:drawableTint="@color/text_secondary" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Unread indicator -->
+    <View
+        android:id="@+id/unreadIndicator"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_gravity="top"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_unread_dot"
+        android:visibility="gone" />
+</LinearLayout>

@@ -1,0 +1,455 @@
+<resources>
+    <string name="app_name">TravellBuddy</string>
+
+    <!-- Welcome Screen -->
+    <string name="welcome_to">WELCOME TO</string>
+    <string name="welcome_title">TravellBuddy</string>
+    <string name="welcome_subtitle">Find your next adventure partner and explore the world together.</string>
+    <string name="btn_sign_up_welcome">Sign Up</string>
+    <string name="btn_log_in_welcome">Log In</string>
+
+    <!-- Splash / Onboarding -->
+    <string name="splash_tagline">This platform is designed to help you discover exciting journeys and connect with fellow adventurers conveniently!</string>
+    <string name="splash_heading">Find Your Next\nAdventure</string>
+    <string name="onboarding_title_1">Discover Adventures</string>
+    <string name="onboarding_desc_1">Browse exciting adventures — hiking, camping, road trips, festivals — and find your next experience.</string>
+    <string name="onboarding_title_2">Propose an Adventure</string>
+    <string name="onboarding_desc_2">Have a plan? Create an adventure, set the details, and invite others to join you.</string>
+    <string name="onboarding_title_3">Explore Together Safely</string>
+    <string name="onboarding_desc_3">Chat with your adventure buddies, rate your experience, and share your plans for safety.</string>
+    <string name="btn_next">Next</string>
+    <string name="btn_get_started">Get Started</string>
+    <string name="btn_skip">Skip</string>
+
+    <!-- Auth -->
+    <string name="sign_in_title">Welcome back</string>
+    <string name="sign_in_subtitle">Log in to find your adventure partner</string>
+    <string name="sign_up_title">Create account</string>
+    <string name="sign_up_subtitle">Join the community and find your next adventure partner.</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="hint_display_name">Display Name</string>
+    <string name="label_full_name">Full name</string>
+    <string name="label_email_address">Email address</string>
+    <string name="label_password">Password</string>
+    <string name="hint_full_name_placeholder">Alex Johnson</string>
+    <string name="hint_email_placeholder">hello@example.com</string>
+    <string name="hint_password_placeholder">••••••••</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="log_in_link">Log in</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="sign_up_link">Sign up</string>
+    <string name="forgot_link">Forgot?</string>
+    <string name="btn_log_in">Log In</string>
+    <string name="btn_sign_in">Sign In</string>
+    <string name="btn_sign_up">Sign Up</string>
+    <string name="btn_google_sign_in">Sign in with Google</string>
+    <string name="btn_forgot_password">Forgot Password?</string>
+    <string name="link_sign_up">Don\'t have an account? Sign Up</string>
+    <string name="link_sign_in">Already have an account? Sign In</string>
+    <string name="label_or_divider">OR</string>
+    <string name="error_google_sign_in">Google sign-in failed. Please try again.</string>
+    <!-- Replace with your Web Client ID from Firebase Console → Authentication → Google provider -->
+    <string name="google_web_client_id">422784011997-tuvetkhruci7gekc2efdjf293be7vufm.apps.googleusercontent.com</string>
+    <string name="error_empty_email">Please enter your email</string>
+    <string name="error_invalid_email">Please enter a valid email</string>
+    <string name="error_empty_password">Please enter your password</string>
+    <string name="error_short_password">Password must be at least 6 characters</string>
+    <string name="error_passwords_mismatch">Passwords do not match</string>
+    <string name="error_empty_name">Please enter your name</string>
+    <string name="error_auth_failed">Authentication failed. Please try again.</string>
+    <string name="error_sign_up_failed">Sign up failed. Please try again.</string>
+    <string name="success_account_created">Account created! Please verify your email.</string>
+    <string name="msg_verification_sent">Verification email sent. Please check your inbox.</string>
+    <string name="msg_password_reset_sent">Password reset email sent.</string>
+    <string name="error_email_not_verified">Please verify your email before continuing.</string>
+
+    <!-- Home Feed -->
+    <string name="title_home">Home</string>
+    <string name="title_my_trips">My Adventures</string>
+    <string name="title_messages">Messages</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_create">Create</string>
+    <string name="hint_search_destination">Search destinations…</string>
+    <string name="hint_search_messages">Search messages…</string>
+    <string name="label_more_options">More options</string>
+    <string name="label_home_title">Discover Adventures</string>
+    <string name="label_upcoming_trips">Upcoming Adventures</string>
+    <string name="label_no_trips">No adventures available</string>
+    <string name="label_no_trips_desc">Be the first to propose an adventure!</string>
+    <string name="label_seats_available">%1$d spots available</string>
+    <string name="label_per_seat">/spot</string>
+    <string name="label_trip_full">Full</string>
+    <string name="btn_join_adventure">Join Adventure</string>
+    <string name="btn_join">Join</string>
+    <string name="label_travelers">%1$d / %2$d travelers</string>
+    <string name="cd_adventure_image">Adventure cover photo</string>
+    <string name="label_trip_cancelled">Cancelled</string>
+    <string name="label_spot_left">1 spot left</string>
+    <string name="label_spots_left">%1$d spots left</string>
+    <string name="label_more_count">+%1$d</string>
+
+    <!-- Create Adventure -->
+    <string name="title_create_trip">Create Adventure</string>
+    <string name="hint_origin">Meeting point / Starting location</string>
+    <string name="hint_destination">Destination or area</string>
+    <string name="hint_date">Date</string>
+    <string name="hint_time">Time</string>
+    <string name="hint_seats">Available spots (1–20)</string>
+    <string name="hint_price">Price per spot (0 = free)</string>
+    <string name="hint_vehicle">Short description of the adventure</string>
+    <string name="label_preferences">Details</string>
+    <string name="label_smoking_allowed">Beginners welcome</string>
+    <string name="label_pets_allowed">Pet-friendly</string>
+    <string name="label_luggage_size">Difficulty Level</string>
+    <string name="btn_publish_trip">Publish Adventure</string>
+    <string name="btn_post_adventure">Post Adventure</string>
+    <string name="error_empty_origin">Please enter a meeting point</string>
+    <string name="error_empty_destination">Please enter the destination or area</string>
+    <string name="error_empty_date">Please select a date</string>
+    <string name="error_empty_start_date">Please select a start date</string>
+    <string name="error_empty_end_date">Please select an end date</string>
+    <string name="error_empty_time">Please select a time</string>
+    <string name="error_invalid_seats">Please enter spots between 1 and 20</string>
+    <string name="error_empty_price">Please enter a price (0 for free)</string>
+    <string name="error_invalid_price">Please enter a valid price</string>
+    <string name="error_invalid_budget">Please enter a valid budget amount</string>
+    <string name="error_past_date">Adventure date must be in the future</string>
+    <string name="error_empty_vehicle">Please describe the adventure</string>
+    <string name="error_no_cover_photo">Please add a cover photo for your adventure</string>
+    <string name="success_trip_created">Adventure published successfully!</string>
+    <string name="error_trip_creation_failed">Failed to create adventure. Please try again.</string>
+    <string name="error_email_not_verified_trip">Please verify your email before creating an adventure.</string>
+    <string name="error_not_logged_in">You must be signed in to create an adventure.</string>
+
+    <!-- Create Adventure - New Design -->
+    <string name="label_add_cover_photo">Add Cover Photo</string>
+    <string name="label_photo_format">PNG, JPG up to 5MB</string>
+    <string name="label_title">TITLE</string>
+    <string name="hint_adventure_title">Give your adventure a catchy name</string>
+    <string name="label_destination">DESTINATION</string>
+    <string name="hint_where_to">Where to?</string>
+    <string name="label_type">TYPE</string>
+    <string name="label_dates">DATES</string>
+    <string name="label_start_date">START DATE</string>
+    <string name="label_end_date">END DATE</string>
+    <string name="hint_select_dates">Select dates</string>
+    <string name="label_group_size">GROUP SIZE</string>
+    <string name="hint_group_size">2 - 20</string>
+    <string name="label_budget">BUDGET</string>
+    <string name="label_estimated_budget">ESTIMATED BUDGET PER PERSON</string>
+    <string name="hint_budget_amount">e.g. 500</string>
+    <string name="currency_symbol_eur">€</string>
+    <string name="currency_eur">EUR</string>
+    <string name="budget_low">$</string>
+    <string name="budget_medium">$$</string>
+    <string name="budget_high">$$$</string>
+    <string name="label_description">DESCRIPTION</string>
+    <string name="hint_description">What\'s the plan? Who are you looking for…</string>
+
+    <!-- Trip Details -->
+    <string name="btn_back">Back</string>
+    <string name="btn_favorite">Add to favorites</string>
+    <string name="cd_trip_image">Adventure cover image</string>
+    <string name="label_about_adventure">About this adventure</string>
+    <string name="label_hosted_by">Hosted by</string>
+    <string name="label_participants">Participants</string>
+    <string name="label_trips_hosted">%1$d trips hosted</string>
+    <string name="btn_join_activity">Join Activity</string>
+    <string name="label_join_with_spots">Join Activity  (%1$d spots left)</string>
+
+    <!-- Activity Type -->
+    <string name="label_activity_type">Activity Type</string>
+    <string name="hint_activity_type">Activity Type</string>
+    <string name="hint_image_url">Cover image URL (optional)</string>
+    <string name="activity_hiking">Hiking</string>
+    <string name="activity_camping">Camping</string>
+    <string name="activity_road_trip">Road Trip</string>
+    <string name="activity_city_explore">City Explore</string>
+    <string name="activity_festival">Festival / Event</string>
+    <string name="activity_photography">Photography</string>
+    <string name="activity_outdoor_sports">Outdoor Sports</string>
+    <string name="activity_backpacking">Backpacking</string>
+    <string name="activity_weekend">Weekend Getaway</string>
+    <string name="activity_other">Other</string>
+
+    <!-- Difficulty -->
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_moderate">Moderate</string>
+    <string name="difficulty_hard">Challenging</string>
+
+    <!-- New adventure fields -->
+    <string name="hint_meeting_point">Meeting point details</string>
+    <string name="hint_required_equipment">Required equipment (optional)</string>
+    <string name="label_required_equipment">What to Bring</string>
+
+    <!-- Adventure Details -->
+    <string name="title_trip_details">Adventure Details</string>
+    <string name="label_driver">Organizer</string>
+    <string name="label_departure">Start Time</string>
+    <string name="label_vehicle">Description</string>
+    <string name="label_price">Price</string>
+    <string name="label_confirmed_riders">Confirmed Participants</string>
+    <string name="label_no_riders_yet">No confirmed participants yet</string>
+    <string name="btn_request_seat">Join Adventure</string>
+    <string name="btn_cancel_request">Cancel Request</string>
+    <string name="btn_manage_requests">Manage Requests</string>
+    <string name="btn_open_chat">Open Chat</string>
+    <string name="btn_share_trip">Share Adventure</string>
+    <string name="btn_cancel_trip">Cancel Adventure</string>
+    <string name="label_request_pending">Your request is pending</string>
+    <string name="label_request_approved">You\'re in!</string>
+    <string name="label_request_denied">Your request was declined</string>
+
+    <!-- Join Request -->
+    <string name="title_request_seat">Join Adventure</string>
+    <string name="hint_request_message">Add a message to the organizer (optional)</string>
+    <string name="btn_send_request">Send Request</string>
+    <string name="success_request_sent">Join request sent!</string>
+    <string name="error_request_failed">Failed to send request. Please try again.</string>
+    <string name="error_trip_full">Sorry, this adventure is full.</string>
+    <string name="error_already_requested">You have already requested to join this adventure.</string>
+
+    <!-- Manage Requests -->
+    <string name="title_manage_requests">Manage Requests</string>
+    <string name="label_no_requests">No join requests yet</string>
+    <string name="btn_approve">Approve</string>
+    <string name="btn_deny">Deny</string>
+    <string name="label_status_pending">Pending</string>
+    <string name="label_status_approved">Approved</string>
+    <string name="label_status_denied">Denied</string>
+    <string name="success_request_approved">Request approved!</string>
+    <string name="success_request_denied">Request denied.</string>
+    <string name="error_approve_failed">Failed to approve request.</string>
+
+    <!-- Chat -->
+    <string name="title_chat">Adventure Chat</string>
+    <string name="hint_type_message">Type a message…</string>
+    <string name="btn_send">Send</string>
+    <string name="label_no_messages">No messages yet. Start the conversation!</string>
+    <string name="label_chat_read_only">This chat is read-only (adventure ended or cancelled)</string>
+
+    <!-- Profile -->
+    <string name="label_edit_profile">Edit Profile</string>
+    <string name="hint_phone">Phone number (optional)</string>
+    <string name="hint_bio">About me</string>
+    <string name="btn_save_profile">Save</string>
+    <string name="label_avg_rating">Average Rating</string>
+    <string name="label_total_trips">Total Adventures</string>
+    <string name="label_view_ratings">View Ratings</string>
+    <string name="success_profile_updated">Profile updated!</string>
+    <string name="error_profile_update_failed">Failed to update profile.</string>
+
+    <!-- Ratings -->
+    <string name="title_ratings">Ratings &amp; Reviews</string>
+    <string name="title_rate_user">Rate User</string>
+    <string name="hint_rating_comment">Leave a comment (optional)</string>
+    <string name="btn_submit_rating">Submit Rating</string>
+    <string name="btn_rate_trip">Rate This Adventure</string>
+    <string name="label_no_ratings">No ratings yet</string>
+    <string name="success_rating_submitted">Rating submitted!</string>
+    <string name="error_rating_failed">Failed to submit rating.</string>
+    <string name="error_already_rated">You have already rated this user for this adventure.</string>
+
+    <!-- Settings -->
+    <string name="title_settings">Settings</string>
+    <string name="label_change_password">Change Password</string>
+    <string name="label_notifications">Notifications</string>
+    <string name="label_about">About TravellBuddy</string>
+    <string name="label_version">Version %1$s</string>
+    <string name="btn_log_out">Log Out</string>
+    <string name="btn_delete_account">Delete Account</string>
+    <string name="dialog_log_out_title">Log Out</string>
+    <string name="dialog_log_out_message">Are you sure you want to log out?</string>
+    <string name="dialog_delete_account_title">Delete Account</string>
+    <string name="dialog_delete_account_message">This action cannot be undone. All your data will be permanently deleted.</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_confirm">Confirm</string>
+    <string name="btn_delete">Delete</string>
+
+    <!-- Share Adventure -->
+    <string name="share_trip_subject">Adventure on TravellBuddy</string>
+    <string name="share_trip_body">I\'m going on an adventure from %1$s to %2$s on %3$s. Join me on TravellBuddy!</string>
+
+    <!-- General / Connectivity -->
+    <string name="msg_offline">You are offline — changes will sync when connected</string>
+    <string name="msg_back_online">You are back online</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="label_loading">Loading…</string>
+
+    <!-- Firebase Error Mapper (database errors) -->
+    <string name="error_permission_denied">You don\'t have permission to perform this action.</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_session_expired">Your session has expired. Please sign in again.</string>
+    <string name="error_max_retries">Connection failed after multiple attempts. Try again later.</string>
+    <string name="error_data_conflict">Data was updated by another user. Please refresh.</string>
+    <string name="error_write_canceled">Operation was canceled. Please try again.</string>
+
+    <!-- Firebase Error Mapper (auth errors) -->
+    <string name="error_invalid_credentials">Invalid email or password.</string>
+    <string name="error_user_not_found">No account found with this email.</string>
+    <string name="error_wrong_password">Incorrect password.</string>
+    <string name="error_email_in_use">An account with this email already exists.</string>
+    <string name="error_weak_password">Password must be at least 6 characters.</string>
+    <string name="error_too_many_requests">Too many attempts. Please wait a moment and try again.</string>
+
+    <!-- Validation extras -->
+    <string name="error_name_too_long">Name must be 100 characters or less.</string>
+    <string name="error_empty_message">Please enter a message.</string>
+    <string name="error_message_too_long">Message must be 1000 characters or less.</string>
+
+    <!-- Content Descriptions -->
+    <string name="cd_app_logo">TravellBuddy logo</string>
+    <string name="cd_profile_photo">Profile photo</string>
+    <string name="cd_send_message">Send message</string>
+    <string name="cd_back">Go back</string>
+    <string name="cd_filter">Filter adventures</string>
+    <string name="cd_add_trip">Create a new adventure</string>
+
+    <!-- Difficulty options (also used as chip text) -->
+    <string name="luggage_small">Easy</string>
+    <string name="luggage_medium">Moderate</string>
+    <string name="luggage_large">Challenging</string>
+
+    <!-- My Adventures -->
+    <string name="label_as_driver">Organized</string>
+    <string name="label_as_rider">Joined</string>
+    <string name="label_no_driver_trips">You haven\'t organized any adventures yet</string>
+    <string name="label_no_rider_trips">You haven\'t joined any adventures yet</string>
+    <string name="tab_joined">Joined</string>
+    <string name="tab_hosted">Hosted</string>
+    <string name="tab_saved">Saved</string>
+    <string name="status_upcoming">Upcoming</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_ongoing">Ongoing</string>
+    <string name="label_no_saved_trips">You haven\'t saved any adventures yet</string>
+
+    <!-- Filter -->
+    <string name="title_filter">Filter Adventures</string>
+    <string name="btn_apply_filter">Apply</string>
+    <string name="btn_clear_filter">Clear</string>
+    <string name="hint_min_price">Min price</string>
+    <string name="hint_max_price">Max price</string>
+
+    <!-- Adventure Card UI -->
+    <string name="label_free">Free</string>
+    <string name="label_price_format">$%1$.2f</string>
+    <string name="label_seats_short">%1$d / %2$d spots</string>
+    <string name="label_route_arrow">→</string>
+    <string name="label_today">Today</string>
+    <string name="label_tomorrow">Tomorrow</string>
+
+    <!-- Premium UI Labels -->
+    <string name="label_welcome_back">Welcome back,</string>
+    <string name="label_find_ride">Find your next adventure</string>
+    <string name="label_popular_routes">Trending Adventures</string>
+    <string name="label_recent_trips">Recent Adventures</string>
+    <string name="label_your_trips">Your Adventures</string>
+    <string name="label_trip_info">Adventure Information</string>
+    <string name="label_passengers">Participants</string>
+    <string name="label_about_driver">About the Organizer</string>
+    <string name="label_trip_route">Adventure Route</string>
+    <string name="label_member_since">Member since %1$s</string>
+    <string name="label_verified_driver">Verified Organizer</string>
+
+    <!-- Spot Counter -->
+    <string name="cd_seat_filled">Occupied spot</string>
+    <string name="cd_seat_empty">Available spot</string>
+
+    <!-- Chat UI -->
+    <string name="label_online">Online</string>
+    <string name="label_offline">Offline</string>
+    <string name="label_typing">Typing…</string>
+    <string name="label_just_now">Just now</string>
+
+    <!-- Bottom Sheet / Map -->
+    <string name="label_estimated_time">Est. %1$s</string>
+    <string name="label_distance">%1$.1f km</string>
+    <string name="label_pickup">Meeting Point</string>
+    <string name="label_dropoff">Destination</string>
+
+    <!-- Content Descriptions (new) -->
+    <string name="cd_route_indicator">Route from start to destination</string>
+    <string name="cd_seats_available">Spots available indicator</string>
+    <string name="cd_star_rating">Star rating %1$.1f out of 5</string>
+    <string name="cd_status_badge">Request status: %1$s</string>
+    <string name="cd_price_badge">Price per spot</string>
+    <string name="cd_date_chip">Adventure date and time</string>
+    <string name="cd_avatar">User avatar for %1$s</string>
+    <string name="cd_drag_handle">Drag to expand or collapse</string>
+    <string name="cd_search">Search for adventures</string>
+    <string name="cd_notifications">View notifications</string>
+    <string name="cd_close">Close</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">TravellBuddy Alerts</string>
+    <string name="notification_channel_description">Adventure updates, requests, and messages</string>
+    <string name="msg_notification_fallback">You have a new update</string>
+
+    <!-- API Keys -->
+    <string name="google_maps_api_key">YOUR_GOOGLE_MAPS_API_KEY</string>
+
+    <!-- Map Picker Buttons -->
+    <string name="btn_pick_origin_map">Pick location on map</string>
+    <string name="btn_pick_destination_map">Pick destination on map</string>
+
+    <!-- Home Dashboard (redesign) -->
+    <string name="label_greeting_morning">Good Morning 🌅</string>
+    <string name="label_greeting_afternoon">Good Afternoon ☀️</string>
+    <string name="label_greeting_evening">Good Evening 🌙</string>
+    <string name="label_ready_explore">Ready to explore something new?</string>
+    <string name="label_quick_actions">Quick Actions</string>
+    <string name="label_browse">Browse</string>
+    <string name="label_create">Create</string>
+    <string name="label_my_trips_short">My Trips</string>
+    <string name="label_nearby">Nearby</string>
+
+    <!-- Create Adventure (redesign) -->
+    <string name="label_section_where">📍 Where</string>
+    <string name="label_section_when">📅 When</string>
+    <string name="label_section_details">📝 Details</string>
+    <string name="label_section_preferences">⚙️ Preferences</string>
+    <string name="label_create_hero_title">Plan Your\nNext Adventure</string>
+    <string name="label_create_hero_subtitle">Fill in the details below to create an amazing adventure for others to join</string>
+
+    <!-- My Trips (redesign) -->
+    <string name="label_trips_summary">Adventure Summary</string>
+    <string name="label_organized_count">Organized</string>
+    <string name="label_joined_count">Joined</string>
+    <string name="label_upcoming_count">Upcoming</string>
+    <string name="label_no_trips_yet">No adventures yet</string>
+    <string name="label_no_trips_yet_desc">Start exploring or create your first adventure!</string>
+
+    <!-- Profile Screen -->
+    <string name="label_joined">JOINED</string>
+    <string name="label_hosted">HOSTED</string>
+    <string name="label_rating">RATING</string>
+    <string name="label_interests">Interests</string>
+    <string name="label_add_interest">+ Add</string>
+    <string name="label_my_adventures">My Adventures</string>
+    <string name="cd_profile_cover">Profile cover photo</string>
+    <string name="cd_settings_button">Settings</string>
+    <string name="cd_change_profile_photo">Change profile photo</string>
+    <string name="cd_change_cover_photo">Change cover photo</string>
+    <string name="placeholder_location">Add your location</string>
+    <string name="placeholder_bio">Share something about yourself and your travel interests…</string>
+    <string name="interest_hiking">Hiking</string>
+    <string name="interest_photography">Photography</string>
+    <string name="interest_europe_trips">Europe Trips</string>
+    <string name="interest_camping">Camping</string>
+    <string name="interest_coffee">Coffee</string>
+
+    <!-- Photo upload -->
+    <string name="uploading_photo">Uploading photo…</string>
+    <string name="upload_in_progress">Upload in progress, please wait…</string>
+    <string name="photo_updated">Profile photo updated!</string>
+    <string name="cover_photo_updated">Cover photo updated!</string>
+    <string name="error_photo_upload_failed">Failed to upload photo. Please try again.</string>
+    <string name="error_photo_update_failed">Failed to update photo. Please try again.</string>
+
+    <!-- Notifications Screen -->
+    <string name="title_notifications">Notifications</string>
+    <string name="empty_notifications">No notifications yet</string>
+    <string name="empty_notifications_hint">When you receive updates about adventures,\nrequests, and messages, they\'ll appear here.</string>
+</resources>

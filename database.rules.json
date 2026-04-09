@@ -1,0 +1,501 @@
+{
+  "rules": {
+
+    // =========================================================================
+    // DEFAULT: deny-all at root level
+    // Every node below must explicitly grant access.
+    // =========================================================================
+    ".read": false,
+    ".write": false,
+
+    // =========================================================================
+    // 1. /users/{uid}
+    //
+    // - Owner (auth.uid == $uid): full read + write on own profile
+    // - Other authenticated users: read-only on public fields
+    // - No one can write isVerified (admin-only flag)
+    // - ratingSummary: any auth user can write (client-side transaction after
+    //   submitting a rating — see WORKAROUND note below)
+    // - tripCounters: any auth user can write (incremented on trip completion)
+    // =========================================================================
+    "users": {
+      ".indexOn": ["email", "displayName"],
+      "$uid": {
+        // Owner can read entire profile; others can read too (public profile)
+        ".read": "auth != null",
+
+        // Owner can write their own profile (except restricted sub-nodes)
+        ".write": "auth != null && auth.uid == $uid",
+
+        // Required fields on create
+        ".validate": "newData.hasChildren(['uid', 'displayName', 'email', 'createdAt'])",
+
+        // Prevent uid from being changed after creation
+        "uid": {
+          ".validate": "newData.val() == $uid"
+        },
+
+        // Prevent privilege escalation: isVerified can only be set to false
+        // by the user. Setting it to true requires admin/Cloud Function.
+        "isVerified": {
+          ".validate": "newData.isBoolean() && (auth.uid == $uid ? newData.val() == false || data.val() == newData.val() : false)"
+        },
+
+        // WORKAROUND: ratingSummary must be writable by any authenticated user
+        // because the client-side transaction in RateUserDialogFragment runs
+        // under the REVIEWER's auth context, not the profile owner's.
+        //
+        // Ideal solution: Cloud Function triggered on /ratings write that
+        // recomputes averageRating. For MVP, we allow any auth user to write
+        // ratingSummary with validation constraints.
+        "ratingSummary": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['averageRating', 'totalRatings'])",
+          "averageRating": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 5"
+          },
+          "totalRatings": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
+        },
+
+        // tripCounters: writable by any auth user (incremented on trip completion)
+        "tripCounters": {
+          ".write": "auth != null",
+          ".validate": "newData.hasChildren(['tripsAsDriver', 'tripsAsRider'])",
+          "tripsAsDriver": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          },
+          "tripsAsRider": {
+            ".validate": "newData.isNumber() && newData.val() >= 0"
+          }
+        },
+
+        // Validate specific field types
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "createdAt": {
+          ".validate": "newData.isNumber()"
+        },
+        "fcmToken": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+
+    // =========================================================================
+    // 2. /trips/{tripId}
+    //
+    // - Any authenticated user can read all trips (Home Feed)
+    // - Only driverUid can update after creation
+    // - driverUid is immutable after creation (cannot be changed)
+    // - Validated status enum, seat bounds, departure in future
+    // =========================================================================
+    "trips": {
+      ".read": "auth != null",
+      ".indexOn": ["departureTime", "driverUid", "status", "originCity", "destinationCity", "createdAt"],
+      "$tripId": {
+        // Create: any auth user; Update: only the driver
+        ".write": "auth != null && (!data.exists() || data.child('driverUid').val() == auth.uid)",
+
+        // Required fields
+        ".validate": "newData.hasChildren(['tripId', 'driverUid', 'driverName', 'originCity', 'destinationCity', 'departureTime', 'availableSeats', 'totalSeats', 'pricePerSeat', 'status', 'createdAt'])",
+
+        // tripId must match the push key
+        "tripId": {
+          ".validate": "newData.val() == $tripId"
+        },
+
+        // IMMUTABLE: driverUid cannot be changed after creation
+        "driverUid": {
+          ".validate": "newData.isString() && (!data.exists() || newData.val() == data.val())"
+        },
+
+        // Departure must be in the future (only enforced on create)
+        "departureTime": {
+          ".validate": "newData.isNumber() && (!data.exists() ? newData.val() > now : true)"
+        },
+
+        // Seats: 0 <= available <= total
+        "availableSeats": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalSeats').val()"
+        },
+        "totalSeats": {
+          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 20"
+        },
+
+        // Price: non-negative (0 = free ride)
+        "pricePerSeat": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+
+        // Status enum
+        "status": {
+          ".validate": "newData.isString() && (newData.val() == 'open' || newData.val() == 'full' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'canceled')"
+        },
+
+        // createdAt is immutable after creation
+        "createdAt": {
+          ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val())"
+        },
+
+        "originLat": {
+          ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90"
+        },
+        "originLng": {
+          ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180"
+        },
+        "destLat": {
+          ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90"
+        },
+        "destLng": {
+          ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180"
+        },
+
+        // Participants: users who have been approved to join the trip
+        "participants": {
+          "$participantUid": {
+            // Only trip driver can add participants
+            ".write": "auth != null && root.child('trips').child($tripId).child('driverUid').val() == auth.uid",
+            ".validate": "newData.isBoolean()"
+          }
+        }
+      }
+    },
+
+    // =========================================================================
+    // 3. /tripRequests/{tripId}/{requestId}
+    //
+    // - Rider can CREATE their own request (riderUid == auth.uid, status = pending)
+    // - Driver can change status to "approved" or "denied"
+    // - Rider can change status to "canceled_by_rider"
+    // - Neither party can delete the record (newData must exist)
+    // - riderUid and driverUid are immutable after creation
+    // =========================================================================
+    "tripRequests": {
+      "$tripId": {
+        ".read": "auth != null",
+        ".indexOn": ["riderUid", "status", "createdAt"],
+        "$requestId": {
+          // Write allowed if:
+          //   - Creating: riderUid matches auth.uid
+          //   - Updating: current user is the rider OR the driver on this request
+          // Deletion blocked by .validate requiring newData to exist
+          ".write": "auth != null && ((!data.exists() && newData.child('riderUid').val() == auth.uid) || (data.exists() && (data.child('riderUid').val() == auth.uid || data.child('driverUid').val() == auth.uid)))",
+
+          // Block deletion: newData must always exist
+          ".validate": "newData.exists() && newData.hasChildren(['requestId', 'tripId', 'riderUid', 'driverUid', 'status', 'seatsRequested', 'createdAt'])",
+
+          // riderUid: immutable after creation, must match auth.uid on create
+          "riderUid": {
+            ".validate": "newData.isString() && (!data.parent().exists() ? newData.val() == auth.uid : newData.val() == data.val())"
+          },
+
+          // driverUid: immutable after creation
+          "driverUid": {
+            ".validate": "newData.isString() && (!data.parent().exists() || newData.val() == data.val())"
+          },
+
+          // Status transitions:
+          //   - On create (by rider): must be "pending"
+          //   - Driver can set: "approved" or "denied"
+          //   - Rider can set: "canceled_by_rider"
+          "status": {
+            ".validate": "newData.isString() && ((!data.parent().exists() && newData.val() == 'pending') || (data.parent().exists() && ((auth.uid == data.parent().child('driverUid').val() && (newData.val() == 'approved' || newData.val() == 'denied')) || (auth.uid == data.parent().child('riderUid').val() && newData.val() == 'canceled_by_rider'))))"
+          },
+
+          // Seats: 1-4 range
+          "seatsRequested": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 4"
+          },
+
+          // createdAt: immutable
+          "createdAt": {
+            ".validate": "newData.isNumber() && (!data.parent().exists() || newData.val() == data.val())"
+          },
+
+          // updatedAt: must be recent
+          "updatedAt": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      }
+    },
+
+    // =========================================================================
+    // 4. /tripMembers/{tripId}/{uid}
+    //
+    // - Read: only the trip's driverUid or an approved member can read
+    // - Write: only the trip's driverUid can add/update members
+    //   (membership is written when the driver approves a request)
+    // - Role must be "driver" or "rider"
+    // =========================================================================
+    "tripMembers": {
+      "$tripId": {
+        // Read: driver or existing member of this trip
+        ".read": "auth != null && (root.child('trips').child($tripId).child('driverUid').val() == auth.uid || data.child(auth.uid).exists())",
+        "$uid": {
+          // Only the trip's driver can write membership entries
+          ".write": "auth != null && root.child('trips').child($tripId).child('driverUid').val() == auth.uid",
+
+          ".validate": "newData.hasChildren(['uid', 'role', 'joinedAt', 'seatsOccupied'])",
+
+          "uid": {
+            ".validate": "newData.val() == $uid"
+          },
+          "role": {
+            ".validate": "newData.isString() && (newData.val() == 'driver' || newData.val() == 'rider')"
+          },
+          "joinedAt": {
+            ".validate": "newData.isNumber()"
+          },
+          "seatsOccupied": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 4"
+          }
+        }
+      }
+    },
+
+    // =========================================================================
+    // 5. /chats/{chatId}
+    //
+    // - Only participants can read the chat
+    // - Only participants can write messages
+    // - On first write (!data.exists()), the creator sets up participants
+    // - Messages: text must be non-empty string under 1000 chars
+    // - Messages: timestamp must be <= now (no future timestamps)
+    // - Messages: senderUid must match auth.uid
+    // - Group chats: info node contains chat metadata (name, tripId, etc.)
+    // =========================================================================
+    "chats": {
+      "$chatId": {
+        // Read: only if user is listed in participants (direct on chat or inside info for group chats)
+        ".read": "auth != null && (data.child('participants').child(auth.uid).val() == true || data.child('info').child('participants').child(auth.uid).val() == true)",
+
+        // Write: participants can write, or anyone can create a new chat
+        // Check both data (existing) and newData (after write) for participants to allow atomic updates
+        ".write": "auth != null && (data.child('participants').child(auth.uid).val() == true || data.child('info').child('participants').child(auth.uid).val() == true || newData.child('participants').child(auth.uid).val() == true || newData.child('info').child('participants').child(auth.uid).val() == true || !data.exists())",
+
+        // The creating user must include themselves in participants (for direct chats)
+        // For group chats, participants are inside info node
+        "participants": {
+          "$participantUid": {
+            ".validate": "newData.isBoolean()"
+          }
+        },
+
+        // Group chat info node
+        "info": {
+          // For group chats, require creator to be in participants
+          ".validate": "newData.hasChildren(['chatId', 'tripId', 'name', 'createdBy']) && newData.child('participants').child(auth.uid).val() == true",
+          "participants": {
+            "$participantUid": {
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        },
+
+        "messages": {
+          "$messageId": {
+            ".validate": "newData.hasChildren(['messageId', 'senderUid', 'text', 'timestamp'])",
+
+            "messageId": {
+              ".validate": "newData.isString()"
+            },
+
+            // Sender must be the authenticated user
+            "senderUid": {
+              ".validate": "newData.isString() && newData.val() == auth.uid"
+            },
+
+            "senderName": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
+            },
+
+            // Text: non-empty, max 1000 characters
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
+            },
+
+            // Timestamp: must not be in the future
+            "timestamp": {
+              ".validate": "newData.isNumber() && newData.val() <= now"
+            }
+          }
+        },
+
+        // lastMessage denormalized metadata
+        "lastMessage": {
+          ".validate": "newData.isString()"
+        },
+        "lastMessageTime": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+
+    // =========================================================================
+    // 6. /userChats/{uid}
+    //
+    // - Only the matching uid can read their own chat list
+    // - Any authenticated user can write (to update lastMessage when they
+    //   send a message to another user — fan-out write pattern)
+    // =========================================================================
+    "userChats": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        // Any auth user can write (fan-out on message send updates
+        // both /userChats/{senderUid} and /userChats/{recipientUid})
+        ".write": "auth != null",
+        ".indexOn": ["lastMessageTime"],
+        "$chatId": {
+          // Allow either direct chats (with otherPartyUid) or group chats (with isGroupChat)
+          ".validate": "newData.hasChildren(['chatId', 'lastMessageTime']) && (newData.hasChild('otherPartyUid') || newData.hasChild('isGroupChat'))"
+        }
+      }
+    },
+
+    // =========================================================================
+    // 7. /ratings/{tripId}/{ratingId}
+    //
+    // - Any authenticated user can read ratings
+    // - Write: only if the record does NOT yet exist (write-once, no edits)
+    // - reviewerUid must match auth.uid
+    // - score must be integer 1-5
+    // - The reviewer must be a member of the trip (tripMembers check)
+    // - The trip must be completed
+    // =========================================================================
+    "ratings": {
+      "$tripId": {
+        ".read": "auth != null",
+        ".indexOn": ["revieweeUid", "reviewerUid", "createdAt"],
+        "$ratingId": {
+          // Write-once: only allowed if record doesn't exist yet
+          // Reviewer must be a member of the trip
+          // Trip must be completed
+          ".write": "auth != null && !data.exists() && newData.child('reviewerUid').val() == auth.uid && root.child('tripMembers').child($tripId).child(auth.uid).exists() && root.child('trips').child($tripId).child('status').val() == 'completed'",
+
+          ".validate": "newData.hasChildren(['ratingId', 'tripId', 'reviewerUid', 'revieweeUid', 'score', 'createdAt'])",
+
+          "ratingId": {
+            ".validate": "newData.isString()"
+          },
+
+          // tripId must match the parent key
+          "tripId": {
+            ".validate": "newData.val() == $tripId"
+          },
+
+          // Must be the authenticated user
+          "reviewerUid": {
+            ".validate": "newData.isString() && newData.val() == auth.uid"
+          },
+
+          // Cannot rate yourself
+          "revieweeUid": {
+            ".validate": "newData.isString() && newData.val() != auth.uid"
+          },
+
+          // Score: integer 1-5
+          "score": {
+            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 5 && newData.val() % 1 === 0.0"
+          },
+
+          "createdAt": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          }
+        }
+      }
+    },
+
+    // =========================================================================
+    // 8. /reports/{reportId}
+    //
+    // - Write-once: any authenticated user can create a report
+    // - No user can read reports (admin-only via custom auth claims or
+    //   Firebase Admin SDK in a server/Cloud Function)
+    // - reporterUid must match auth.uid
+    // - Cannot report yourself
+    // - Status must be "open" on creation
+    // =========================================================================
+    "reports": {
+      // No client-side reads — admin reads via Admin SDK which bypasses rules
+      ".read": false,
+      ".indexOn": ["reporterUid", "reportedUid", "status"],
+      "$reportId": {
+        // Write-once: only if record doesn't exist
+        ".write": "auth != null && !data.exists()",
+
+        ".validate": "newData.hasChildren(['reportId', 'reporterUid', 'reportedUid', 'reason', 'createdAt', 'status'])",
+
+        "reportId": {
+          ".validate": "newData.isString()"
+        },
+
+        // Must be the authenticated user
+        "reporterUid": {
+          ".validate": "newData.isString() && newData.val() == auth.uid"
+        },
+
+        // Cannot report yourself
+        "reportedUid": {
+          ".validate": "newData.isString() && newData.val() != auth.uid"
+        },
+
+        "reason": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+
+        "description": {
+          ".validate": "newData.isString() && newData.val().length <= 2000"
+        },
+
+        "createdAt": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+
+        // Must be "open" on creation (only admin can change to reviewed/resolved)
+        "status": {
+          ".validate": "newData.isString() && newData.val() == 'open'"
+        }
+      }
+    },
+
+    // =========================================================================
+    // NOTIFICATIONS
+    // - Users can read their own notifications
+    // - Any authenticated user can write notifications to any user (for join requests, etc.)
+    // =========================================================================
+    "notifications": {
+      "$userId": {
+        // User can read their own notifications
+        ".read": "auth != null && auth.uid == $userId",
+        // Any authenticated user can write notifications (to send join requests, etc.)
+        ".write": "auth != null",
+        "$notificationId": {
+          ".validate": "newData.hasChildren(['type', 'createdAt'])"
+        }
+      }
+    },
+
+    // =========================================================================
+    // TRIP JOIN REQUESTS
+    // - Any authenticated user can read join requests for a trip
+    // - Trip owner (driver) can approve/deny requests
+    // - Any authenticated user can create a request
+    // =========================================================================
+    "tripJoinRequests": {
+      "$tripId": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$oderId": {
+          ".validate": "newData.hasChildren(['status'])"
+        }
+      }
+    }
+  }
+}

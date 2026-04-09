@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding page indicator: inactive dot -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/divider" />
+    <size
+        android:width="@dimen/onboarding_indicator_size"
+        android:height="@dimen/onboarding_indicator_size" />
+</shape>
+

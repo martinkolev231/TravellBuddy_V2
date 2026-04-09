@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Horizontal lines -->
+    <path
+        android:pathData="M3,6H7"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M13,6H21"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M3,12H9"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M15,12H21"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M3,18H5"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <path
+        android:pathData="M11,18H21"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:strokeLineCap="round"/>
+    <!-- Circles using path arcs -->
+    <path
+        android:pathData="M10,4A2,2 0,1 1,10,8A2,2 0,1 1,10,4Z"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:fillColor="#00000000"/>
+    <path
+        android:pathData="M12,10A2,2 0,1 1,12,14A2,2 0,1 1,12,10Z"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:fillColor="#00000000"/>
+    <path
+        android:pathData="M8,16A2,2 0,1 1,8,20A2,2 0,1 1,8,16Z"
+        android:strokeWidth="2"
+        android:strokeColor="#6B7280"
+        android:fillColor="#00000000"/>
+</vector>

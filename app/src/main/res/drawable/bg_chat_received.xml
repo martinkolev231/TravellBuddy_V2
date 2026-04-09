@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chat bubble: received — left-aligned, Surface color, 18dp corners except bottom-left 4dp -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/chat_bubble_received" />
+    <corners
+        android:topLeftRadius="@dimen/chat_bubble_corner"
+        android:topRightRadius="@dimen/chat_bubble_corner"
+        android:bottomLeftRadius="@dimen/chat_bubble_corner_tail"
+        android:bottomRightRadius="@dimen/chat_bubble_corner" />
+    <padding
+        android:left="@dimen/chat_bubble_padding_h"
+        android:top="@dimen/chat_bubble_padding_v"
+        android:right="@dimen/chat_bubble_padding_h"
+        android:bottom="@dimen/chat_bubble_padding_v" />
+</shape>

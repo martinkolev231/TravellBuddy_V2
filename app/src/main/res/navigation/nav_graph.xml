@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- ====================================================================
+         BOTTOM NAVIGATION TABS (4 top-level destinations)
+         ==================================================================== -->
+
+    <!-- Home Feed -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.travellbudy.app.fragments.HomeFeedFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home_feed">
+
+        <action
+            android:id="@+id/action_home_to_tripDetail"
+            app:destination="@id/tripDetailFragment" />
+
+        <action
+            android:id="@+id/action_home_to_createTrip"
+            app:destination="@id/createTripFragment" />
+    </fragment>
+
+    <!-- My Trips -->
+    <fragment
+        android:id="@+id/myTripsFragment"
+        android:name="com.travellbudy.app.fragments.MyTripsFragment"
+        android:label="@string/title_my_trips"
+        tools:layout="@layout/fragment_my_trips">
+
+        <action
+            android:id="@+id/action_myTrips_to_tripDetail"
+            app:destination="@id/tripDetailFragment" />
+
+        <action
+            android:id="@+id/action_myTrips_to_manageRequests"
+            app:destination="@id/manageRequestsFragment" />
+    </fragment>
+
+    <!-- Chat List -->
+    <fragment
+        android:id="@+id/chatListFragment"
+        android:name="com.travellbudy.app.fragments.ChatListFragment"
+        android:label="@string/title_messages"
+        tools:layout="@layout/fragment_chat_list">
+
+        <action
+            android:id="@+id/action_chatList_to_chat"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <!-- Profile -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.travellbudy.app.fragments.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile">
+
+        <action
+            android:id="@+id/action_profile_to_editProfile"
+            app:destination="@id/editProfileFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_ratings"
+            app:destination="@id/ratingsFragment" />
+
+        <action
+            android:id="@+id/action_profile_to_settings"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <!-- ====================================================================
+         SECONDARY DESTINATIONS (navigated from tabs)
+         ==================================================================== -->
+
+    <!-- Trip Detail -->
+    <fragment
+        android:id="@+id/tripDetailFragment"
+        android:name="com.travellbudy.app.ui.trip.TripDetailFragment"
+        android:label="@string/title_trip_details"
+        tools:layout="@layout/activity_trip_details">
+
+        <argument
+            android:name="tripId"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_tripDetail_to_chat"
+            app:destination="@id/chatFragment" />
+
+        <action
+            android:id="@+id/action_tripDetail_to_manageRequests"
+            app:destination="@id/manageRequestsFragment" />
+
+        <action
+            android:id="@+id/action_tripDetail_to_rateUser"
+            app:destination="@id/rateUserDialog" />
+
+        <!-- Deep link: travellbuddy://trip/{tripId} -->
+        <deepLink
+            android:id="@+id/deeplink_trip"
+            app:uri="travellbuddy://trip/{tripId}" />
+    </fragment>
+
+    <!-- Create Trip -->
+    <fragment
+        android:id="@+id/createTripFragment"
+        android:name="com.travellbudy.app.ui.trip.CreateTripFragment"
+        android:label="@string/title_create_trip"
+        tools:layout="@layout/fragment_create_trip">
+
+        <action
+            android:id="@+id/action_createTrip_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Manage Requests -->
+    <fragment
+        android:id="@+id/manageRequestsFragment"
+        android:name="com.travellbudy.app.ui.requests.ManageRequestsFragment"
+        android:label="@string/title_manage_requests"
+        tools:layout="@layout/activity_manage_requests">
+
+        <argument
+            android:name="tripId"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Chat Thread -->
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.travellbudy.app.ui.chat.ChatFragment"
+        android:label="@string/title_chat"
+        tools:layout="@layout/activity_chat">
+
+        <argument
+            android:name="tripId"
+            app:argType="string" />
+
+        <argument
+            android:name="tripRoute"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <!-- Edit Profile -->
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.travellbudy.app.ui.profile.EditProfileFragment"
+        android:label="@string/label_edit_profile"
+        tools:layout="@layout/activity_edit_profile">
+
+        <action
+            android:id="@+id/action_editProfile_to_profile"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Ratings -->
+    <fragment
+        android:id="@+id/ratingsFragment"
+        android:name="com.travellbudy.app.ui.ratings.RatingsFragment"
+        android:label="@string/title_ratings"
+        tools:layout="@layout/activity_ratings">
+
+        <argument
+            android:name="userId"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Settings -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.travellbudy.app.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/activity_settings" />
+
+    <!-- ====================================================================
+         DIALOG DESTINATIONS
+         ==================================================================== -->
+
+    <!-- Rate User Dialog -->
+    <dialog
+        android:id="@+id/rateUserDialog"
+        android:name="com.travellbudy.app.dialogs.RateUserDialogFragment"
+        android:label="@string/title_rate_user">
+
+        <argument
+            android:name="recipientUid"
+            app:argType="string" />
+
+        <argument
+            android:name="recipientName"
+            app:argType="string" />
+
+        <argument
+            android:name="tripId"
+            app:argType="string" />
+    </dialog>
+
+</navigation>
+

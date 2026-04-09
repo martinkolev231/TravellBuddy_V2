@@ -1,0 +1,282 @@
+<resources>
+
+    <!-- ════════════════════════════════════════════════
+         Base Theme — Adventure Share Cyan
+         ════════════════════════════════════════════════ -->
+    <style name="Base.Theme.TravellBuddy" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Color system -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorPrimaryVariant">@color/primary_variant</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorOnBackground">@color/on_background</item>
+        <item name="colorOutline">@color/outline</item>
+
+        <!-- Status bar — light bg -->
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+
+        <!-- Typography -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.TravellBuddy.Display.Large</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.TravellBuddy.Display.Medium</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.TravellBuddy.Headline.Large</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.TravellBuddy.Headline.Medium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.TravellBuddy.Headline.Small</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.TravellBuddy.Title.Large</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.TravellBuddy.Title.Medium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.TravellBuddy.Title.Small</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.TravellBuddy.Body.Large</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.TravellBuddy.Body.Medium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.TravellBuddy.Body.Small</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.TravellBuddy.Label.Large</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.TravellBuddy.Label.Medium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.TravellBuddy.Label.Small</item>
+
+        <!-- Default font family -->
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+
+        <!-- Component styles -->
+        <item name="materialButtonStyle">@style/Widget.TravellBuddy.Button</item>
+        <item name="materialButtonOutlinedStyle">@style/Widget.TravellBuddy.Button.Outlined</item>
+        <item name="textInputStyle">@style/Widget.TravellBuddy.TextInputLayout</item>
+        <item name="chipStyle">@style/Widget.TravellBuddy.Chip</item>
+        <item name="materialCardViewStyle">@style/Widget.TravellBuddy.CardView</item>
+        <item name="bottomNavigationStyle">@style/Widget.TravellBuddy.BottomNavigation</item>
+        <item name="floatingActionButtonStyle">@style/Widget.TravellBuddy.FAB</item>
+    </style>
+
+    <style name="Theme.TravellBuddy" parent="Base.Theme.TravellBuddy" />
+
+    <!-- ── Transparent Dialog ── -->
+    <style name="TransparentDialog" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!-- ── Splash theme — uses SplashScreen compat library ── -->
+    <style name="Theme.TravellBuddy.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.TravellBuddy</item>
+        <item name="android:statusBarColor">@color/splash_background</item>
+        <item name="android:navigationBarColor">@color/splash_background</item>
+    </style>
+
+    <!-- ── Welcome theme — fullscreen with dark system bars ── -->
+    <style name="Theme.TravellBuddy.Welcome" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
+
+    <!-- ════════════════════════════════════════════════
+         Component Styles
+         ════════════════════════════════════════════════ -->
+
+    <!-- ── Primary Button (cyan gradient) ── -->
+    <style name="Widget.TravellBuddy.Button" parent="Widget.Material3.Button">
+        <item name="android:background">@drawable/bg_primary_button</item>
+        <item name="android:textAppearance">@style/TextAppearance.TravellBuddy.Button</item>
+        <item name="android:textColor">@color/on_primary</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="android:paddingStart">@dimen/spacing_xl</item>
+        <item name="android:paddingEnd">@dimen/spacing_xl</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:elevation">@dimen/elevation_md</item>
+        <item name="cornerRadius">@dimen/radius_pill</item>
+        <item name="rippleColor">@color/ripple_light</item>
+    </style>
+
+    <!-- ── Outlined Button ── -->
+    <style name="Widget.TravellBuddy.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textAppearance">@style/TextAppearance.TravellBuddy.Button</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="strokeColor">@color/primary</item>
+        <item name="strokeWidth">@dimen/input_stroke_width</item>
+        <item name="cornerRadius">@dimen/radius_pill</item>
+        <item name="rippleColor">@color/ripple_primary</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- ── Text Button ── -->
+    <style name="Widget.TravellBuddy.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textAppearance">@style/TextAppearance.TravellBuddy.Button.Small</item>
+        <item name="android:textColor">@color/secondary</item>
+        <item name="rippleColor">@color/ripple_light</item>
+    </style>
+
+    <!-- ── TextInputLayout — rounded white cards ── -->
+    <style name="Widget.TravellBuddy.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/radius_lg</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_lg</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_lg</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_lg</item>
+        <item name="boxStrokeColor">@color/input_stroke</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">@dimen/input_stroke_width_focused</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="hintTextAppearance">@style/TextAppearance.TravellBuddy.Label.Medium</item>
+        <item name="errorTextAppearance">@style/TextAppearance.TravellBuddy.Label.Small</item>
+    </style>
+
+    <!-- ── Material Chip — pill shape ── -->
+    <style name="Widget.TravellBuddy.Chip" parent="Widget.Material3.Chip.Assist">
+        <item name="chipCornerRadius">@dimen/radius_pill</item>
+        <item name="chipMinHeight">@dimen/chip_height</item>
+        <item name="android:textAppearance">@style/TextAppearance.TravellBuddy.Chip</item>
+    </style>
+
+    <!-- ── CardView — borderless, heavy radius, soft shadow ── -->
+    <style name="Widget.TravellBuddy.CardView" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/radius_xl</item>
+        <item name="cardElevation">@dimen/elevation_sm</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- ── Bottom Navigation — glassmorphism floating bar ── -->
+    <style name="Widget.TravellBuddy.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bottom_nav_bg</item>
+        <item name="itemIconTint">@color/nav_bottom_selector</item>
+        <item name="itemTextColor">@color/nav_bottom_selector</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.TravellBuddy.BottomNavigation.ActiveIndicator</item>
+        <item name="elevation">@dimen/elevation_lg</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemIconSize">24dp</item>
+        <item name="itemPaddingTop">8dp</item>
+        <item name="itemPaddingBottom">8dp</item>
+    </style>
+
+    <style name="Widget.TravellBuddy.BottomNavigation.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#E8F0FE</item>
+        <item name="android:width">56dp</item>
+        <item name="android:height">32dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TravellBuddy.NavIndicator</item>
+    </style>
+
+    <style name="ShapeAppearance.TravellBuddy.NavIndicator" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">100dp</item>
+    </style>
+
+    <!-- ── FAB — Cyan circle ── -->
+    <style name="Widget.TravellBuddy.FAB" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="tint">@color/on_secondary</item>
+        <item name="elevation">@dimen/fab_elevation</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TravellBuddy.FAB</item>
+    </style>
+
+    <style name="ShapeAppearance.TravellBuddy.FAB" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Circle shape for avatars -->
+    <style name="ShapeAppearance.TravellBuddy.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Rounded button shape -->
+    <style name="RoundedButton" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- Card image: only top corners rounded to match card radius (18dp) -->
+    <style name="ShapeAppearance.TravellBuddy.CardImageTop" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">18dp</item>
+        <item name="cornerSizeTopRight">18dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- ── Toolbar — light background ── -->
+    <style name="Widget.TravellBuddy.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/background</item>
+        <item name="titleTextAppearance">@style/TextAppearance.TravellBuddy.Headline.Medium</item>
+        <item name="elevation">0dp</item>
+    </style>
+
+    <!-- ── Bottom Sheet ── -->
+    <style name="Widget.TravellBuddy.BottomSheet" parent="Widget.Material3.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TravellBuddy.BottomSheet</item>
+        <item name="backgroundTint">@color/surface</item>
+    </style>
+
+    <style name="ShapeAppearance.TravellBuddy.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/bottom_sheet_corner_radius</item>
+        <item name="cornerSizeTopRight">@dimen/bottom_sheet_corner_radius</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- ── Status chips ── -->
+    <style name="Widget.TravellBuddy.Chip.Status.Pending" parent="Widget.TravellBuddy.Chip">
+        <item name="chipBackgroundColor">@color/status_pending_bg</item>
+        <item name="android:textColor">@color/status_pending_text</item>
+    </style>
+
+    <style name="Widget.TravellBuddy.Chip.Status.Approved" parent="Widget.TravellBuddy.Chip">
+        <item name="chipBackgroundColor">@color/status_approved_bg</item>
+        <item name="android:textColor">@color/status_approved_text</item>
+    </style>
+
+    <style name="Widget.TravellBuddy.Chip.Status.Denied" parent="Widget.TravellBuddy.Chip">
+        <item name="chipBackgroundColor">@color/status_denied_bg</item>
+        <item name="android:textColor">@color/status_denied_text</item>
+    </style>
+
+    <style name="Widget.TravellBuddy.Chip.Status.Cancelled" parent="Widget.TravellBuddy.Chip">
+        <item name="chipBackgroundColor">@color/status_cancelled_bg</item>
+        <item name="android:textColor">@color/status_cancelled_text</item>
+    </style>
+
+    <!-- ── Dialog ── -->
+    <style name="Widget.TravellBuddy.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TravellBuddy.Dialog</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.TravellBuddy.Headline.Small</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.TravellBuddy.Body.Medium</item>
+    </style>
+
+    <style name="ShapeAppearance.TravellBuddy.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_xxl</item>
+    </style>
+
+    <!-- ── Divider ── -->
+    <style name="Widget.TravellBuddy.Divider" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/divider_thickness</item>
+        <item name="android:background">@color/divider</item>
+    </style>
+
+    <!-- Bottom Navigation label text -->
+    <style name="TextAppearance.TravellBuddy.NavLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+</resources>

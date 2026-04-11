@@ -24,7 +24,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.ChatActivity;
 import com.travellbudy.app.R;
@@ -43,12 +42,18 @@ import java.util.Locale;
 public class ChatListFragment extends Fragment {
 
     private static final String PREFS_CHAT_READ_STATUS = "chat_read_status";
-    
+
     private FragmentChatListBinding binding;
     private ChatListAdapter adapter;
     private final List<ChatItem> chatItems = new ArrayList<>();
     private final List<ChatItem> filteredChatItems = new ArrayList<>();
     private String currentUserId;
+    
+    // Firebase listener tracking
+    private com.google.firebase.database.DatabaseReference userChatsRef;
+    private ValueEventListener userChatsListener;
+    private com.google.firebase.database.DatabaseReference tripsRef;
+    private ValueEventListener tripsListener;
 
     @Nullable
     @Override
@@ -67,7 +72,7 @@ public class ChatListFragment extends Fragment {
         }
 
         setupWindowInsets();
-        
+
         adapter = new ChatListAdapter();
         binding.rvChats.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvChats.setAdapter(adapter);
@@ -88,10 +93,7 @@ public class ChatListFragment extends Fragment {
 
         loadChatTrips();
     }
-    
-    /**
-     * Set up window insets for proper safe area handling on notched devices
-     */
+
     private void setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.headerSection, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
@@ -99,13 +101,29 @@ public class ChatListFragment extends Fragment {
             return windowInsets;
         });
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
-        // Refresh the chat list when returning from a chat to show updated messages
-        if (adapter != null && currentUserId != null) {
+        // Check if user is still logged in
+        if (FirebaseAuth.getInstance().getCurrentUser() != null && adapter != null && currentUserId != null) {
             loadChatTrips();
+        }
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Remove listeners when fragment is paused
+        removeListeners();
+    }
+    
+    private void removeListeners() {
+        if (userChatsRef != null && userChatsListener != null) {
+            userChatsRef.removeEventListener(userChatsListener);
+        }
+        if (tripsRef != null && tripsListener != null) {
+            tripsRef.removeEventListener(tripsListener);
         }
     }
 
@@ -128,6 +146,9 @@ public class ChatListFragment extends Fragment {
     }
 
     private void updateEmptyState() {
+        // Safety check - don't update UI if fragment is detached
+        if (!isAdded() || binding == null) return;
+        
         boolean isEmpty = filteredChatItems.isEmpty();
         binding.emptyState.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         binding.rvChats.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
@@ -135,133 +156,82 @@ public class ChatListFragment extends Fragment {
 
     private void loadChatTrips() {
         if (currentUserId == null) return;
+        
+        // Remove existing listener before adding new one
+        if (userChatsRef != null && userChatsListener != null) {
+            userChatsRef.removeEventListener(userChatsListener);
+        }
 
-        // Load chats from userChats node which is populated when creating trips and approving requests
-        FirebaseDatabase.getInstance().getReference("userChats")
-                .child(currentUserId)
-                .addValueEventListener(new ValueEventListener() {
+        userChatsRef = FirebaseDatabase.getInstance().getReference("userChats")
+                .child(currentUserId);
+        userChatsListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        // Safety check - don't update if fragment is detached
+                        if (!isAdded() || binding == null) return;
+                        
                         chatItems.clear();
                         filteredChatItems.clear();
-                        
+
                         if (!snapshot.exists() || !snapshot.hasChildren()) {
-                            // Fallback: load from trips directly for backwards compatibility
                             loadChatsFromTrips();
                             return;
                         }
-                        
-                        // First collect all chat data from userChats snapshot
-                        List<ChatSnapshotData> chatDataList = new ArrayList<>();
+
+                        int totalChats = (int) snapshot.getChildrenCount();
+                        int[] loadedCount = {0};
+
                         for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
                             String tripId = chatSnapshot.child("tripId").getValue(String.class);
                             if (tripId == null) {
                                 tripId = chatSnapshot.getKey();
                             }
-                            
-                            if (tripId == null) continue;
-                            
-                            ChatSnapshotData data = new ChatSnapshotData();
-                            data.tripId = tripId;
-                            data.chatName = chatSnapshot.child("otherPartyName").getValue(String.class);
-                            data.lastMessage = chatSnapshot.child("lastMessage").getValue(String.class);
-                            data.lastMessageTime = chatSnapshot.child("lastMessageTime").getValue(Long.class);
-                            data.lastMessageSenderId = chatSnapshot.child("lastMessageSenderId").getValue(String.class);
-                            data.isDirectMessage = Boolean.TRUE.equals(chatSnapshot.child("isDirectMessage").getValue(Boolean.class));
-                            // Read otherPartyUid (the correct field name used in ChatActivity)
-                            data.otherUserId = chatSnapshot.child("otherPartyUid").getValue(String.class);
-                            chatDataList.add(data);
-                        }
-                        
-                        // Now load trip details for each chat
-                        final int totalChats = chatDataList.size();
-                        final int[] loadedCount = {0};
-                        
-                        // If no chats to load, just update empty state
-                        if (totalChats == 0) {
-                            updateEmptyState();
-                            return;
-                        }
-                        
-                        for (ChatSnapshotData chatData : chatDataList) {
-                            // Handle direct messages differently - they don't have a trip
-                            if (chatData.isDirectMessage || chatData.tripId.startsWith("dm_")) {
-                                loadDirectMessageChat(chatData, loadedCount, totalChats);
+                            if (tripId == null) {
+                                loadedCount[0]++;
                                 continue;
                             }
-                            
-                            // For group chats, load trip details
-                            FirebaseDatabase.getInstance().getReference("trips")
-                                    .child(chatData.tripId)
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot tripSnapshot) {
-                                            Trip trip = tripSnapshot.getValue(Trip.class);
-                                            if (trip != null) {
-                                                ChatItem item = new ChatItem();
-                                                item.trip = trip;
-                                                item.tripId = chatData.tripId;
-                                                item.isOrganizer = currentUserId.equals(trip.driverUid);
-                                                
-                                                // Use chat name or generate from trip - always show "Group: " prefix
-                                                if (chatData.chatName != null && !chatData.chatName.isEmpty()) {
-                                                    item.displayName = "Group: " + chatData.chatName;
-                                                } else {
-                                                    item.displayName = "Group: " + generateTripTitle(trip);
-                                                }
-                                                
-                                                item.tripType = generateTripTypeLabel(trip);
-                                                item.avatarUrl = trip.imageUrl; // Use trip cover image for all participants
-                                                item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty() 
-                                                    ? chatData.lastMessage : "No messages yet";
-                                                item.lastMessageTime = chatData.lastMessageTime != null ? chatData.lastMessageTime : trip.createdAt;
-                                                item.lastMessageSenderId = chatData.lastMessageSenderId;
-                                                item.unreadCount = 0;
-                                                item.isOnline = false;
-                                                
-                                                // Always load from actual messages to ensure correct unread status
-                                                loadActualMessageSenderAndUpdate(item, loadedCount, totalChats);
-                                            } else {
-                                                loadedCount[0]++;
-                                                // Update UI when all chats are loaded
-                                                if (loadedCount[0] >= totalChats) {
-                                                    filteredChatItems.clear();
-                                                    filteredChatItems.addAll(chatItems);
-                                                    adapter.notifyDataSetChanged();
-                                                    updateEmptyState();
-                                                }
-                                            }
-                                        }
-                                        
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            loadedCount[0]++;
-                                            if (loadedCount[0] >= totalChats) {
-                                                filteredChatItems.clear();
-                                                filteredChatItems.addAll(chatItems);
-                                                adapter.notifyDataSetChanged();
-                                                updateEmptyState();
-                                            }
-                                        }
-                                    });
+
+                            String chatName = chatSnapshot.child("chatName").getValue(String.class);
+                            String lastMessage = chatSnapshot.child("lastMessage").getValue(String.class);
+                            Long lastMessageTime = chatSnapshot.child("lastMessageTime").getValue(Long.class);
+                            String lastMessageSenderId = chatSnapshot.child("lastMessageSenderId").getValue(String.class);
+                            boolean isDirectMessage = Boolean.TRUE.equals(chatSnapshot.child("isDirectMessage").getValue(Boolean.class));
+                            String otherUserId = chatSnapshot.child("otherPartyUid").getValue(String.class);
+
+                            ChatSnapshotData data = new ChatSnapshotData();
+                            data.tripId = tripId;
+                            data.chatName = chatName;
+                            data.lastMessage = lastMessage;
+                            data.lastMessageTime = lastMessageTime;
+                            data.lastMessageSenderId = lastMessageSenderId;
+                            data.isDirectMessage = isDirectMessage;
+                            data.otherUserId = otherUserId;
+
+                            if (isDirectMessage) {
+                                loadDirectMessageChat(data, loadedCount, totalChats);
+                            } else {
+                                loadGroupChat(data, loadedCount, totalChats);
+                            }
+                        }
+
+                        if (totalChats == 0) {
+                            updateEmptyState();
                         }
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
-                });
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        loadChatsFromTrips();
+                    }
+                };
+        userChatsRef.addValueEventListener(userChatsListener);
     }
-    
-    /**
-     * Load a direct message chat (not associated with a trip)
-     */
+
     private void loadDirectMessageChat(ChatSnapshotData chatData, int[] loadedCount, int totalChats) {
         ChatItem item = new ChatItem();
         item.tripId = chatData.tripId;
         item.isDirectMessage = true;
-        item.isOrganizer = false;
-        
-        // Get the other user's ID - either from stored data or extract from dm_uid1_uid2 format
+
         String otherUserId = chatData.otherUserId;
         if (otherUserId == null && chatData.tripId.startsWith("dm_")) {
             String[] parts = chatData.tripId.split("_");
@@ -270,23 +240,21 @@ public class ChatListFragment extends Fragment {
             }
         }
         item.otherUserId = otherUserId;
-        
-        // Display name is the other person's name (no "Group:" prefix)
+
         if (chatData.chatName != null && !chatData.chatName.isEmpty()) {
             item.displayName = chatData.chatName;
         } else {
             item.displayName = "Direct Message";
         }
-        
+
         item.tripType = "DIRECT MESSAGE";
-        item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty() 
+        item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty()
             ? chatData.lastMessage : "No messages yet";
         item.lastMessageTime = chatData.lastMessageTime != null ? chatData.lastMessageTime : System.currentTimeMillis();
         item.lastMessageSenderId = chatData.lastMessageSenderId;
         item.unreadCount = 0;
         item.isOnline = false;
-        
-        // Load the other user's profile photo for the avatar
+
         if (otherUserId != null) {
             final String finalOtherUserId = otherUserId;
             FirebaseDatabase.getInstance().getReference("users").child(otherUserId)
@@ -295,26 +263,23 @@ public class ChatListFragment extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             String photoUrl = snapshot.child("photoUrl").getValue(String.class);
                             String displayName = snapshot.child("displayName").getValue(String.class);
-                            
+
                             if (photoUrl != null && !photoUrl.isEmpty()) {
                                 item.avatarUrl = photoUrl;
                             }
-                            
-                            // Update display name if we got it from the user profile
+
                             if (displayName != null && !displayName.isEmpty()) {
                                 item.displayName = displayName;
                             }
-                            
-                            // Check for unread messages
+
                             item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
-                            
                             addChatItemIfNotExists(item);
                             loadedCount[0]++;
                             if (loadedCount[0] >= totalChats) {
                                 sortAndUpdateChatList();
                             }
                         }
-                        
+
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
                             item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
@@ -334,119 +299,65 @@ public class ChatListFragment extends Fragment {
             }
         }
     }
-    
-    /**
-     * Sort chat items by last message time and update the UI
-     */
+
+    private void loadGroupChat(ChatSnapshotData chatData, int[] loadedCount, int totalChats) {
+        FirebaseDatabase.getInstance().getReference("trips").child(chatData.tripId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Trip trip = snapshot.getValue(Trip.class);
+                        if (trip != null) {
+                            ChatItem item = new ChatItem();
+                            item.trip = trip;
+                            item.tripId = chatData.tripId;
+                            item.isOrganizer = currentUserId.equals(trip.driverUid);
+                            item.isDirectMessage = false;
+
+                            if (chatData.chatName != null && !chatData.chatName.isEmpty()) {
+                                item.displayName = "Group: " + chatData.chatName;
+                            } else {
+                                item.displayName = "Group: " + generateTripTitle(trip);
+                            }
+
+                            item.tripType = generateTripTypeLabel(trip);
+                            item.avatarUrl = trip.imageUrl;
+                            item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty()
+                                ? chatData.lastMessage : "No messages yet";
+                            item.lastMessageTime = chatData.lastMessageTime != null ? chatData.lastMessageTime : trip.createdAt;
+                            item.lastMessageSenderId = chatData.lastMessageSenderId;
+                            item.unreadCount = 0;
+                            item.isOnline = false;
+
+                            loadActualMessageSenderAndUpdate(item, loadedCount, totalChats);
+                        } else {
+                            loadedCount[0]++;
+                            if (loadedCount[0] >= totalChats) {
+                                sortAndUpdateChatList();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        loadedCount[0]++;
+                        if (loadedCount[0] >= totalChats) {
+                            sortAndUpdateChatList();
+                        }
+                    }
+                });
+    }
+
     private void sortAndUpdateChatList() {
-        // Sort by last message time (newest first)
+        // Safety check - don't update if fragment is detached
+        if (!isAdded() || binding == null || adapter == null) return;
+        
         chatItems.sort((a, b) -> Long.compare(b.lastMessageTime, a.lastMessageTime));
         filteredChatItems.clear();
         filteredChatItems.addAll(chatItems);
         adapter.notifyDataSetChanged();
         updateEmptyState();
     }
-    
-    private void loadLatestMessage(ChatItem item) {
-        // Load all messages and find the latest one manually
-        // This is more reliable than orderByChild which requires an index
-        FirebaseDatabase.getInstance()
-                .getReference("chats")
-                .child(item.tripId)
-                .child("messages")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists() && snapshot.hasChildren()) {
-                    String latestText = null;
-                    String latestSenderName = null;
-                    String latestSenderId = null;
-                    long latestTimestamp = 0;
-                    
-                    // Find the message with the highest timestamp
-                    for (DataSnapshot msgSnap : snapshot.getChildren()) {
-                        Long timestamp = msgSnap.child("timestamp").getValue(Long.class);
-                        if (timestamp != null && timestamp > latestTimestamp) {
-                            latestTimestamp = timestamp;
-                            latestText = msgSnap.child("text").getValue(String.class);
-                            latestSenderName = msgSnap.child("senderName").getValue(String.class);
-                            latestSenderId = msgSnap.child("senderUid").getValue(String.class);
-                        }
-                    }
-                    
-                    if (latestText != null) {
-                        // Truncate long messages for preview
-                        String truncatedText = latestText.length() > 100 
-                            ? latestText.substring(0, 100) + "..." 
-                            : latestText;
-                        
-                        if (latestSenderName != null && !latestSenderName.isEmpty()) {
-                            item.lastMessage = latestSenderName + ": " + truncatedText;
-                        } else {
-                            item.lastMessage = truncatedText;
-                        }
-                        item.lastMessageTime = latestTimestamp;
-                        item.lastMessageSenderId = latestSenderId;
-                    }
-                }
-                
-                // Check if there are unread messages (only if sent by someone else)
-                item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
-                
-                // Add to list and update UI
-                chatItems.add(item);
-                filteredChatItems.clear();
-                filteredChatItems.addAll(chatItems);
-                adapter.notifyDataSetChanged();
-                updateEmptyState();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Still add the item even if message load fails
-                chatItems.add(item);
-                filteredChatItems.clear();
-                filteredChatItems.addAll(chatItems);
-                adapter.notifyDataSetChanged();
-                updateEmptyState();
-            }
-        });
-    }
-    
-    /**
-     * Check if a chat has unread messages by comparing last message time with last read time
-     * Only show as unread if the message was sent by someone else
-     */
-    private boolean hasUnreadMessages(String tripId, long lastMessageTime, String lastMessageSenderId) {
-        if (getContext() == null) return false;
-        
-        // If there's no last message time, there are no messages
-        if (lastMessageTime <= 0) {
-            return false;
-        }
-        
-        // If there's no last message sender, there are no messages yet, so no unread messages
-        if (lastMessageSenderId == null || lastMessageSenderId.trim().isEmpty()) {
-            return false;
-        }
-        
-        // If the current user sent the last message, don't show as unread
-        if (lastMessageSenderId.trim().equals(currentUserId)) {
-            return false;
-        }
-        
-        // Use user-specific key to handle multiple accounts on same device
-        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_CHAT_READ_STATUS, Context.MODE_PRIVATE);
-        String userSpecificKey = currentUserId + "_" + tripId;
-        long lastReadTime = prefs.getLong(userSpecificKey, 0);
-        
-        // If the last message is newer than when we last read, there are unread messages
-        return lastMessageTime > lastReadTime;
-    }
-    
-    /**
-     * Load the actual message sender from chat messages when userChats doesn't have it
-     */
     private void loadActualMessageSenderAndUpdate(ChatItem item, int[] loadedCount, int totalChats) {
         FirebaseDatabase.getInstance()
                 .getReference("chats")
@@ -460,7 +371,7 @@ public class ChatListFragment extends Fragment {
                             String latestSenderName = null;
                             String latestSenderId = null;
                             long latestTimestamp = 0;
-                            
+
                             for (DataSnapshot msgSnap : snapshot.getChildren()) {
                                 Long timestamp = msgSnap.child("timestamp").getValue(Long.class);
                                 if (timestamp != null && timestamp > latestTimestamp) {
@@ -470,18 +381,17 @@ public class ChatListFragment extends Fragment {
                                     latestSenderId = msgSnap.child("senderUid").getValue(String.class);
                                 }
                             }
-                            
+
                             if (latestSenderId != null) {
                                 item.lastMessageSenderId = latestSenderId;
                                 item.lastMessageTime = latestTimestamp;
                             }
-                            
-                            // Also update the lastMessage text from actual messages
+
                             if (latestText != null && !latestText.isEmpty()) {
-                                String truncatedText = latestText.length() > 100 
-                                    ? latestText.substring(0, 100) + "..." 
+                                String truncatedText = latestText.length() > 100
+                                    ? latestText.substring(0, 100) + "..."
                                     : latestText;
-                                
+
                                 if (latestSenderName != null && !latestSenderName.isEmpty()) {
                                     item.lastMessage = latestSenderName + ": " + truncatedText;
                                 } else {
@@ -489,41 +399,42 @@ public class ChatListFragment extends Fragment {
                                 }
                             }
                         }
-                        
-                        // Now check for unread messages with the correct sender ID
+
                         item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
-                        
                         addChatItemIfNotExists(item);
-                        
+
                         loadedCount[0]++;
                         if (loadedCount[0] >= totalChats) {
-                            filteredChatItems.clear();
-                            filteredChatItems.addAll(chatItems);
-                            adapter.notifyDataSetChanged();
-                            updateEmptyState();
+                            sortAndUpdateChatList();
                         }
                     }
-                    
+
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        // Still add the item even if message load fails
                         item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
                         addChatItemIfNotExists(item);
-                        
+
                         loadedCount[0]++;
                         if (loadedCount[0] >= totalChats) {
-                            filteredChatItems.clear();
-                            filteredChatItems.addAll(chatItems);
-                            adapter.notifyDataSetChanged();
-                            updateEmptyState();
+                            sortAndUpdateChatList();
                         }
                     }
                 });
     }
-    
-    /**
-     * Add a chat item to the list if it doesn't already exist
-     */
+
+    private boolean hasUnreadMessages(String tripId, long lastMessageTime, String lastMessageSenderId) {
+        if (getContext() == null) return false;
+        if (lastMessageTime <= 0) return false;
+        if (lastMessageSenderId == null || lastMessageSenderId.trim().isEmpty()) return false;
+        if (lastMessageSenderId.trim().equals(currentUserId)) return false;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_CHAT_READ_STATUS, Context.MODE_PRIVATE);
+        String userSpecificKey = currentUserId + "_" + tripId;
+        long lastReadTime = prefs.getLong(userSpecificKey, 0);
+
+        return lastMessageTime > lastReadTime;
+    }
+
     private void addChatItemIfNotExists(ChatItem item) {
         boolean alreadyExists = false;
         for (ChatItem existing : chatItems) {
@@ -536,27 +447,25 @@ public class ChatListFragment extends Fragment {
             chatItems.add(item);
         }
     }
-    
-    /**
-     * Mark a chat as read by storing the current timestamp
-     * Uses user-specific key to handle multiple accounts on same device
-     */
+
     public static void markChatAsRead(Context context, String tripId) {
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null 
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null
             ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
         if (currentUserId == null) return;
-        
+
         SharedPreferences prefs = context.getSharedPreferences(PREFS_CHAT_READ_STATUS, Context.MODE_PRIVATE);
         String userSpecificKey = currentUserId + "_" + tripId;
         prefs.edit().putLong(userSpecificKey, System.currentTimeMillis()).apply();
     }
-    
-    /**
-     * Fallback method to load chats from trips for backwards compatibility
-     */
+
     private void loadChatsFromTrips() {
-        FirebaseDatabase.getInstance().getReference("trips")
-                .addValueEventListener(new ValueEventListener() {
+        // Remove existing listener before adding new one
+        if (tripsRef != null && tripsListener != null) {
+            tripsRef.removeEventListener(tripsListener);
+        }
+        
+        tripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        tripsListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         chatItems.clear();
@@ -564,13 +473,11 @@ public class ChatListFragment extends Fragment {
                             Trip trip = child.getValue(Trip.class);
                             if (trip == null) continue;
 
-                            // Check if user is driver
                             if (currentUserId.equals(trip.driverUid)) {
                                 loadChatItemForTrip(trip, true);
                                 continue;
                             }
 
-                            // Check if user is approved rider
                             FirebaseDatabase.getInstance().getReference("tripRequests")
                                     .child(trip.tripId)
                                     .orderByChild("riderUid")
@@ -595,111 +502,87 @@ public class ChatListFragment extends Fragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {}
-                });
+                };
+        tripsRef.addValueEventListener(tripsListener);
     }
 
     private void loadChatItemForTrip(Trip trip, boolean isOrganizer) {
-        // Load all messages for this trip and find the latest one
         FirebaseDatabase.getInstance()
                 .getReference("chats")
                 .child(trip.tripId)
                 .child("messages")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ChatItem item = new ChatItem();
-                item.trip = trip;
-                item.tripId = trip.tripId;
-                item.isOrganizer = isOrganizer;
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ChatItem item = new ChatItem();
+                        item.trip = trip;
+                        item.tripId = trip.tripId;
+                        item.isOrganizer = isOrganizer;
 
-                // Set display name - always show "Group: " prefix for group chats
-                item.displayName = "Group: " + generateTripTitle(trip);
-
-                // Set trip type label
-                item.tripType = generateTripTypeLabel(trip);
-
-                // Set avatar URL - use trip cover image for all participants
-                item.avatarUrl = trip.imageUrl;
-
-                // Find the latest message
-                if (snapshot.exists() && snapshot.hasChildren()) {
-                    String latestText = null;
-                    String latestSenderName = null;
-                    String latestSenderId = null;
-                    long latestTimestamp = 0;
-                    
-                    for (DataSnapshot msgSnap : snapshot.getChildren()) {
-                        Long timestamp = msgSnap.child("timestamp").getValue(Long.class);
-                        if (timestamp != null && timestamp > latestTimestamp) {
-                            latestTimestamp = timestamp;
-                            latestText = msgSnap.child("text").getValue(String.class);
-                            latestSenderName = msgSnap.child("senderName").getValue(String.class);
-                            latestSenderId = msgSnap.child("senderUid").getValue(String.class);
-                        }
-                    }
-                    
-                    if (latestText != null) {
-                        String truncatedText = latestText.length() > 100 
-                            ? latestText.substring(0, 100) + "..." 
-                            : latestText;
-                        
-                        if (latestSenderName != null && !latestSenderName.isEmpty()) {
-                            item.lastMessage = latestSenderName + ": " + truncatedText;
+                        if (isOrganizer) {
+                            item.displayName = "Group: " + generateTripTitle(trip);
                         } else {
-                            item.lastMessage = truncatedText;
+                            item.displayName = trip.driverName != null ? trip.driverName : "Unknown";
                         }
-                        item.lastMessageTime = latestTimestamp;
-                        item.lastMessageSenderId = latestSenderId;
-                    } else {
-                        item.lastMessage = "No messages yet";
-                        item.lastMessageTime = trip.createdAt;
-                        item.lastMessageSenderId = null;
+
+                        item.tripType = generateTripTypeLabel(trip);
+                        item.avatarUrl = isOrganizer ? trip.imageUrl : trip.driverPhotoUrl;
+
+                        if (snapshot.exists() && snapshot.hasChildren()) {
+                            String latestText = null;
+                            String latestSenderName = null;
+                            String latestSenderId = null;
+                            long latestTimestamp = 0;
+
+                            for (DataSnapshot msgSnap : snapshot.getChildren()) {
+                                Long timestamp = msgSnap.child("timestamp").getValue(Long.class);
+                                if (timestamp != null && timestamp > latestTimestamp) {
+                                    latestTimestamp = timestamp;
+                                    latestText = msgSnap.child("text").getValue(String.class);
+                                    latestSenderName = msgSnap.child("senderName").getValue(String.class);
+                                    latestSenderId = msgSnap.child("senderUid").getValue(String.class);
+                                }
+                            }
+
+                            if (latestText != null) {
+                                if (latestSenderName != null && !latestSenderName.isEmpty()) {
+                                    item.lastMessage = latestSenderName + ": " + latestText;
+                                } else {
+                                    item.lastMessage = latestText;
+                                }
+                            } else {
+                                item.lastMessage = "No messages yet";
+                            }
+                            item.lastMessageTime = latestTimestamp;
+                            item.lastMessageSenderId = latestSenderId;
+                        } else {
+                            item.lastMessage = "No messages yet";
+                            item.lastMessageTime = trip.createdAt;
+                            item.lastMessageSenderId = null;
+                        }
+
+                        item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
+                        item.unreadCount = 0;
+                        item.isOnline = false;
+
+                        addChatItemIfNotExists(item);
+                        filteredChatItems.clear();
+                        filteredChatItems.addAll(chatItems);
+                        adapter.notifyDataSetChanged();
+                        updateEmptyState();
                     }
-                } else {
-                    item.lastMessage = "No messages yet";
-                    item.lastMessageTime = trip.createdAt;
-                    item.lastMessageSenderId = null;
-                }
 
-                // Check for unread messages
-                loadUnreadCount(item);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-
-    private void loadUnreadCount(ChatItem item) {
-        // Check for unread messages (only if sent by someone else)
-        item.hasUnreadMessages = hasUnreadMessages(item.tripId, item.lastMessageTime, item.lastMessageSenderId);
-        item.unreadCount = 0;
-        item.isOnline = false;
-
-        // Check for duplicates before adding
-        boolean alreadyExists = false;
-        for (ChatItem existing : chatItems) {
-            if (existing.tripId.equals(item.tripId)) {
-                alreadyExists = true;
-                break;
-            }
-        }
-        
-        if (!alreadyExists) {
-            // Add to list and update UI
-            chatItems.add(item);
-            filteredChatItems.clear();
-            filteredChatItems.addAll(chatItems);
-            adapter.notifyDataSetChanged();
-            updateEmptyState();
-        }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {}
+                });
     }
 
     private String generateTripTitle(Trip trip) {
-        String activityLabel = getActivityLabel(trip.activityType);
-        if (activityLabel != null) {
-            return activityLabel;
+        // Use the actual trip title (stored in carModel field)
+        if (trip.carModel != null && !trip.carModel.isEmpty()) {
+            return trip.carModel;
         }
+        // Fallback to destination if no title
         return trip.destinationCity != null ? trip.destinationCity : "Adventure";
     }
 
@@ -736,13 +619,15 @@ public class ChatListFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Remove all listeners when view is destroyed to prevent crashes during logout
+        removeListeners();
         binding = null;
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // Chat Snapshot Data Helper Class (for collecting data before loading trips)
+    // Helper Classes
     // ─────────────────────────────────────────────────────────────────
-    
+
     private static class ChatSnapshotData {
         String tripId;
         String chatName;
@@ -753,17 +638,13 @@ public class ChatListFragment extends Fragment {
         String otherUserId;
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Chat Item Data Class
-    // ─────────────────────────────────────────────────────────────────
-
     private static class ChatItem {
         Trip trip;
         String tripId;
         String displayName;
         String lastMessage;
         long lastMessageTime;
-        String lastMessageSenderId; // Track who sent the last message
+        String lastMessageSenderId;
         String tripType;
         String avatarUrl;
         int unreadCount;
@@ -807,49 +688,34 @@ public class ChatListFragment extends Fragment {
             }
 
             void bind(ChatItem item) {
-                // Name
                 b.tvName.setText(item.displayName);
-
-                // Last message
                 b.tvLastMessage.setText(item.lastMessage);
-
-                // Trip type label
                 b.tvTripType.setText(item.tripType);
-
-                // Timestamp
                 b.tvTime.setText(formatTimestamp(item.lastMessageTime));
 
-                // Avatar - use profile photo for DMs, trip cover image for group chats
-                String imageUrl = item.avatarUrl;
-                if (imageUrl != null && !imageUrl.isEmpty() && !imageUrl.equals("null")) {
+                if (item.avatarUrl != null && !item.avatarUrl.isEmpty()) {
                     Glide.with(b.ivAvatar.getContext())
-                            .load(imageUrl)
-                            .placeholder(item.isDirectMessage ? R.drawable.ic_person : R.drawable.ic_people)
-                            .error(item.isDirectMessage ? R.drawable.ic_person : R.drawable.ic_people)
+                            .load(item.avatarUrl)
+                            .placeholder(R.drawable.ic_person)
+                            .error(R.drawable.ic_person)
                             .circleCrop()
                             .into(b.ivAvatar);
                 } else {
-                    // Fallback to appropriate icon based on chat type
-                    b.ivAvatar.setImageResource(item.isDirectMessage ? R.drawable.ic_person : R.drawable.ic_people);
+                    b.ivAvatar.setImageResource(R.drawable.ic_person);
                 }
 
-                // Online indicator
                 b.onlineIndicator.setVisibility(item.isOnline ? View.VISIBLE : View.GONE);
 
-                // Read/Unread status
                 if (item.hasUnreadMessages) {
-                    // Show blue dot for unread messages
                     b.unreadDot.setVisibility(View.VISIBLE);
                     b.ivReadIndicator.setVisibility(View.GONE);
                     b.tvUnreadCount.setVisibility(View.GONE);
                 } else {
-                    // Show grey tick for read messages
                     b.unreadDot.setVisibility(View.GONE);
                     b.ivReadIndicator.setVisibility(View.VISIBLE);
                     b.tvUnreadCount.setVisibility(View.GONE);
                 }
 
-                // Click listener
                 b.getRoot().setOnClickListener(v -> {
                     Intent intent = new Intent(requireContext(), ChatActivity.class);
                     intent.putExtra(ChatActivity.EXTRA_TRIP_ID, item.tripId);
@@ -866,13 +732,11 @@ public class ChatListFragment extends Fragment {
                 Calendar messageTime = Calendar.getInstance();
                 messageTime.setTime(date);
 
-                // Same day - show time
                 if (now.get(Calendar.YEAR) == messageTime.get(Calendar.YEAR) &&
                     now.get(Calendar.DAY_OF_YEAR) == messageTime.get(Calendar.DAY_OF_YEAR)) {
                     return new SimpleDateFormat("h:mm a", Locale.getDefault()).format(date);
                 }
 
-                // Yesterday
                 Calendar yesterday = Calendar.getInstance();
                 yesterday.add(Calendar.DAY_OF_YEAR, -1);
                 if (yesterday.get(Calendar.YEAR) == messageTime.get(Calendar.YEAR) &&
@@ -880,15 +744,14 @@ public class ChatListFragment extends Fragment {
                     return "Yesterday";
                 }
 
-                // Within this week - show day name
                 if (now.get(Calendar.WEEK_OF_YEAR) == messageTime.get(Calendar.WEEK_OF_YEAR) &&
                     now.get(Calendar.YEAR) == messageTime.get(Calendar.YEAR)) {
                     return new SimpleDateFormat("EEE", Locale.getDefault()).format(date);
                 }
 
-                // Older - show date
                 return new SimpleDateFormat("MMM d", Locale.getDefault()).format(date);
             }
         }
     }
 }
+

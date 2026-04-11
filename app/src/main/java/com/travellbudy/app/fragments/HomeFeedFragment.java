@@ -7,15 +7,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,41 +22,44 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.travellbudy.app.HomeActivity;
 import com.travellbudy.app.NotificationsActivity;
 import com.travellbudy.app.R;
-import com.travellbudy.app.TripDetailsActivity;
 import com.travellbudy.app.databinding.FragmentHomeFeedBinding;
 import com.travellbudy.app.models.Trip;
+import com.travellbudy.app.models.User;
 import com.travellbudy.app.ui.trip.FeaturedAdventureAdapter;
 import com.travellbudy.app.ui.trip.YourAdventureAdapter;
-import com.travellbudy.app.viewmodel.HomeViewModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Home Feed screen with "Your Adventures" and "Explore Offers" sections.
- * Features category filtering and search functionality.
+ * Home Feed Fragment - displays personalized greeting, search,
+ * user's adventures, and explore offers.
  */
 public class HomeFeedFragment extends Fragment {
 
     private FragmentHomeFeedBinding binding;
-    private HomeViewModel viewModel;
+    private FirebaseAuth auth;
+    private DatabaseReference tripsRef;
+    private DatabaseReference usersRef;
+    private DatabaseReference notificationsRef;
+    
     private FeaturedAdventureAdapter exploreAdapter;
     private YourAdventureAdapter yourAdventuresAdapter;
-    private final List<Trip> allTrips = new ArrayList<>();
-    private final List<Trip> yourTrips = new ArrayList<>();
-    private final List<Trip> exploreTrips = new ArrayList<>();
     
-    // Notification listener
-    private DatabaseReference notificationsRef;
-    private ValueEventListener notificationListener;
+    private List<Trip> allTrips = new ArrayList<>();
+    private String currentUserId;
+    
+    private ValueEventListener tripsListener;
+    private ValueEventListener notificationsListener;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, 
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentHomeFeedBinding.inflate(inflater, container, false);
         return binding.getRoot();
@@ -68,206 +68,68 @@ public class HomeFeedFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
-
-        setupWindowInsets();
+        
+        auth = FirebaseAuth.getInstance();
+        tripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
+        
+        FirebaseUser user = auth.getCurrentUser();
+        if (user != null) {
+            currentUserId = user.getUid();
+            notificationsRef = FirebaseDatabase.getInstance().getReference("notifications").child(currentUserId);
+        }
+        
         setupGreeting();
-        setupRecyclerViews();
-        setupClickListeners();
-        setupNotificationBadge();
         setupSearch();
-        observeTrips();
+        setupRecyclerViews();
+        
+        // Trips will be loaded in onResume
     }
 
-    /**
-     * Apply proper window insets for safe area handling (status bar, notch, etc.)
-     * This ensures the header respects the system UI on all devices including iPhones.
-     */
-    private void setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.headerContainer, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-            // Apply status bar height as top padding to push content below the status bar
-            v.setPadding(
-                v.getPaddingLeft(),
-                insets.top + 16, // 16dp additional padding below status bar
-                v.getPaddingRight(),
-                v.getPaddingBottom()
-            );
-            return WindowInsetsCompat.CONSUMED;
-        });
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Start listening for trip changes
+        startTripsListener();
+        // Start listening for notifications
+        startNotificationsListener();
     }
-
-    private void setupGreeting() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String userName = "Traveler";
-        if (currentUser != null && currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
-            userName = currentUser.getDisplayName().split(" ")[0];
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Stop listening when fragment is not visible
+        stopTripsListener();
+        stopNotificationsListener();
+    }
+    
+    private void stopTripsListener() {
+        if (tripsListener != null) {
+            tripsRef.removeEventListener(tripsListener);
+            tripsListener = null;
         }
-        
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String greeting;
-        if (hour < 12) {
-            greeting = "Good morning, " + userName + " 👋";
-        } else if (hour < 18) {
-            greeting = "Good afternoon, " + userName + " 👋";
-        } else {
-            greeting = "Good evening, " + userName + " 👋";
+    }
+    
+    private void stopNotificationsListener() {
+        if (notificationsListener != null && notificationsRef != null) {
+            notificationsRef.removeEventListener(notificationsListener);
+            notificationsListener = null;
         }
-        binding.tvGreeting.setText(greeting);
     }
-
-
-    private void setupRecyclerViews() {
-        // Your Adventures adapter
-        yourAdventuresAdapter = new YourAdventureAdapter();
-        yourAdventuresAdapter.setOnAdventureClickListener(trip -> {
-            openTripDetails(trip);
-        });
-        binding.rvYourAdventures.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.rvYourAdventures.setAdapter(yourAdventuresAdapter);
+    
+    private void startNotificationsListener() {
+        if (notificationsRef == null) return;
         
-        // Explore Offers adapter
-        exploreAdapter = new FeaturedAdventureAdapter();
-        exploreAdapter.setOnAdventureClickListener(new FeaturedAdventureAdapter.OnAdventureClickListener() {
-            @Override
-            public void onAdventureClick(Trip trip) {
-                openTripDetails(trip);
-            }
-
-            @Override
-            public void onJoinClick(Trip trip) {
-                openTripDetails(trip);
-            }
-        });
-        binding.rvTrips.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.rvTrips.setAdapter(exploreAdapter);
-    }
-
-    private void setupClickListeners() {
-        // Notifications button
-        binding.btnNotifications.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), NotificationsActivity.class));
-        });
+        stopNotificationsListener();
         
-        // Filter button
-        binding.btnFilter.setOnClickListener(v -> {
-            // TODO: Open filter bottom sheet
-        });
-        
-        // Manage button - navigate to My Trips
-        binding.tvManage.setOnClickListener(v -> {
-            if (getActivity() instanceof HomeActivity) {
-                ((HomeActivity) getActivity()).navigateToMyTrips();
-            }
-        });
-    }
-
-    private void setupSearch() {
-
-        binding.etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterAndDisplayTrips();
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-    }
-
-    private void observeTrips() {
-        viewModel.getTrips().observe(getViewLifecycleOwner(), result -> {
-            switch (result.status) {
-                case LOADING:
-                    binding.swipeRefresh.setRefreshing(true);
-                    break;
-                case SUCCESS:
-                    binding.swipeRefresh.setRefreshing(false);
-                    allTrips.clear();
-                    if (result.data != null) allTrips.addAll(result.data);
-                    filterAndDisplayTrips();
-                    break;
-                case ERROR:
-                    binding.swipeRefresh.setRefreshing(false);
-                    binding.emptyState.setVisibility(View.VISIBLE);
-                    binding.rvTrips.setVisibility(View.GONE);
-                    binding.yourAdventuresSection.setVisibility(View.GONE);
-                    break;
-            }
-        });
-    }
-
-    private void filterAndDisplayTrips() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String currentUserId = currentUser != null ? currentUser.getUid() : "";
-        String searchQuery = binding.etSearch.getText().toString().trim().toLowerCase();
-        
-        yourTrips.clear();
-        exploreTrips.clear();
-        
-        for (Trip trip : allTrips) {
-
-            // Apply search filter
-            if (!searchQuery.isEmpty()) {
-                String title = trip.carModel != null ? trip.carModel.toLowerCase() : "";
-                String destination = trip.destinationCity != null ? trip.destinationCity.toLowerCase() : "";
-                String origin = trip.originCity != null ? trip.originCity.toLowerCase() : "";
-                
-                if (!title.contains(searchQuery) && 
-                    !destination.contains(searchQuery) && 
-                    !origin.contains(searchQuery)) {
-                    continue;
-                }
-            }
-            
-            // Separate user's own trips from others
-            if (trip.driverUid != null && trip.driverUid.equals(currentUserId)) {
-                yourTrips.add(trip);
-            } else {
-                exploreTrips.add(trip);
-            }
-        }
-        
-        // Update Your Adventures section
-        if (yourTrips.isEmpty()) {
-            binding.yourAdventuresSection.setVisibility(View.GONE);
-        } else {
-            binding.yourAdventuresSection.setVisibility(View.VISIBLE);
-            yourAdventuresAdapter.submitList(new ArrayList<>(yourTrips));
-        }
-        
-        // Update Explore Offers section
-        exploreAdapter.submitList(new ArrayList<>(exploreTrips));
-        
-        boolean noTrips = yourTrips.isEmpty() && exploreTrips.isEmpty();
-        binding.emptyState.setVisibility(noTrips ? View.VISIBLE : View.GONE);
-        binding.rvTrips.setVisibility(exploreTrips.isEmpty() ? View.GONE : View.VISIBLE);
-    }
-
-    private void openTripDetails(Trip trip) {
-        Intent intent = new Intent(requireContext(), TripDetailsActivity.class);
-        intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, trip.tripId);
-        startActivity(intent);
-    }
-
-    private void setupNotificationBadge() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            binding.notificationDot.setVisibility(View.GONE);
-            return;
-        }
-
-        notificationsRef = FirebaseDatabase.getInstance()
-                .getReference("notifications")
-                .child(currentUser.getUid());
-
-        notificationListener = new ValueEventListener() {
+        notificationsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (binding == null) return;
                 
                 boolean hasUnread = false;
-                for (DataSnapshot child : snapshot.getChildren()) {
-                    Boolean isRead = child.child("isRead").getValue(Boolean.class);
+                for (DataSnapshot notifSnapshot : snapshot.getChildren()) {
+                    Boolean isRead = notifSnapshot.child("isRead").getValue(Boolean.class);
                     if (isRead == null || !isRead) {
                         hasUnread = true;
                         break;
@@ -279,30 +141,326 @@ public class HomeFeedFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                // Hide dot on error
                 if (binding != null) {
                     binding.notificationDot.setVisibility(View.GONE);
                 }
             }
         };
+        
+        notificationsRef.addValueEventListener(notificationsListener);
+    }
+    
+    private void startTripsListener() {
+        // Remove existing listener first
+        stopTripsListener();
+        
+        android.util.Log.d("HomeFeed", "Starting trips listener");
+        
+        tripsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                android.util.Log.d("HomeFeed", "Trips data changed, count: " + snapshot.getChildrenCount());
+                
+                List<String> driverUidsToCheck = new ArrayList<>();
+                List<Trip> tripsToValidate = new ArrayList<>();
+                
+                // First, collect all trips and their driver UIDs
+                for (DataSnapshot tripSnapshot : snapshot.getChildren()) {
+                    Trip trip = tripSnapshot.getValue(Trip.class);
+                    if (trip != null) {
+                        trip.tripId = tripSnapshot.getKey();
+                        android.util.Log.d("HomeFeed", "Found trip: " + trip.tripId);
+                        
+                        if (trip.driverUid != null && !trip.driverUid.isEmpty()) {
+                            tripsToValidate.add(trip);
+                            if (!driverUidsToCheck.contains(trip.driverUid)) {
+                                driverUidsToCheck.add(trip.driverUid);
+                            }
+                        }
+                        // Skip trips without driverUid
+                    }
+                }
+                
+                if (tripsToValidate.isEmpty()) {
+                    allTrips.clear();
+                    displayTrips();
+                    return;
+                }
+                
+                if (driverUidsToCheck.isEmpty()) {
+                    allTrips.clear();
+                    displayTrips();
+                    return;
+                }
+                
+                // Check which driver accounts exist
+                final Map<String, Boolean> driverExists = new HashMap<>();
+                final int[] checkedDrivers = {0};
+                
+                for (String driverUid : driverUidsToCheck) {
+                    usersRef.child(driverUid).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            driverExists.put(driverUid, userSnapshot.exists());
+                            checkedDrivers[0]++;
+                            
+                            if (checkedDrivers[0] >= driverUidsToCheck.size()) {
+                                // All drivers checked, now filter trips
+                                filterValidTrips(tripsToValidate, driverExists);
+                            }
+                        }
 
-        notificationsRef.addValueEventListener(notificationListener);
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            driverExists.put(driverUid, false);
+                            checkedDrivers[0]++;
+                            
+                            if (checkedDrivers[0] >= driverUidsToCheck.size()) {
+                                filterValidTrips(tripsToValidate, driverExists);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateEmptyState(true);
+            }
+        };
+        
+        tripsRef.addValueEventListener(tripsListener);
+    }
+    
+    private void filterValidTrips(List<Trip> tripsToValidate, Map<String, Boolean> driverExists) {
+        allTrips.clear();
+        long currentTime = System.currentTimeMillis();
+        
+        for (Trip trip : tripsToValidate) {
+            // Only include trips where:
+            // 1. Driver account exists
+            // 2. Trip is in the future
+            Boolean exists = driverExists.get(trip.driverUid);
+            if (exists != null && exists && trip.departureTime > currentTime) {
+                allTrips.add(trip);
+            }
+        }
+        
+        displayTrips();
+    }
+    
+    private void displayTrips() {
+        if (binding == null) return;
+        
+        android.util.Log.d("HomeFeed", "displayTrips called, allTrips size: " + allTrips.size());
+        
+        List<Trip> userTrips = new ArrayList<>();
+        List<Trip> otherTrips = new ArrayList<>();
+
+        for (Trip trip : allTrips) {
+            if (currentUserId != null && currentUserId.equals(trip.driverUid)) {
+                android.util.Log.d("HomeFeed", "User trip: " + trip.tripId);
+                userTrips.add(trip);
+            } else {
+                otherTrips.add(trip);
+            }
+        }
+
+        android.util.Log.d("HomeFeed", "User trips count: " + userTrips.size() + ", Other trips: " + otherTrips.size());
+
+        // Show/hide Your Adventures section
+        if (!userTrips.isEmpty()) {
+            binding.yourAdventuresSection.setVisibility(View.VISIBLE);
+            yourAdventuresAdapter.submitList(userTrips);
+        } else {
+            binding.yourAdventuresSection.setVisibility(View.GONE);
+            yourAdventuresAdapter.submitList(new ArrayList<>()); // Clear the adapter
+        }
+
+        // Show Explore Offers
+        exploreAdapter.submitList(otherTrips);
+
+        // Show/hide empty state
+        updateEmptyState(otherTrips.isEmpty());
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        setupGreeting();
-        if (viewModel != null) {
-            viewModel.refresh();
+    private void setupGreeting() {
+        FirebaseUser user = auth.getCurrentUser();
+        String greeting = getTimeBasedGreeting();
+        
+        if (user != null) {
+            // Load user's name from database
+            usersRef.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    User userData = snapshot.getValue(User.class);
+                    String name = "there";
+                    if (userData != null && userData.displayName != null && !userData.displayName.isEmpty()) {
+                        name = userData.displayName.split(" ")[0]; // First name only
+                    } else if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
+                        name = user.getDisplayName().split(" ")[0];
+                    }
+                    binding.tvGreeting.setText(greeting + ", " + name + " 👋");
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    binding.tvGreeting.setText(greeting + " 👋");
+                }
+            });
+        } else {
+            binding.tvGreeting.setText(greeting + " 👋");
+        }
+    }
+
+    private String getTimeBasedGreeting() {
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        if (hour >= 5 && hour < 12) {
+            return "Good morning";
+        } else if (hour >= 12 && hour < 17) {
+            return "Good afternoon";
+        } else if (hour >= 17 && hour < 21) {
+            return "Good evening";
+        } else {
+            return "Good night";
+        }
+    }
+
+    private void setupSearch() {
+        binding.etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterTrips(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        binding.etSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                filterTrips(binding.etSearch.getText().toString());
+                return true;
+            }
+            return false;
+        });
+
+
+        binding.btnNotifications.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), NotificationsActivity.class);
+            startActivity(intent);
+        });
+    }
+
+
+    private void setupRecyclerViews() {
+        // Your Adventures RecyclerView
+        yourAdventuresAdapter = new YourAdventureAdapter();
+        binding.rvYourAdventures.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvYourAdventures.setAdapter(yourAdventuresAdapter);
+        yourAdventuresAdapter.setOnAdventureClickListener(trip -> navigateToTripDetails(trip.tripId));
+
+        // Explore Offers RecyclerView
+        exploreAdapter = new FeaturedAdventureAdapter();
+        binding.rvTrips.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvTrips.setAdapter(exploreAdapter);
+        exploreAdapter.setOnAdventureClickListener(new FeaturedAdventureAdapter.OnAdventureClickListener() {
+            @Override
+            public void onAdventureClick(Trip trip) {
+                navigateToTripDetails(trip.tripId);
+            }
+
+            @Override
+            public void onJoinClick(Trip trip) {
+                navigateToTripDetails(trip.tripId);
+            }
+        });
+
+        // Manage button
+        binding.tvManage.setOnClickListener(v -> {
+            // Navigate to My Trips
+            Navigation.findNavController(requireView()).navigate(R.id.myTripsFragment);
+        });
+        
+        // FAB to create new adventure
+        binding.fabCreateTrip.setOnClickListener(v -> {
+            Navigation.findNavController(requireView()).navigate(R.id.createTripFragment);
+        });
+    }
+
+    private void navigateToTripDetails(String tripId) {
+        Bundle args = new Bundle();
+        args.putString("tripId", tripId);
+        Navigation.findNavController(requireView()).navigate(R.id.action_home_to_tripDetail, args);
+    }
+
+    private void filterTrips(String searchQuery) {
+        if (searchQuery == null || searchQuery.isEmpty()) {
+            showAllTrips();
+            return;
+        }
+        
+        String query = searchQuery.toLowerCase();
+        List<Trip> filtered = new ArrayList<>();
+        
+        for (Trip trip : allTrips) {
+            // Skip user's own trips
+            if (currentUserId != null && currentUserId.equals(trip.driverUid)) {
+                continue;
+            }
+            
+            // Search in title, origin, destination
+            boolean matches = false;
+            if (trip.carModel != null && trip.carModel.toLowerCase().contains(query)) matches = true;
+            if (trip.originCity != null && trip.originCity.toLowerCase().contains(query)) matches = true;
+            if (trip.destinationCity != null && trip.destinationCity.toLowerCase().contains(query)) matches = true;
+            if (trip.activityType != null && trip.activityType.toLowerCase().contains(query)) matches = true;
+            
+            if (matches) {
+                filtered.add(trip);
+            }
+        }
+        
+        exploreAdapter.submitList(filtered);
+        updateEmptyState(filtered.isEmpty());
+    }
+
+    private void showAllTrips() {
+        List<Trip> filtered = new ArrayList<>();
+        
+        for (Trip trip : allTrips) {
+            // Skip user's own trips
+            if (currentUserId != null && currentUserId.equals(trip.driverUid)) {
+                continue;
+            }
+            filtered.add(trip);
+        }
+        
+        exploreAdapter.submitList(filtered);
+        updateEmptyState(filtered.isEmpty());
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (binding == null) return;
+        
+        if (isEmpty) {
+            binding.emptyState.setVisibility(View.VISIBLE);
+            binding.rvTrips.setVisibility(View.GONE);
+        } else {
+            binding.emptyState.setVisibility(View.GONE);
+            binding.rvTrips.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (notificationListener != null && notificationsRef != null) {
-            notificationsRef.removeEventListener(notificationListener);
-        }
+        stopTripsListener();
+        stopNotificationsListener();
         binding = null;
     }
 }

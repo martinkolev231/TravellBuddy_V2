@@ -95,7 +95,9 @@ public class ManageRequestsActivity extends AppCompatActivity {
                 if (seats == null || seats <= 0) {
                     return Transaction.abort();
                 }
-                currentData.setValue(seats - 1);
+                // Decrement by the number of seats requested
+                int seatsToDeduct = request.seatsRequested > 0 ? request.seatsRequested : 1;
+                currentData.setValue(seats - seatsToDeduct);
                 return Transaction.success(currentData);
             }
 

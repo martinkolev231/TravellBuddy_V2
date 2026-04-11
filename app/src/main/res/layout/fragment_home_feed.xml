@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_bg"
-    android:fitsSystemWindows="true">
+    android:background="@color/home_bg">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
@@ -17,145 +16,51 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             android:paddingBottom="24dp">
 
-            <!-- ═══ HEADER SECTION - Premium Dashboard Style ═══ -->
-            <LinearLayout
-                android:id="@+id/headerContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="16dp"
-                android:paddingBottom="8dp"
-                android:background="@color/home_bg">
-
-                <!-- Header Row: Greeting + Bell -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="24dp">
-
-                    <!-- Text Block: Greeting + Title -->
-                    <LinearLayout
-                        android:id="@+id/headerTextBlock"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/btnNotifications"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        android:layout_marginEnd="16dp">
-
-                        <!-- Greeting (smaller, softer) -->
-                        <TextView
-                            android:id="@+id/tvGreeting"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="15sp"
-                            android:letterSpacing="0.01"
-                            android:fontFamily="sans-serif"
-                            tools:text="Good afternoon, Simeon 👋" />
-
-                        <!-- Main Title (bold but balanced) -->
-                        <TextView
-                            android:id="@+id/tvSubtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Ready for a trip?"
-                            android:textColor="@color/text_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:fontFamily="sans-serif-medium"
-                            android:letterSpacing="-0.01" />
-                    </LinearLayout>
-
-                    <!-- Notification Bell - Vertically centered with text block -->
-                    <FrameLayout
-                        android:id="@+id/btnNotifications"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="26dp"
-                            android:layout_height="26dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_notification"
-                            android:contentDescription="Notifications" />
-
-                        <!-- Red notification dot -->
-                        <View
-                            android:id="@+id/notificationDot"
-                            android:layout_width="10dp"
-                            android:layout_height="10dp"
-                            android:layout_gravity="top|end"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:background="@drawable/bg_notification_dot"
-                            android:visibility="gone" />
-                    </FrameLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </LinearLayout>
-
-            <!-- ═══ Search Bar with Filter Button ═══ -->
+            <!-- ═══ Header with Greeting & Notification ═══ -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="16dp"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp">
 
                 <LinearLayout
-                    android:id="@+id/searchBarContainer"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_search_bar"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_search_gray"
-                        android:contentDescription="@null" />
-
-                    <EditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:background="@null"
-                        android:hint="Search destinations or adventures..."
-                        android:textColorHint="@color/text_hint"
-                        android:textColor="@color/text_primary"
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_secondary"
                         android:textSize="15sp"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:imeOptions="actionSearch" />
+                        tools:text="Good morning, Alex 👋" />
+
+                    <TextView
+                        android:id="@+id/tvSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Ready for a trip?"
+                        android:textColor="@color/text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium" />
                 </LinearLayout>
 
-                <!-- Filter Button -->
                 <FrameLayout
-                    android:id="@+id/btnFilter"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
-                    android:layout_marginStart="12dp"
-                    android:background="@drawable/bg_filter_button"
+                    android:id="@+id/btnNotifications"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/bg_notification_button"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -163,29 +68,57 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/ic_filter"
-                        android:contentDescription="Filter" />
+                        android:src="@drawable/ic_notification"
+                        app:tint="@color/text_secondary"
+                        android:contentDescription="Notifications" />
 
-                    <!-- Filter indicator dot (design accent) -->
+                    <!-- Red notification dot -->
                     <View
-                        android:id="@+id/filterDot"
+                        android:id="@+id/notificationDot"
                         android:layout_width="8dp"
                         android:layout_height="8dp"
                         android:layout_gravity="top|end"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_filter_active_dot"
-                        android:visibility="visible" />
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/bg_notification_dot"
+                        android:visibility="gone" />
                 </FrameLayout>
             </LinearLayout>
 
-
-            <!-- ═══ Divider ═══ -->
-            <View
+            <!-- ═══ Search Bar ═══ -->
+            <LinearLayout
+                android:id="@+id/searchBarContainer"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
-                android:background="@color/divider" />
+                android:background="@drawable/bg_search_bar_elevated"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_search_gray"
+                    app:tint="@color/text_hint"
+                    android:contentDescription="@null" />
+
+                <EditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@null"
+                    android:hint="Search destinations..."
+                    android:textColorHint="@color/text_hint"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:imeOptions="actionSearch" />
+            </LinearLayout>
 
             <!-- ═══ Your Adventures Section ═══ -->
             <LinearLayout
@@ -193,13 +126,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginTop="28dp"
                     android:layout_marginHorizontal="20dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
@@ -211,7 +143,8 @@
                         android:text="Your Adventures"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium" />
 
                     <TextView
                         android:id="@+id/tvManage"
@@ -241,7 +174,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
                 android:layout_marginHorizontal="20dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
@@ -253,7 +186,8 @@
                     android:text="Explore Offers"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium" />
 
                 <TextView
                     android:id="@+id/tvSeeAll"
@@ -282,39 +216,46 @@
             <LinearLayout
                 android:id="@+id/emptyState"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
+                android:paddingHorizontal="32dp"
                 android:visibility="gone">
 
                 <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
                     android:src="@drawable/ic_trips"
                     android:contentDescription="@string/label_no_trips"
-                    app:tint="@color/text_hint" />
+                    app:tint="@color/text_disabled" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:gravity="center"
                     android:text="@string/label_no_trips"
                     android:textColor="@color/text_secondary"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/label_no_trips_desc"
-                    android:textColor="@color/text_hint"
-                    android:textSize="14sp" />
             </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Floating Action Button to create new adventure -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreateTrip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/title_create"
+        app:backgroundTint="@color/primary"
+        app:tint="@android:color/white" />
 
     <!-- SwipeRefreshLayout wrapping everything -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -324,3 +265,4 @@
         android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

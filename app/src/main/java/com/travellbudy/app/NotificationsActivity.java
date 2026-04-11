@@ -24,11 +24,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.databinding.ActivityNotificationsBinding;
 import com.travellbudy.app.databinding.ItemNotificationBinding;
 import com.travellbudy.app.models.Notification;
+import com.travellbudy.app.models.SeatRequest;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +51,7 @@ public class NotificationsActivity extends AppCompatActivity {
         binding = ActivityNotificationsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.btnBack.setOnClickListener(v -> finish());
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
@@ -82,6 +85,11 @@ public class NotificationsActivity extends AppCompatActivity {
                     if (notification != null) {
                         notification.notificationId = ds.getKey();
                         notifications.add(notification);
+                        
+                        // Mark as read when viewed
+                        if (!notification.isRead) {
+                            ds.getRef().child("isRead").setValue(true);
+                        }
                     }
                 }
 
@@ -90,9 +98,6 @@ public class NotificationsActivity extends AppCompatActivity {
 
                 adapter.notifyDataSetChanged();
                 updateEmptyState();
-                
-                // Mark all notifications as read when user views them
-                markAllAsRead();
             }
 
             @Override
@@ -110,15 +115,6 @@ public class NotificationsActivity extends AppCompatActivity {
         binding.rvNotifications.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
     }
 
-    private void markAllAsRead() {
-        for (Notification notification : notifications) {
-            if (!notification.isRead && notification.notificationId != null) {
-                notificationsRef.child(notification.notificationId)
-                        .child("isRead").setValue(true);
-            }
-        }
-    }
-
     private void markAsRead(Notification notification) {
         if (!notification.isRead && notification.notificationId != null) {
             notificationsRef.child(notification.notificationId)
@@ -132,72 +128,159 @@ public class NotificationsActivity extends AppCompatActivity {
             return;
         }
 
-        // Update notification status first (this always exists)
-        if (notification.notificationId != null) {
-            notificationsRef.child(notification.notificationId)
-                    .child("status").setValue("approved")
-                    .addOnSuccessListener(aVoid -> {
-                        markAsRead(notification);
+        // Find and update the request in tripRequests
+        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance()
+                .getReference("tripRequests")
+                .child(notification.tripId);
+
+        tripRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                DataSnapshot requestSnapshot = null;
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String riderUid = child.child("riderUid").getValue(String.class);
+                    if (notification.fromUserId.equals(riderUid)) {
+                        requestSnapshot = child;
+                        break;
+                    }
+                }
+
+                if (requestSnapshot != null) {
+                    // Get the full request data and update status
+                    SeatRequest request = requestSnapshot.getValue(SeatRequest.class);
+                    if (request != null) {
+                        final int seatsToDeduct = request.seatsRequested > 0 ? request.seatsRequested : 1;
+                        final DataSnapshot finalRequestSnapshot = requestSnapshot;
                         
-                        // Add user to trip participants
-                        DatabaseReference tripRef = FirebaseDatabase.getInstance()
+                        // First, atomically decrement available seats
+                        DatabaseReference seatsRef = FirebaseDatabase.getInstance()
                                 .getReference("trips")
-                                .child(notification.tripId);
+                                .child(notification.tripId)
+                                .child("availableSeats");
                         
-                        tripRef.child("participants")
-                                .child(notification.fromUserId)
-                                .setValue(true);
-
-                        // Decrement availableSeats
-                        tripRef.child("availableSeats").get().addOnSuccessListener(snapshot -> {
-                            Integer currentSeats = snapshot.getValue(Integer.class);
-                            if (currentSeats != null && currentSeats > 0) {
-                                tripRef.child("availableSeats").setValue(currentSeats - 1);
-                            }
-                        });
-
-                        // Add user to group chat
-                        addUserToGroupChat(notification.tripId, notification.fromUserId, notification.fromUserName, notification.tripName);
-
-                        // Update tripRequests status (used by TripDetailsActivity)
-                        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance()
-                                .getReference("tripRequests")
-                                .child(notification.tripId);
-                        // Iterate through all requests and find matching riderUid
-                        tripRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        seatsRef.runTransaction(new Transaction.Handler() {
+                            @NonNull
                             @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                for (DataSnapshot child : snapshot.getChildren()) {
-                                    String riderUid = child.child("riderUid").getValue(String.class);
-                                    if (notification.fromUserId.equals(riderUid)) {
-                                        // Update status and updatedAt together
-                                        java.util.Map<String, Object> updates = new java.util.HashMap<>();
-                                        updates.put("status", "approved");
-                                        updates.put("updatedAt", System.currentTimeMillis());
-                                        child.getRef().updateChildren(updates);
-                                    }
+                            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                                Integer seats = currentData.getValue(Integer.class);
+                                if (seats == null || seats <= 0) {
+                                    return Transaction.abort();
+                                }
+                                currentData.setValue(seats - seatsToDeduct);
+                                return Transaction.success(currentData);
+                            }
+
+                            @Override
+                            public void onComplete(DatabaseError error, boolean committed, DataSnapshot snapshot) {
+                                if (committed) {
+                                    // Update request status
+                                    request.status = "approved";
+                                    request.updatedAt = System.currentTimeMillis();
+                                    
+                                    finalRequestSnapshot.getRef().setValue(request.toMap())
+                                            .addOnSuccessListener(aVoid -> {
+                                                // Add user to trip participants
+                                                FirebaseDatabase.getInstance()
+                                                        .getReference("trips")
+                                                        .child(notification.tripId)
+                                                        .child("participants")
+                                                        .child(notification.fromUserId)
+                                                        .setValue(true);
+
+                                                // Add user to the group chat
+                                                addUserToGroupChat(notification.tripId, notification.fromUserId);
+
+                                                // Update notification status
+                                                if (notification.notificationId != null) {
+                                                    notificationsRef.child(notification.notificationId)
+                                                            .child("status").setValue("approved");
+                                                    markAsRead(notification);
+                                                }
+
+                                                // Create notification for the requester
+                                                sendResponseNotification(notification, true);
+
+                                                // Check if trip is now full
+                                                Integer remaining = snapshot.getValue(Integer.class);
+                                                if (remaining != null && remaining <= 0) {
+                                                    FirebaseDatabase.getInstance()
+                                                            .getReference("trips")
+                                                            .child(notification.tripId)
+                                                            .child("status")
+                                                            .setValue("full");
+                                                }
+
+                                                Toast.makeText(NotificationsActivity.this, "Request approved!", Toast.LENGTH_SHORT).show();
+                                            })
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(NotificationsActivity.this, "Failed to approve request: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                            );
+                                } else {
+                                    Toast.makeText(NotificationsActivity.this, "No available seats", Toast.LENGTH_SHORT).show();
                                 }
                             }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {}
                         });
+                    }
+                } else {
+                    Toast.makeText(NotificationsActivity.this, "Request not found", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                        // Also update tripJoinRequests if it exists
-                        DatabaseReference requestRef = FirebaseDatabase.getInstance()
-                                .getReference("tripJoinRequests")
-                                .child(notification.tripId)
-                                .child(notification.fromUserId);
-                        requestRef.child("status").setValue("approved");
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(NotificationsActivity.this, "Failed to approve request", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-                        // Create notification for the requester
-                        sendResponseNotification(notification, true);
+    private void addUserToGroupChat(String tripId, String userId) {
+        DatabaseReference tripRef = FirebaseDatabase.getInstance()
+                .getReference("trips")
+                .child(tripId);
 
-                        Toast.makeText(this, "Request approved!", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> 
-                        Toast.makeText(this, "Failed to approve request", Toast.LENGTH_SHORT).show()
-                    );
-        }
+        tripRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()) return;
+
+                // Get trip details for chat entry
+                String tripName = snapshot.child("carModel").getValue(String.class);
+                if (tripName == null || tripName.isEmpty()) {
+                    tripName = snapshot.child("destinationCity").getValue(String.class);
+                }
+                if (tripName == null) {
+                    tripName = "Adventure";
+                }
+
+                // Add user to userChats so the group chat appears in their chat list
+                java.util.Map<String, Object> userChatEntry = new java.util.HashMap<>();
+                userChatEntry.put("chatId", tripId);
+                userChatEntry.put("tripId", tripId);
+                userChatEntry.put("otherPartyName", tripName);
+                userChatEntry.put("isGroupChat", true);
+                userChatEntry.put("lastMessage", "");
+                userChatEntry.put("lastMessageTime", System.currentTimeMillis());
+
+                FirebaseDatabase.getInstance()
+                        .getReference("userChats")
+                        .child(userId)
+                        .child(tripId)
+                        .setValue(userChatEntry);
+
+                // Add user to chat participants
+                FirebaseDatabase.getInstance()
+                        .getReference("chats")
+                        .child(tripId)
+                        .child("participants")
+                        .child(userId)
+                        .setValue(true);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                // Silent fail - chat functionality is secondary
+            }
+        });
     }
 
     private void handleDecline(Notification notification) {
@@ -206,52 +289,58 @@ public class NotificationsActivity extends AppCompatActivity {
             return;
         }
 
-        // Update notification status first (this always exists)
-        if (notification.notificationId != null) {
-            notificationsRef.child(notification.notificationId)
-                    .child("status").setValue("denied")
-                    .addOnSuccessListener(aVoid -> {
-                        markAsRead(notification);
+        // Find and update the request in tripRequests
+        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance()
+                .getReference("tripRequests")
+                .child(notification.tripId);
 
-                        // Update tripRequests status (used by TripDetailsActivity)
-                        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance()
-                                .getReference("tripRequests")
-                                .child(notification.tripId);
-                        // Iterate through all requests and find matching riderUid
-                        tripRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                for (DataSnapshot child : snapshot.getChildren()) {
-                                    String riderUid = child.child("riderUid").getValue(String.class);
-                                    if (notification.fromUserId.equals(riderUid)) {
-                                        // Update status and updatedAt together
-                                        java.util.Map<String, Object> updates = new java.util.HashMap<>();
-                                        updates.put("status", "denied");
-                                        updates.put("updatedAt", System.currentTimeMillis());
-                                        child.getRef().updateChildren(updates);
+        tripRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                DataSnapshot requestSnapshot = null;
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String riderUid = child.child("riderUid").getValue(String.class);
+                    if (notification.fromUserId.equals(riderUid)) {
+                        requestSnapshot = child;
+                        break;
+                    }
+                }
+
+                if (requestSnapshot != null) {
+                    // Get the full request data and update status
+                    SeatRequest request = requestSnapshot.getValue(SeatRequest.class);
+                    if (request != null) {
+                        request.status = "denied";
+                        request.updatedAt = System.currentTimeMillis();
+                        
+                        requestSnapshot.getRef().setValue(request.toMap())
+                                .addOnSuccessListener(aVoid -> {
+                                    // Update notification status
+                                    if (notification.notificationId != null) {
+                                        notificationsRef.child(notification.notificationId)
+                                                .child("status").setValue("denied");
+                                        markAsRead(notification);
                                     }
-                                }
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {}
-                        });
 
-                        // Also update tripJoinRequests if it exists
-                        DatabaseReference requestRef = FirebaseDatabase.getInstance()
-                                .getReference("tripJoinRequests")
-                                .child(notification.tripId)
-                                .child(notification.fromUserId);
-                        requestRef.child("status").setValue("denied");
+                                    // Create notification for the requester
+                                    sendResponseNotification(notification, false);
 
-                        // Create notification for the requester
-                        sendResponseNotification(notification, false);
+                                    Toast.makeText(NotificationsActivity.this, "Request declined", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(NotificationsActivity.this, "Failed to decline request: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                );
+                    }
+                } else {
+                    Toast.makeText(NotificationsActivity.this, "Request not found", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-                        Toast.makeText(this, "Request declined", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> 
-                        Toast.makeText(this, "Failed to decline request", Toast.LENGTH_SHORT).show()
-                    );
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(NotificationsActivity.this, "Failed to decline request", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void sendResponseNotification(Notification originalNotification, boolean approved) {
@@ -265,7 +354,7 @@ public class NotificationsActivity extends AppCompatActivity {
         String notificationId = userNotificationsRef.push().getKey();
         if (notificationId == null) return;
 
-        // Get the trip name for the message
+        // Get trip name from original notification, or use default
         String tripName = originalNotification.tripName != null && !originalNotification.tripName.isEmpty()
                 ? originalNotification.tripName
                 : "the trip";
@@ -286,85 +375,6 @@ public class NotificationsActivity extends AppCompatActivity {
         responseNotification.isRead = false;
 
         userNotificationsRef.child(notificationId).setValue(responseNotification);
-    }
-
-    /**
-     * Adds a user to the group chat when their join request is approved.
-     */
-    private void addUserToGroupChat(String tripId, String userId, String userName, String tripName) {
-        if (tripId == null || userId == null) return;
-
-        DatabaseReference chatRef = FirebaseDatabase.getInstance()
-                .getReference("chats")
-                .child(tripId);
-        
-        // Add user to chat participants
-        chatRef.child("info").child("participants").child(userId).setValue(true);
-        
-        // Get the chat name from trip if not provided
-        String chatName = tripName != null ? tripName : "Adventure Chat";
-        
-        // Fetch the last message from the chat to show in userChats
-        chatRef.child("messages").orderByChild("timestamp").limitToLast(1)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String lastMessage = "";
-                        long lastMessageTime = System.currentTimeMillis();
-                        String lastMessageSenderId = "";
-                        
-                        for (DataSnapshot msgSnapshot : snapshot.getChildren()) {
-                            String msgText = msgSnapshot.child("text").getValue(String.class);
-                            Long msgTime = msgSnapshot.child("timestamp").getValue(Long.class);
-                            String senderId = msgSnapshot.child("senderId").getValue(String.class);
-                            
-                            if (msgText != null) {
-                                lastMessage = msgText;
-                            }
-                            if (msgTime != null) {
-                                lastMessageTime = msgTime;
-                            }
-                            if (senderId != null) {
-                                lastMessageSenderId = senderId;
-                            }
-                        }
-                        
-                        // Add chat to user's userChats list with actual last message data
-                        java.util.Map<String, Object> userChatEntry = new java.util.HashMap<>();
-                        userChatEntry.put("chatId", tripId);
-                        userChatEntry.put("tripId", tripId);
-                        userChatEntry.put("otherPartyName", chatName);
-                        userChatEntry.put("isGroupChat", true);
-                        userChatEntry.put("lastMessage", lastMessage);
-                        userChatEntry.put("lastMessageTime", lastMessageTime);
-                        userChatEntry.put("lastMessageSenderId", lastMessageSenderId);
-                        
-                        FirebaseDatabase.getInstance()
-                                .getReference("userChats")
-                                .child(userId)
-                                .child(tripId)
-                                .setValue(userChatEntry);
-                    }
-                    
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        // Fallback: create entry with empty message if fetch fails
-                        java.util.Map<String, Object> userChatEntry = new java.util.HashMap<>();
-                        userChatEntry.put("chatId", tripId);
-                        userChatEntry.put("tripId", tripId);
-                        userChatEntry.put("otherPartyName", chatName);
-                        userChatEntry.put("isGroupChat", true);
-                        userChatEntry.put("lastMessage", "");
-                        userChatEntry.put("lastMessageTime", System.currentTimeMillis());
-                        userChatEntry.put("lastMessageSenderId", "");
-                        
-                        FirebaseDatabase.getInstance()
-                                .getReference("userChats")
-                                .child(userId)
-                                .child(tripId)
-                                .setValue(userChatEntry);
-                    }
-                });
     }
 
     private void openNotification(Notification notification) {
@@ -461,26 +471,11 @@ public class NotificationsActivity extends AppCompatActivity {
                 boolean showActions = isJoinRequest && isPending;
                 
                 b.actionButtonsContainer.setVisibility(showActions ? View.VISIBLE : View.GONE);
-                
-                // Show icon badge only for join requests
-                b.iconBadgeContainer.setVisibility(isJoinRequest ? View.VISIBLE : View.GONE);
 
-                // Type icon
-                int iconRes = getIconForType(notification.type);
-                b.ivTypeIcon.setImageResource(iconRes);
 
                 // Button click listeners
                 b.btnAccept.setOnClickListener(v -> handleAccept(notification));
                 b.btnDecline.setOnClickListener(v -> handleDecline(notification));
-
-                // Avatar click - open user profile
-                b.ivAvatar.setOnClickListener(v -> {
-                    if (notification.fromUserId != null && !notification.fromUserId.isEmpty()) {
-                        Intent intent = new Intent(NotificationsActivity.this, UserProfileActivity.class);
-                        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, notification.fromUserId);
-                        startActivity(intent);
-                    }
-                });
 
                 // Click listener for the whole item
                 b.getRoot().setOnClickListener(v -> openNotification(notification));
@@ -496,7 +491,7 @@ public class NotificationsActivity extends AppCompatActivity {
                 
                 switch (notification.type) {
                     case "join_request":
-                        return userName + " wants to join your " + tripName + " adventure.";
+                        return userName + " wants to join your " + tripName + " trip.";
                     case "request_approved":
                         return "Your request to join " + tripName + " has been approved!";
                     case "request_denied":
@@ -507,24 +502,6 @@ public class NotificationsActivity extends AppCompatActivity {
                         return tripName + " has been updated.";
                     default:
                         return notification.message != null ? notification.message : "New notification";
-                }
-            }
-
-            private int getIconForType(String type) {
-                if (type == null) return R.drawable.ic_notification;
-                switch (type) {
-                    case "join_request":
-                        return R.drawable.ic_person_add;
-                    case "request_approved":
-                        return R.drawable.ic_check_circle;
-                    case "request_denied":
-                        return R.drawable.ic_close;
-                    case "new_message":
-                        return R.drawable.ic_chat;
-                    case "trip_update":
-                        return R.drawable.ic_edit_pencil;
-                    default:
-                        return R.drawable.ic_notification;
                 }
             }
         }

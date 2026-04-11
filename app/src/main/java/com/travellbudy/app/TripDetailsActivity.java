@@ -31,6 +31,8 @@ import java.util.Locale;
 public class TripDetailsActivity extends AppCompatActivity {
 
     public static final String EXTRA_TRIP_ID = "trip_id";
+    public static final String RESULT_TRIP_DELETED = "trip_deleted";
+    public static final int RESULT_CODE_DELETED = 100;
 
     private ActivityTripDetailsBinding binding;
     private DatabaseReference tripRef;
@@ -42,7 +44,6 @@ public class TripDetailsActivity extends AppCompatActivity {
     private ValueEventListener requestListener;
     private String existingRequestId;
     private String existingRequestStatus;
-    private boolean requestDataLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,9 +66,6 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         tripRef = FirebaseDatabase.getInstance().getReference("trips").child(tripId);
         requestsRef = FirebaseDatabase.getInstance().getReference("tripRequests").child(tripId);
-
-        // Remove shadow from Join Activity button
-        binding.btnJoinActivity.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         setupListeners();
         setupButtons();
@@ -104,7 +102,6 @@ public class TripDetailsActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                requestDataLoaded = true;
                 updateButtonStates();
             }
 
@@ -116,16 +113,11 @@ public class TripDetailsActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        // Cover photo - use placeholder if no image URL
-        if (currentTrip.imageUrl != null && !currentTrip.imageUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(currentTrip.imageUrl)
-                    .centerCrop()
-                    .error(getPlaceholderImage())
-                    .into(binding.ivCoverPhoto);
-        } else {
-            binding.ivCoverPhoto.setImageResource(getPlaceholderImage());
-        }
+        // Cover photo
+        Glide.with(this)
+                .load(currentTrip.imageUrl)
+                .centerCrop()
+                .into(binding.ivCoverPhoto);
 
         // Activity Type badge
         String activityType = formatActivityType(currentTrip.activityType);
@@ -173,6 +165,7 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         // Host info - Show "(You)" if current user is the host
         boolean isHost = currentUserId != null && currentUserId.equals(currentTrip.driverUid);
+        android.util.Log.d("TripDetails", "currentUserId: " + currentUserId + ", driverUid: " + currentTrip.driverUid + ", isHost: " + isHost);
         if (isHost) {
             binding.tvHostName.setText(currentTrip.driverName + " (You)");
         } else {
@@ -199,12 +192,13 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         // Show/hide Delete button based on whether user is host
         if (isHost) {
+            android.util.Log.d("TripDetails", "Showing delete button - user is host");
             binding.btnDeleteAdventure.setVisibility(View.VISIBLE);
             binding.btnJoinActivity.setVisibility(View.GONE);
         } else {
+            android.util.Log.d("TripDetails", "Hiding delete button - user is NOT host");
             binding.btnDeleteAdventure.setVisibility(View.GONE);
-            // Don't set join button visibility here - let updateButtonStates() handle it
-            // to avoid showing incorrect state before request data is loaded
+            binding.btnJoinActivity.setVisibility(View.VISIBLE);
         }
 
         // Status
@@ -248,23 +242,9 @@ public class TripDetailsActivity extends AppCompatActivity {
         return "$$$ Premium";
     }
 
-    private int getPlaceholderImage() {
-        // Return a placeholder image based on trip ID hash for variety
-        int[] placeholders = {
-                R.drawable.placeholder_adventure_1,
-                R.drawable.placeholder_adventure_2,
-                R.drawable.placeholder_adventure_3,
-                R.drawable.placeholder_adventure_4
-        };
-        int index = tripId != null ? Math.abs(tripId.hashCode()) % placeholders.length : 0;
-        return placeholders[index];
-    }
 
     private void updateButtonStates() {
         if (currentTrip == null) return;
-        
-        // Wait for request data to be loaded before showing button state
-        if (!requestDataLoaded) return;
 
         boolean isDriver = currentUserId.equals(currentTrip.driverUid);
         boolean isCancelled = "canceled".equals(currentTrip.status);
@@ -316,9 +296,6 @@ public class TripDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
         });
 
-        // Host photo click - navigate to user profile
-        binding.ivHostPhoto.setOnClickListener(v -> openHostProfile());
-        binding.hostInfoRow.setOnClickListener(v -> openHostProfile());
 
         // Join Activity button
         binding.btnJoinActivity.setOnClickListener(v -> sendSeatRequest());
@@ -327,25 +304,14 @@ public class TripDetailsActivity extends AppCompatActivity {
         binding.btnDeleteAdventure.setOnClickListener(v -> showDeleteConfirmation());
     }
 
-    private void openHostProfile() {
-        if (currentTrip == null || currentTrip.driverUid == null) return;
-        
-        // Don't navigate if it's the current user's own profile
-        if (currentUserId != null && currentUserId.equals(currentTrip.driverUid)) {
-            return;
-        }
-        
-        Intent intent = new Intent(this, UserProfileActivity.class);
-        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, currentTrip.driverUid);
-        startActivity(intent);
-    }
-
     private void showDeleteConfirmation() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_adventure, null);
+        android.util.Log.d("TripDetails", "showDeleteConfirmation called");
+        
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this, R.style.TransparentDialog);
+        android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_adventure, null);
         builder.setView(dialogView);
         
-        AlertDialog dialog = builder.create();
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -363,13 +329,37 @@ public class TripDetailsActivity extends AppCompatActivity {
     private void deleteAdventure() {
         if (tripId == null) return;
         
-        tripRef.removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Adventure deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> 
-                        Toast.makeText(this, "Failed to delete adventure", Toast.LENGTH_SHORT).show());
+        android.util.Log.d("TripDetails", "Deleting trip: " + tripId);
+        
+        // Remove the listener first to avoid callbacks during deletion
+        if (tripListener != null) {
+            tripRef.removeEventListener(tripListener);
+        }
+        
+        // Delete trip requests first, then delete the trip
+        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance().getReference("tripRequests").child(tripId);
+        tripRequestsRef.removeValue().addOnCompleteListener(task1 -> {
+            // Now delete the trip itself
+            tripRef.removeValue()
+                    .addOnSuccessListener(aVoid -> {
+                        android.util.Log.d("TripDetails", "Trip deleted successfully: " + tripId);
+                        Toast.makeText(this, "Adventure deleted", Toast.LENGTH_SHORT).show();
+                        
+                        // Set result so calling activity knows trip was deleted
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra(RESULT_TRIP_DELETED, tripId);
+                        setResult(RESULT_CODE_DELETED, resultIntent);
+                        
+                        // Force sync by going online (in case offline cache issue)
+                        FirebaseDatabase.getInstance().goOnline();
+                        
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.e("TripDetails", "Failed to delete trip: " + tripId, e);
+                        Toast.makeText(this, "Failed to delete: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+        });
     }
 
     private void sendSeatRequest() {
@@ -422,7 +412,7 @@ public class TripDetailsActivity extends AppCompatActivity {
         notification.userId = currentTrip.driverUid;
         notification.type = "join_request";
         notification.title = "New Join Request";
-        notification.message = requesterName + " wants to join your " + adventureName + " adventure.";
+        notification.message = requesterName + " wants to join your " + adventureName + " trip.";
         notification.tripId = tripId;
         notification.tripName = adventureName;
         notification.fromUserId = user.getUid();

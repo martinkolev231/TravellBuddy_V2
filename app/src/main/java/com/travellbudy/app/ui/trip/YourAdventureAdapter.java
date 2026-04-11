@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.travellbudy.app.R;
 import com.travellbudy.app.databinding.ItemYourAdventureCardBinding;
 import com.travellbudy.app.models.Trip;
 
@@ -106,17 +105,11 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
             binding.tvStatusBadge.setVisibility(View.VISIBLE);
 
             // Load adventure image
-            if (trip.imageUrl != null && !trip.imageUrl.isEmpty()) {
-                Glide.with(context)
-                        .load(trip.imageUrl)
-                        .error(getImageBackgroundForActivity(trip.activityType))
-                        .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(binding.ivAdventureImage);
-            } else {
-                Glide.with(context).clear(binding.ivAdventureImage);
-                binding.ivAdventureImage.setImageResource(getImageBackgroundForActivity(trip.activityType));
-            }
+            Glide.with(context)
+                    .load(trip.imageUrl)
+                    .centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(binding.ivAdventureImage);
 
             // Click to open details
             binding.getRoot().setOnClickListener(v -> {
@@ -126,19 +119,6 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
             });
         }
 
-        private int getImageBackgroundForActivity(String activityType) {
-            if (activityType == null) return R.drawable.placeholder_adventure_1;
-            switch (activityType) {
-                case "hiking":        return R.drawable.placeholder_adventure_1;
-                case "camping":       return R.drawable.placeholder_adventure_2;
-                case "road_trip":     return R.drawable.placeholder_adventure_3;
-                case "city_explore":  return R.drawable.placeholder_adventure_4;
-                case "city_break":    return R.drawable.placeholder_adventure_4;
-                case "festival":      return R.drawable.placeholder_adventure_3;
-                case "beach":         return R.drawable.placeholder_adventure_2;
-                default:              return R.drawable.placeholder_adventure_1;
-            }
-        }
 
         private String generateTitle(Trip trip) {
             String activityLabel = getActivityLabel(trip.activityType);

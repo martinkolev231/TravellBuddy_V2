@@ -39,21 +39,21 @@ public class WelcomeActivity extends AppCompatActivity {
         loadBackgroundImage();
 
         // Set up click listeners
-        binding.btnSignUp.setOnClickListener(v -> 
+        binding.btnSignUp.setOnClickListener(v ->
             startActivity(new Intent(this, SignUpActivity.class))
         );
 
-        binding.btnLogIn.setOnClickListener(v -> 
+        binding.btnLogIn.setOnClickListener(v ->
             startActivity(new Intent(this, SignInActivity.class))
         );
     }
 
     private void setupWindowInsets() {
         View contentView = binding.getRoot().findViewById(
-            binding.getRoot().getChildAt(2) != null ? 
+            binding.getRoot().getChildAt(2) != null ?
             binding.getRoot().getChildAt(2).getId() : View.NO_ID
         );
-        
+
         // Apply insets to the Log In button (bottom-most element)
         ViewCompat.setOnApplyWindowInsetsListener(binding.btnLogIn, (view, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -65,7 +65,7 @@ public class WelcomeActivity extends AppCompatActivity {
             );
             // Set bottom margin to account for navigation bar
             if (view.getLayoutParams() instanceof androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) {
-                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params = 
+                androidx.constraintlayout.widget.ConstraintLayout.LayoutParams params =
                     (androidx.constraintlayout.widget.ConstraintLayout.LayoutParams) view.getLayoutParams();
                 params.bottomMargin = insets.bottom + 24;
                 view.setLayoutParams(params);

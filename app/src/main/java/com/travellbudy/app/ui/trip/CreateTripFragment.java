@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -28,8 +29,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.travellbudy.app.R;
@@ -113,13 +112,36 @@ public class CreateTripFragment extends Fragment {
     }
 
     private void setupActivityTypeDropdown() {
-        // Set initial value
-        binding.spinnerActivityType.setText(ACTIVITY_LABELS[selectedTypePosition]);
+        // Set up the spinner with an ArrayAdapter
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                ACTIVITY_LABELS
+        );
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerActivityType.setAdapter(spinnerAdapter);
+        binding.spinnerActivityType.setSelection(selectedTypePosition);
         
-        // Make the entire field clickable to show custom dropdown
-        binding.spinnerActivityType.setFocusable(false);
-        binding.spinnerActivityType.setClickable(true);
-        binding.spinnerActivityType.setOnClickListener(v -> showTypeDropdownDialog());
+        // Listen for selection changes
+        binding.spinnerActivityType.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                selectedTypePosition = position;
+                selectedActivityType = ACTIVITY_KEYS[position];
+                
+                // Show/hide the "Other" input field
+                if ("Other...".equals(ACTIVITY_LABELS[position])) {
+                    binding.otherTypeContainer.setVisibility(View.VISIBLE);
+                    binding.etOtherType.requestFocus();
+                } else {
+                    binding.otherTypeContainer.setVisibility(View.GONE);
+                    binding.etOtherType.setText("");
+                }
+            }
+            
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
     }
     
     private void showTypeDropdownDialog() {
@@ -138,7 +160,7 @@ public class CreateTripFragment extends Fragment {
         TypeDropdownAdapter adapter = new TypeDropdownAdapter(typesList, selectedTypePosition, (type, position) -> {
             selectedTypePosition = position;
             selectedActivityType = ACTIVITY_KEYS[position];
-            binding.spinnerActivityType.setText(type);
+            binding.spinnerActivityType.setSelection(position);
             
             // Show/hide the "Other" input field
             if ("Other...".equals(type)) {
@@ -170,14 +192,11 @@ public class CreateTripFragment extends Fragment {
 
 
     private void setupClickListeners() {
-        // Cover photo
+        // Cover photo - add new
         binding.btnAddCoverPhoto.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
-        binding.btnRemoveCover.setOnClickListener(v -> {
-            selectedCoverPhotoUri = null;
-            binding.coverPhotoContainer.setVisibility(View.GONE);
-            binding.btnAddCoverPhoto.setVisibility(View.VISIBLE);
-        });
+        // Cover photo - change existing (can't remove, only change)
+        binding.btnRemoveCover.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
         // Start Date picker
         binding.btnStartDate.setOnClickListener(v -> showStartDatePicker());
@@ -237,13 +256,12 @@ public class CreateTripFragment extends Fragment {
         String budgetStr = binding.etBudget.getText().toString().trim();
         String description = binding.etVehicle.getText().toString().trim();
 
-        // Validate cover photo (required)
+        // Validate cover photo is required
         if (selectedCoverPhotoUri == null) {
-            Toast.makeText(requireContext(), R.string.error_no_cover_photo, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Please add a cover photo to create the trip", Toast.LENGTH_LONG).show();
             return;
         }
-
-        // Validate
+        // Validate title
         if (TextUtils.isEmpty(title)) {
             Toast.makeText(requireContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
             return;
@@ -268,32 +286,38 @@ public class CreateTripFragment extends Fragment {
             return;
         }
 
-        int seats = 5; // default
-        if (!TextUtils.isEmpty(seatsStr)) {
-            try {
-                seats = Integer.parseInt(seatsStr);
-                if (seats < 2 || seats > 20) {
-                    Toast.makeText(requireContext(), R.string.error_invalid_seats, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
+        // Validate group size is required
+        if (TextUtils.isEmpty(seatsStr)) {
+            Toast.makeText(requireContext(), "Please enter the group size", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        int seats;
+        try {
+            seats = Integer.parseInt(seatsStr);
+            if (seats < 2 || seats > 20) {
                 Toast.makeText(requireContext(), R.string.error_invalid_seats, Toast.LENGTH_SHORT).show();
                 return;
             }
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), R.string.error_invalid_seats, Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        double budget = 0;
-        if (!TextUtils.isEmpty(budgetStr)) {
-            try {
-                budget = Double.parseDouble(budgetStr);
-                if (budget < 0) {
-                    Toast.makeText(requireContext(), R.string.error_invalid_budget, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            } catch (NumberFormatException e) {
+        // Validate budget is required
+        if (TextUtils.isEmpty(budgetStr)) {
+            Toast.makeText(requireContext(), "Please enter a budget", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        double budget;
+        try {
+            budget = Double.parseDouble(budgetStr);
+            if (budget < 0) {
                 Toast.makeText(requireContext(), R.string.error_invalid_budget, Toast.LENGTH_SHORT).show();
                 return;
             }
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), R.string.error_invalid_budget, Toast.LENGTH_SHORT).show();
+            return;
         }
 
         if (TextUtils.isEmpty(description)) {
@@ -308,27 +332,9 @@ public class CreateTripFragment extends Fragment {
         }
 
         showLoading(true);
-        final int finalSeats = seats;
-        final double finalBudget = budget;
-        final String finalDestination = destination;
-        currentUser.reload().addOnCompleteListener(reloadTask -> {
-            FirebaseUser refreshedUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (refreshedUser == null) {
-                showLoading(false);
-                return;
-            }
-            
-            // TODO: Set to false before releasing to production!
-            // Skip email verification for easier testing during development
-            boolean skipVerificationForTesting = true;
-            
-            if (!skipVerificationForTesting && !refreshedUser.isEmailVerified()) {
-                showLoading(false);
-                Toast.makeText(requireContext(), R.string.error_email_not_verified_trip, Toast.LENGTH_LONG).show();
-                return;
-            }
-            proceedWithPublish(refreshedUser, title, finalDestination, finalSeats, finalBudget, description, departureDateTime, endDate);
-        });
+        
+        // Proceed directly without reloading user (reload can cause auth issues)
+        proceedWithPublish(currentUser, title, destination, seats, budget, description, departureDateTime, endDate);
     }
 
     private void proceedWithPublish(FirebaseUser currentUser, String title, String destination,
@@ -340,7 +346,16 @@ public class CreateTripFragment extends Fragment {
 
         String driverName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Organizer";
 
-        Trip trip = new Trip("", currentUser.getUid(), driverName,
+        // Generate trip ID first for the photo upload path
+        String tripId = com.google.firebase.database.FirebaseDatabase.getInstance()
+                .getReference("trips").push().getKey();
+        if (tripId == null) {
+            showLoading(false);
+            Toast.makeText(requireContext(), R.string.error_trip_creation_failed, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Trip trip = new Trip(tripId, currentUser.getUid(), driverName,
                 destination, destination,
                 destination, destination,
                 departureMillis, arrivalEstimate, seats, budget, "EUR", title);
@@ -371,27 +386,11 @@ public class CreateTripFragment extends Fragment {
         trip.luggageSize = budgetLevel;
         trip.difficultyLevel = budgetLevel.equals("low") ? "easy" : (budgetLevel.equals("high") ? "hard" : "moderate");
 
-        // Upload cover photo first, then create trip
-        if (selectedCoverPhotoUri != null) {
-            uploadCoverPhotoAndCreateTrip(trip);
-        } else {
-            createTripInDatabase(trip);
-        }
+        // Upload cover photo first, then save trip
+        uploadCoverPhotoAndSaveTrip(tripId, trip);
     }
 
-    private void uploadCoverPhotoAndCreateTrip(Trip trip) {
-        // Generate the actual tripId first so we use the correct path
-        DatabaseReference tripsRef = FirebaseDatabase.getInstance().getReference("trips");
-        String tripId = tripsRef.push().getKey();
-        if (tripId == null) {
-            showLoading(false);
-            Toast.makeText(requireContext(), R.string.error_trip_creation_failed, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        
-        // Set the tripId on the trip so repository uses this ID
-        trip.tripId = tripId;
-        
+    private void uploadCoverPhotoAndSaveTrip(String tripId, Trip trip) {
         StorageReference storageRef = FirebaseStorage.getInstance().getReference();
         String fileName = "trip_photos/" + tripId + "/cover.jpg";
         StorageReference photoRef = storageRef.child(fileName);
@@ -399,27 +398,44 @@ public class CreateTripFragment extends Fragment {
         photoRef.putFile(selectedCoverPhotoUri)
                 .addOnSuccessListener(taskSnapshot -> {
                     photoRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                        // Check if fragment is still attached
+                        if (!isAdded() || getContext() == null) return;
+                        
                         trip.imageUrl = downloadUri.toString();
-                        createTripInDatabase(trip);
+                        saveTripToDatabase(trip);
                     }).addOnFailureListener(e -> {
+                        // Check if fragment is still attached
+                        if (!isAdded() || getContext() == null) return;
+                        
                         showLoading(false);
                         Toast.makeText(requireContext(), R.string.error_trip_creation_failed, Toast.LENGTH_SHORT).show();
                     });
                 })
                 .addOnFailureListener(e -> {
+                    // Check if fragment is still attached
+                    if (!isAdded() || getContext() == null) return;
+                    
                     showLoading(false);
                     Toast.makeText(requireContext(), R.string.error_trip_creation_failed, Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void createTripInDatabase(Trip trip) {
+    private void saveTripToDatabase(Trip trip) {
         viewModel.publishTrip(trip).observe(getViewLifecycleOwner(), result -> {
+            // Check if fragment is still attached and view is available
+            if (!isAdded() || getView() == null || binding == null) return;
+            
             showLoading(false);
-            if (result == null) return;
+            if (result == null || result.isLoading()) return;
 
             if (result.isSuccess()) {
                 Toast.makeText(requireContext(), R.string.success_trip_created, Toast.LENGTH_SHORT).show();
-                Navigation.findNavController(requireView()).navigate(R.id.action_createTrip_to_home);
+                // Simply pop back to previous fragment instead of navigating
+                try {
+                    Navigation.findNavController(requireView()).popBackStack();
+                } catch (Exception e) {
+                    // Fragment was detached, ignore
+                }
             } else if (result.isError()) {
                 String errMsg = result.message != null ? result.message : getString(R.string.error_trip_creation_failed);
                 Toast.makeText(requireContext(), errMsg, Toast.LENGTH_LONG).show();
@@ -428,8 +444,10 @@ public class CreateTripFragment extends Fragment {
     }
 
     private void showLoading(boolean show) {
+        if (binding == null) return;
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        binding.btnPublish.setEnabled(!show);
+        binding.btnPublish.setClickable(!show);
+        binding.btnPublish.setAlpha(show ? 0.6f : 1.0f);
     }
 
     @Override

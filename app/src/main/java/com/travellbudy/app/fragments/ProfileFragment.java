@@ -28,7 +28,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.travellbudy.app.EditProfileActivity;
 import com.travellbudy.app.R;
-import com.travellbudy.app.RatingsActivity;
 import com.travellbudy.app.SettingsActivity;
 import com.travellbudy.app.databinding.FragmentProfileBinding;
 import com.travellbudy.app.models.User;
@@ -80,13 +79,9 @@ public class ProfileFragment extends Fragment {
         binding.btnEditProfile.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), EditProfileActivity.class)));
 
-        // Settings button
-        binding.btnSettings.setOnClickListener(v ->
-                startActivity(new Intent(requireContext(), SettingsActivity.class)));
-
-        // My Adventures button - navigates to My Adventures screen
-        binding.btnMyAdventures.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.myTripsFragment);
+        // Settings button - goes to settings screen
+        binding.btnSettings.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), SettingsActivity.class));
         });
 
         // Change profile photo
@@ -99,7 +94,7 @@ public class ProfileFragment extends Fragment {
         });
 
         // Change cover photo
-        binding.btnChangeCover.setOnClickListener(v -> {
+        binding.ivCoverPhoto.setOnClickListener(v -> {
             if (!isUploadingCover) {
                 coverPhotoPickerLauncher.launch("image/*");
             } else {
@@ -109,11 +104,83 @@ public class ProfileFragment extends Fragment {
 
         // Add interest
         binding.btnAddInterest.setOnClickListener(v -> {
-            // TODO: Implement add interest dialog
             Toast.makeText(requireContext(), "Add interests coming soon", Toast.LENGTH_SHORT).show();
         });
 
+        // My Adventures - navigate to My Trips screen
+        binding.btnMyAdventures.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.myTripsFragment);
+        });
+
         loadProfile();
+    }
+
+    private void loadProfile() {
+        userListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (binding == null) return;
+
+                User user = snapshot.getValue(User.class);
+                if (user == null) return;
+
+                // Display name
+                binding.tvDisplayName.setText(user.displayName != null ? user.displayName : "");
+
+                // Bio / tagline
+                if (user.bio != null && !user.bio.isEmpty()) {
+                    binding.tvBio.setText(user.bio);
+                    binding.tvBio.setVisibility(View.VISIBLE);
+                } else {
+                    binding.tvBio.setVisibility(View.GONE);
+                }
+
+                // Rating
+                double avgRating = user.ratingSummary != null ? user.ratingSummary.averageRating : 0.0;
+                binding.tvAvgRating.setText(String.format(Locale.getDefault(), "%.1f", avgRating));
+
+                // Trip counters
+                int joinedCount = 0;
+                int hostedCount = 0;
+                if (user.tripCounters != null) {
+                    joinedCount = user.tripCounters.tripsAsRider;
+                    hostedCount = user.tripCounters.tripsAsDriver;
+                }
+                binding.tvJoinedCount.setText(String.valueOf(joinedCount));
+                binding.tvHostedCount.setText(String.valueOf(hostedCount));
+
+                // Profile photo
+                if (getContext() != null) {
+                    if (user.photoUrl != null && !user.photoUrl.isEmpty()) {
+                        Glide.with(requireContext())
+                                .load(user.photoUrl)
+                                .placeholder(R.drawable.bg_profile_placeholder)
+                                .error(R.drawable.bg_profile_placeholder)
+                                .circleCrop()
+                                .into(binding.ivProfilePhoto);
+                    } else {
+                        binding.ivProfilePhoto.setImageResource(R.drawable.bg_profile_placeholder);
+                    }
+                }
+
+                // Cover photo
+                if (getContext() != null) {
+                    if (user.coverPhotoUrl != null && !user.coverPhotoUrl.isEmpty()) {
+                        Glide.with(requireContext())
+                                .load(user.coverPhotoUrl)
+                                .centerCrop()
+                                .into(binding.ivCoverPhoto);
+                    } else {
+                        binding.ivCoverPhoto.setImageResource(R.drawable.placeholder_adventure_1);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+        userRef.addValueEventListener(userListener);
     }
 
     private void uploadProfilePhoto(Uri imageUri) {
@@ -138,11 +205,11 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(taskSnapshot -> {
                     photoRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         String newPhotoUrl = downloadUri.toString();
-                        
-                        // Update database with new photo URL
+
+                        // Update database
                         userRef.child("photoUrl").setValue(newPhotoUrl)
                                 .addOnSuccessListener(aVoid -> {
-                                    // Also update Firebase Auth profile
+                                    // Update Firebase Auth profile
                                     currentUser.updateProfile(new UserProfileChangeRequest.Builder()
                                             .setPhotoUri(downloadUri)
                                             .build());
@@ -171,9 +238,6 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
-    /**
-     * Update the driver photo URL in all trips where the user is the driver
-     */
     private void updatePhotoInTrips(String userId, String newPhotoUrl) {
         FirebaseDatabase.getInstance().getReference("trips")
                 .orderByChild("driverUid")
@@ -241,94 +305,32 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (userRef != null && userListener != null) {
+        // Check if user is still logged in before reattaching listener
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null && userRef != null && userListener != null) {
             userRef.addValueEventListener(userListener);
         }
     }
-
-    private void loadProfile() {
-        userListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (binding == null) return;
-                User user = snapshot.getValue(User.class);
-                if (user != null) {
-                    // Display name
-                    binding.tvDisplayName.setText(user.displayName);
-
-                    // Location - show if available, otherwise hide
-                    if (user.location != null && !user.location.isEmpty()) {
-                        binding.tvLocation.setText(user.location);
-                        binding.tvLocation.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.tvLocation.setText(R.string.placeholder_location);
-                        binding.tvLocation.setVisibility(View.VISIBLE);
-                    }
-
-                    // Bio
-                    if (user.bio != null && !user.bio.isEmpty()) {
-                        binding.tvBio.setText(user.bio);
-                        binding.tvBio.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.tvBio.setText(R.string.placeholder_bio);
-                        binding.tvBio.setVisibility(View.VISIBLE);
-                    }
-
-                    // Rating
-                    double avgRating = user.ratingSummary != null ? user.ratingSummary.averageRating : 0.0;
-                    binding.tvAvgRating.setText(String.format(Locale.getDefault(), "%.1f", avgRating));
-
-                    // Trip counters
-                    int joinedCount = 0;
-                    int hostedCount = 0;
-                    if (user.tripCounters != null) {
-                        joinedCount = user.tripCounters.tripsAsRider;
-                        hostedCount = user.tripCounters.tripsAsDriver;
-                    }
-                    binding.tvJoinedCount.setText(String.valueOf(joinedCount));
-                    binding.tvHostedCount.setText(String.valueOf(hostedCount));
-
-                    // Profile photo
-                    if (getContext() != null) {
-                        if (user.photoUrl != null && !user.photoUrl.isEmpty()) {
-                            Glide.with(requireContext())
-                                    .load(user.photoUrl)
-                                    .placeholder(R.drawable.bg_profile_placeholder)
-                                    .error(R.drawable.bg_profile_placeholder)
-                                    .circleCrop()
-                                    .into(binding.ivProfilePhoto);
-                        } else {
-                            binding.ivProfilePhoto.setImageResource(R.drawable.bg_profile_placeholder);
-                        }
-                    }
-
-                    // Cover photo - use coverPhotoUrl if available, otherwise use placeholder
-                    if (getContext() != null) {
-                        if (user.coverPhotoUrl != null && !user.coverPhotoUrl.isEmpty()) {
-                            Glide.with(requireContext())
-                                    .load(user.coverPhotoUrl)
-                                    .centerCrop()
-                                    .into(binding.ivCoverPhoto);
-                        } else {
-                            binding.ivCoverPhoto.setImageResource(R.drawable.placeholder_adventure_1);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        };
-        userRef.addValueEventListener(userListener);
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Remove listener when fragment is paused to prevent callbacks during logout
+        if (userListener != null && userRef != null) {
+            userRef.removeEventListener(userListener);
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Ensure listener is removed
         if (userListener != null && userRef != null) {
             userRef.removeEventListener(userListener);
+            userListener = null;
         }
+        userRef = null;
         binding = null;
     }
 }
+

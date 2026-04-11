@@ -48,13 +48,17 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Check auth
-        if (!FirebaseManager.getInstance().isAuthenticated()) {
-            startActivity(new Intent(this, SignInActivity.class));
+        // Check auth on create only - don't use AuthStateListener to avoid conflicts with logout flow
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, WelcomeActivity.class));
             finish();
             return;
         }
 
+        initializeApp();
+    }
+
+    private void initializeApp() {
         maybeRequestNotificationPermission();
         syncFcmToken();
 
@@ -107,19 +111,26 @@ public class HomeActivity extends AppCompatActivity {
         connectedListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Boolean connected = snapshot.getValue(Boolean.class);
-                if (connected != null && !connected) {
-                    if (offlineSnackbar == null || !offlineSnackbar.isShown()) {
-                        offlineSnackbar = Snackbar.make(binding.getRoot(),
-                                R.string.msg_offline, Snackbar.LENGTH_INDEFINITE);
-                        offlineSnackbar.show();
+                // Check if activity is still valid
+                if (isFinishing() || isDestroyed() || binding == null) return;
+                
+                try {
+                    Boolean connected = snapshot.getValue(Boolean.class);
+                    if (connected != null && !connected) {
+                        if (offlineSnackbar == null || !offlineSnackbar.isShown()) {
+                            offlineSnackbar = Snackbar.make(binding.getRoot(),
+                                    R.string.msg_offline, Snackbar.LENGTH_INDEFINITE);
+                            offlineSnackbar.show();
+                        }
+                    } else {
+                        if (offlineSnackbar != null && offlineSnackbar.isShown()) {
+                            offlineSnackbar.dismiss();
+                            Snackbar.make(binding.getRoot(),
+                                    R.string.msg_back_online, Snackbar.LENGTH_SHORT).show();
+                        }
                     }
-                } else {
-                    if (offlineSnackbar != null && offlineSnackbar.isShown()) {
-                        offlineSnackbar.dismiss();
-                        Snackbar.make(binding.getRoot(),
-                                R.string.msg_back_online, Snackbar.LENGTH_SHORT).show();
-                    }
+                } catch (Exception e) {
+                    // Ignore UI errors during activity lifecycle changes
                 }
             }
 

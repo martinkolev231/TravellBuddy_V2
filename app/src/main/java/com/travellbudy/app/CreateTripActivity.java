@@ -2,7 +2,6 @@ package com.travellbudy.app;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,14 +15,8 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.bumptech.glide.Glide;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.widget.Autocomplete;
-import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -39,9 +32,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -51,11 +42,6 @@ public class CreateTripActivity extends AppCompatActivity {
     private LocalDate selectedStartDate;
     private LocalDate selectedEndDate;
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault());
-
-    private String selectedDestination = "";
-    private Double destLat;
-    private Double destLng;
-    private String selectedType = "";
     private Uri selectedCoverPhotoUri = null;
 
     private final String[] activityTypes = {
@@ -63,27 +49,6 @@ public class CreateTripActivity extends AppCompatActivity {
             "Festival / Event", "Photography", "Outdoor Sports",
             "Backpacking", "Weekend Getaway", "Other"
     };
-
-    private final ActivityResultLauncher<Intent> placesLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() != RESULT_OK || result.getData() == null) {
-                    return;
-                }
-                Place place = Autocomplete.getPlaceFromIntent(result.getData());
-                String address = place.getAddress();
-                if (TextUtils.isEmpty(address)) {
-                    address = place.getName();
-                }
-                if (TextUtils.isEmpty(address) || place.getLatLng() == null) {
-                    return;
-                }
-
-                selectedDestination = address;
-                destLat = place.getLatLng().latitude;
-                destLng = place.getLatLng().longitude;
-                binding.tvDestination.setText(address);
-                binding.tvDestination.setTextColor(getResources().getColor(R.color.text_primary, null));
-            });
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -99,83 +64,34 @@ public class CreateTripActivity extends AppCompatActivity {
         binding = ActivityCreateTripBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setupWindowInsets();
         binding.btnBack.setOnClickListener(v -> finish());
-
-        // Setup touch listener to dismiss keyboard when tapping outside EditText
-        setupTouchToDismissKeyboard();
-
-        // Force software layer type on button to eliminate shadow artifacts
-        binding.btnPublish.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         setupTypeSpinner();
         setupClickListeners();
     }
 
-    @SuppressWarnings("ClickableViewAccessibility")
-    private void setupTouchToDismissKeyboard() {
-        binding.createTripRoot.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                View focusedView = getCurrentFocus();
-                if (focusedView instanceof EditText) {
-                    hideKeyboard();
-                    focusedView.clearFocus();
-                }
-            }
-            return false; // Don't consume the event, let scrolling work
-        });
-    }
-
-    /**
-     * Set up window insets for proper safe area handling on notched devices
-     */
-    private void setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.headerSection, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.statusBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
-        });
-    }
-
     private void setupTypeSpinner() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, activityTypes);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, activityTypes);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerType.setAdapter(adapter);
     }
 
     private void setupClickListeners() {
-        // Cover photo
+        // Cover photo - add new
         binding.btnAddCoverPhoto.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
-        binding.btnRemoveCover.setOnClickListener(v -> {
-            selectedCoverPhotoUri = null;
-            binding.coverPhotoContainer.setVisibility(View.GONE);
-            binding.btnAddCoverPhoto.setVisibility(View.VISIBLE);
-        });
+        // Cover photo - change existing
+        binding.btnChangeCover.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
-        // Publish button - dismiss keyboard first, then publish
-        binding.btnPublish.setOnClickListener(v -> {
-            hideKeyboard();
-            publishTrip();
-        });
+        // Start date picker
+        binding.btnStartDate.setOnClickListener(v -> showStartDatePicker());
 
-        // Date pickers also dismiss keyboard
-        binding.btnStartDate.setOnClickListener(v -> {
-            hideKeyboard();
-            showStartDatePicker();
-        });
+        // End date picker
+        binding.btnEndDate.setOnClickListener(v -> showEndDatePicker());
 
-        binding.btnEndDate.setOnClickListener(v -> {
-            hideKeyboard();
-            showEndDatePicker();
-        });
-
-        // Destination picker dismisses keyboard
-        binding.btnDestination.setOnClickListener(v -> {
-            hideKeyboard();
-            openPlacePicker();
-        });
+        // Publish button
+        binding.btnPublish.setOnClickListener(v -> publishTrip());
     }
 
     private void showCoverPhoto(Uri uri) {
@@ -185,18 +101,6 @@ public class CreateTripActivity extends AppCompatActivity {
                 .load(uri)
                 .centerCrop()
                 .into(binding.ivCoverPhoto);
-    }
-
-    private void openPlacePicker() {
-        List<Place.Field> fields = Arrays.asList(
-                Place.Field.ID,
-                Place.Field.NAME,
-                Place.Field.ADDRESS,
-                Place.Field.LAT_LNG
-        );
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                .build(this);
-        placesLauncher.launch(intent);
     }
 
     private void showStartDatePicker() {
@@ -234,17 +138,21 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private void publishTrip() {
         String title = binding.etTitle.getText().toString().trim();
+        String destination = binding.etDestination.getText().toString().trim();
         String groupSizeStr = binding.etGroupSize.getText().toString().trim();
         String budgetStr = binding.etBudget.getText().toString().trim();
         String description = binding.etDescription.getText().toString().trim();
-        selectedType = activityTypes[binding.spinnerType.getSelectedItemPosition()];
 
-        // Validate
-        if (TextUtils.isEmpty(title)) {
-            Toast.makeText(this, "Please enter a title", Toast.LENGTH_SHORT).show();
+        // Validate cover photo is required
+        if (selectedCoverPhotoUri == null) {
+            Toast.makeText(this, R.string.error_empty_cover_photo, Toast.LENGTH_LONG).show();
             return;
         }
-        if (TextUtils.isEmpty(selectedDestination)) {
+        if (TextUtils.isEmpty(title)) {
+            Toast.makeText(this, R.string.error_empty_title, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (TextUtils.isEmpty(destination)) {
             Toast.makeText(this, R.string.error_empty_destination, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -322,16 +230,23 @@ public class CreateTripActivity extends AppCompatActivity {
 
         String driverName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Organizer";
 
+        // Get selected activity type
+        String selectedType = binding.spinnerType.getSelectedItem() != null 
+                ? binding.spinnerType.getSelectedItem().toString() : "";
+
         Trip trip = new Trip(tripId, currentUser.getUid(), driverName,
-                selectedDestination, selectedDestination,
-                selectedDestination, selectedDestination,
-                departureMillis, arrivalMillis, seats, budget, "EUR", description);
+                destination, destination,
+                destination, destination,
+                departureMillis, arrivalMillis, seats, budget, "EUR", title);
+
+        // Set the description separately
+        trip.description = description;
 
         // Set additional fields
-        trip.originLat = destLat != null ? destLat : 0.0;
-        trip.originLng = destLng != null ? destLng : 0.0;
-        trip.destLat = destLat != null ? destLat : 0.0;
-        trip.destLng = destLng != null ? destLng : 0.0;
+        trip.originLat = 0.0;
+        trip.originLng = 0.0;
+        trip.destLat = 0.0;
+        trip.destLng = 0.0;
         trip.activityType = selectedType;
 
         // Set driver photo if available
@@ -340,16 +255,8 @@ public class CreateTripActivity extends AppCompatActivity {
         }
 
         // Upload cover photo to Firebase Storage first, then save trip
-        if (selectedCoverPhotoUri != null) {
-            uploadCoverPhotoAndSaveTrip(tripId, trip, currentUser);
-        } else {
-            saveTripToDatabase(tripId, trip, currentUser);
-        }
-    }
-
-    private void showLoading(boolean show) {
-        binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-        binding.btnPublish.setEnabled(!show);
+        // selectedCoverPhotoUri is guaranteed to be non-null at this point (validated above)
+        uploadCoverPhotoAndSaveTrip(tripId, trip, currentUser);
     }
 
     private void uploadCoverPhotoAndSaveTrip(String tripId, Trip trip, FirebaseUser currentUser) {
@@ -398,25 +305,45 @@ public class CreateTripActivity extends AppCompatActivity {
 
     private void createGroupChat(String tripId, Trip trip, FirebaseUser currentUser) {
         DatabaseReference chatsRef = FirebaseDatabase.getInstance().getReference("chats");
-        String chatId = "group_" + tripId;
-        
+        String chatId = chatsRef.push().getKey();
+        if (chatId == null) return;
+
+        // Use the trip title (stored in carModel field) for the group chat name
+        String tripTitle;
+        if (trip.carModel != null && !trip.carModel.isEmpty()) {
+            tripTitle = trip.carModel;
+        } else {
+            tripTitle = trip.destinationCity;
+        }
+
         Map<String, Object> chatData = new HashMap<>();
         chatData.put("chatId", chatId);
         chatData.put("type", "group");
         chatData.put("tripId", tripId);
-        chatData.put("name", trip.destinationCity);
-        chatData.put("imageUrl", trip.imageUrl != null ? trip.imageUrl : "");
-        chatData.put("createdAt", System.currentTimeMillis());
+        chatData.put("name", tripTitle);
         chatData.put("lastMessage", "");
         chatData.put("lastMessageTime", System.currentTimeMillis());
         chatData.put("lastMessageSenderId", "");
-        
+
         // Add creator as participant
         Map<String, Object> participants = new HashMap<>();
         participants.put(currentUser.getUid(), true);
         chatData.put("participants", participants);
-        
+
         chatsRef.child(chatId).setValue(chatData);
+    }
+
+    private void showLoading(boolean show) {
+        binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        binding.btnPublish.setEnabled(!show);
+    }
+
+    private void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     /**
@@ -431,7 +358,7 @@ public class CreateTripActivity extends AppCompatActivity {
                 v.getLocationOnScreen(location);
                 float x = ev.getRawX();
                 float y = ev.getRawY();
-                
+
                 if (x < location[0] || x > location[0] + v.getWidth() ||
                     y < location[1] || y > location[1] + v.getHeight()) {
                     hideKeyboard();
@@ -440,13 +367,5 @@ public class CreateTripActivity extends AppCompatActivity {
             }
         }
         return super.dispatchTouchEvent(ev);
-    }
-
-    private void hideKeyboard() {
-        View view = getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
     }
 }

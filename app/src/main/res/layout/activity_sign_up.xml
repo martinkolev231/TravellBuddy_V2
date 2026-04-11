@@ -136,7 +136,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:hint="@string/hint_email_placeholder"
                 android:inputType="textEmailAddress"
                 android:maxLength="100"
@@ -183,7 +183,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:hint="@string/hint_password_placeholder"
                 android:inputType="textPassword"
                 android:maxLength="50"

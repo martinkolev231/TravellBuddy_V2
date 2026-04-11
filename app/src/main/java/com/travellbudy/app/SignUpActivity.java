@@ -96,21 +96,22 @@ public class SignUpActivity extends AppCompatActivity {
                                     .child(firebaseUser.getUid())
                                     .setValue(user.toMap());
 
+                            Toast.makeText(this, R.string.success_account_created, Toast.LENGTH_LONG).show();
+
                             // Send verification email with proper error handling
                             firebaseUser.sendEmailVerification()
                                     .addOnCompleteListener(emailTask -> {
                                         showLoading(false);
                                         if (emailTask.isSuccessful()) {
-                                            Log.d("SignUpActivity", "Verification email sent to: " + email);
-                                            Toast.makeText(this, 
-                                                    "Account created! Verification email sent to " + email, 
+                                            Toast.makeText(this,
+                                                    "Account created! Verification email sent to " + email,
                                                     Toast.LENGTH_LONG).show();
                                         } else {
-                                            Log.e("SignUpActivity", "Failed to send verification email", 
+                                            Log.e("SignUpActivity", "Failed to send verification email",
                                                     emailTask.getException());
-                                            Toast.makeText(this, 
-                                                    "Account created but couldn't send verification email. " +
-                                                    "Please check Settings to resend.", 
+                                            Toast.makeText(this,
+                                                    "Account created but verification email failed. " +
+                                                    "Please check Settings to resend.",
                                                     Toast.LENGTH_LONG).show();
                                         }
                                         startActivity(new Intent(this, HomeActivity.class));

@@ -101,29 +101,40 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
             int joined = trip.totalSeats - trip.availableSeats;
             binding.tvJoined.setText(String.format(java.util.Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
 
-            // Status badge - show ONLY X SPOTS LEFT
+            // Status badge - show ONLY X SPOTS LEFT or WAITLIST
             int spotsLeft = trip.availableSeats;
             if (spotsLeft > 0) {
                 binding.tvStatusBadge.setText(String.format(java.util.Locale.getDefault(), 
                         "ONLY %d SPOT%s LEFT", spotsLeft, spotsLeft == 1 ? "" : "S"));
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_left);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             } else {
-                binding.tvStatusBadge.setText("FULLY BOOKED");
+                binding.tvStatusBadge.setText("WAITLIST");
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_waitlist);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             }
 
-            // Load adventure image
-            if (trip.imageUrl != null && !trip.imageUrl.isEmpty()) {
+            // Load organizer profile photo - always show when available
+            if (trip.driverPhotoUrl != null && !trip.driverPhotoUrl.isEmpty()) {
+                binding.ivOrganizerPhoto.setVisibility(View.VISIBLE);
+                binding.btnSave.setVisibility(View.GONE);
                 Glide.with(context)
-                        .load(trip.imageUrl)
-                        .error(getImageBackgroundForActivity(trip.activityType))
-                        .centerCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(binding.ivAdventureImage);
+                        .load(trip.driverPhotoUrl)
+                        .placeholder(R.drawable.bg_profile_placeholder)
+                        .error(R.drawable.bg_profile_placeholder)
+                        .circleCrop()
+                        .into(binding.ivOrganizerPhoto);
             } else {
-                Glide.with(context).clear(binding.ivAdventureImage);
-                binding.ivAdventureImage.setImageResource(getImageBackgroundForActivity(trip.activityType));
+                binding.ivOrganizerPhoto.setVisibility(View.GONE);
+                binding.btnSave.setVisibility(View.GONE);
             }
+
+            // Load adventure image
+            Glide.with(context)
+                    .load(trip.imageUrl)
+                    .centerCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(binding.ivAdventureImage);
 
             // Click to open details
             binding.getRoot().setOnClickListener(v -> {
@@ -137,20 +148,6 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
             });
         }
 
-        private int getImageBackgroundForActivity(String activityType) {
-            // Use variety of placeholder images based on activity type
-            if (activityType == null) return R.drawable.placeholder_adventure_1;
-            switch (activityType) {
-                case "hiking":        return R.drawable.placeholder_adventure_1;
-                case "camping":       return R.drawable.placeholder_adventure_2;
-                case "road_trip":     return R.drawable.placeholder_adventure_3;
-                case "city_explore":  return R.drawable.placeholder_adventure_4;
-                case "city_break":    return R.drawable.placeholder_adventure_4;
-                case "festival":      return R.drawable.placeholder_adventure_3;
-                case "beach":         return R.drawable.placeholder_adventure_2;
-                default:              return R.drawable.placeholder_adventure_1;
-            }
-        }
 
         /**
          * Generate a proper title from activity type and destination.

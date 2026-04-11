@@ -8,35 +8,24 @@
     android:fitsSystemWindows="true"
     android:background="@color/white">
 
-    <!-- Header Container with Safe Area -->
-    <LinearLayout
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="56dp"
         android:background="@color/white"
-        android:elevation="0dp">
+        app:navigationIcon="@drawable/ic_back"
+        app:navigationIconTint="@color/text_primary"
+        app:title="@string/title_create_trip"
+        app:titleTextColor="@color/text_primary"
+        app:titleMarginStart="8dp"
+        app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@color/white"
-            android:paddingStart="4dp"
-            android:paddingEnd="16dp"
-            app:contentInsetStartWithNavigation="0dp"
-            app:navigationIcon="@drawable/ic_back"
-            app:navigationIconTint="@color/text_primary"
-            app:title="@string/title_create_trip"
-            app:titleTextColor="@color/text_primary"
-            app:titleMarginStart="8dp"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider" />
-
-    </LinearLayout>
+    <!-- Divider -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -68,6 +57,7 @@
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:background="@drawable/bg_icon_circle_light">
+
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
@@ -100,12 +90,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:visibility="gone">
+
                 <ImageView
                     android:id="@+id/ivCoverPhoto"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     android:contentDescription="@string/label_add_cover_photo" />
+
                 <ImageView
                     android:id="@+id/btnRemoveCover"
                     android:layout_width="32dp"
@@ -114,7 +106,7 @@
                     android:layout_margin="8dp"
                     android:background="@drawable/bg_icon_circle_dark"
                     android:padding="6dp"
-                    android:src="@drawable/ic_back"
+                    android:src="@drawable/ic_close"
                     android:contentDescription="@null" />
             </FrameLayout>
 
@@ -137,11 +129,13 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp">
+
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_title"
                     android:contentDescription="@null" />
+
                 <EditText
                     android:id="@+id/etTitle"
                     android:layout_width="0dp"
@@ -173,6 +167,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -181,6 +176,7 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.05" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
@@ -189,11 +185,13 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:paddingHorizontal="16dp">
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_location_gray"
                             android:contentDescription="@null" />
+
                         <EditText
                             android:id="@+id/etDestination"
                             android:layout_width="0dp"
@@ -218,6 +216,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -226,21 +225,19 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.05" />
+
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_input_field_gray">
-                        <AutoCompleteTextView
+
+                        <Spinner
                             android:id="@+id/spinnerActivityType"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@android:color/transparent"
-                            android:paddingHorizontal="16dp"
-                            android:inputType="none"
-                            android:focusable="false"
-                            android:textColor="@color/text_primary"
-                            android:textSize="15sp" />
+                            android:paddingHorizontal="16dp" />
                     </FrameLayout>
 
                     <!-- Other Type Input (hidden by default) -->
@@ -254,6 +251,7 @@
                         android:orientation="horizontal"
                         android:paddingHorizontal="16dp"
                         android:visibility="gone">
+
                         <EditText
                             android:id="@+id/etOtherType"
                             android:layout_width="match_parent"
@@ -285,6 +283,7 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -293,6 +292,7 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.05" />
+
                     <LinearLayout
                         android:id="@+id/btnStartDate"
                         android:layout_width="match_parent"
@@ -304,17 +304,20 @@
                         android:paddingHorizontal="16dp"
                         android:clickable="true"
                         android:focusable="true">
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_calendar_gray"
                             android:contentDescription="@null" />
+
                         <TextView
                             android:id="@+id/tvStartDate"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
+                            android:text="@string/hint_select_date"
                             android:textColor="@color/text_hint"
                             android:textSize="15sp" />
                     </LinearLayout>
@@ -327,6 +330,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -335,6 +339,7 @@
                         android:textSize="12sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.05" />
+
                     <LinearLayout
                         android:id="@+id/btnEndDate"
                         android:layout_width="match_parent"
@@ -346,24 +351,27 @@
                         android:paddingHorizontal="16dp"
                         android:clickable="true"
                         android:focusable="true">
+
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_calendar_gray"
                             android:contentDescription="@null" />
+
                         <TextView
                             android:id="@+id/tvEndDate"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
+                            android:text="@string/hint_select_date"
                             android:textColor="@color/text_hint"
                             android:textSize="15sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Group Size (Full Width) -->
+            <!-- Group Size -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -382,11 +390,13 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp">
+
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_people_gray"
                     android:contentDescription="@null" />
+
                 <EditText
                     android:id="@+id/etSeats"
                     android:layout_width="0dp"
@@ -403,7 +413,7 @@
                     android:importantForAutofill="no" />
             </LinearLayout>
 
-            <!-- ESTIMATED BUDGET PER PERSON -->
+            <!-- Estimated Budget Per Person -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -472,11 +482,13 @@
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="16dp">
+
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:src="@drawable/ic_description"
                     android:contentDescription="@null" />
+
                 <EditText
                     android:id="@+id/etVehicle"
                     android:layout_width="0dp"
@@ -495,25 +507,19 @@
             </LinearLayout>
 
             <!-- Post Adventure Button -->
-            <LinearLayout
+            <TextView
                 android:id="@+id/btnPublish"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
-                android:background="@drawable/bg_button_rounded_flat"
+                android:background="@drawable/bg_button_primary"
                 android:gravity="center"
-                android:orientation="horizontal"
+                android:text="@string/btn_post_adventure"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_post_adventure"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:focusable="true" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -527,4 +533,3 @@
     </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>
-

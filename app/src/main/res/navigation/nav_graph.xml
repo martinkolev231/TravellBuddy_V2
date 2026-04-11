@@ -116,8 +116,7 @@
         <action
             android:id="@+id/action_createTrip_to_home"
             app:destination="@id/homeFragment"
-            app:popUpTo="@id/homeFragment"
-            app:popUpToInclusive="true" />
+            app:popUpTo="@id/homeFragment" />
     </fragment>
 
     <!-- Manage Requests -->

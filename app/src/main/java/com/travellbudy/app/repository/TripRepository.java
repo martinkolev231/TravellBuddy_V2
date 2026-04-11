@@ -64,7 +64,10 @@ public class TripRepository {
                 List<Trip> trips = new ArrayList<>();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     Trip trip = child.getValue(Trip.class);
-                    if (trip != null && !Constants.STATUS_CANCELED.equals(trip.status)) {
+                    // Filter out canceled and completed trips - they should not show on home screen
+                    if (trip != null && 
+                        !Constants.STATUS_CANCELED.equals(trip.status) &&
+                        !Constants.STATUS_COMPLETED.equals(trip.status)) {
                         trips.add(trip);
                     }
                 }
@@ -188,41 +191,48 @@ public class TripRepository {
      * Creates a group chat for a trip with the trip title as the chat name.
      */
     private void createGroupChatForTrip(@NonNull String tripId, @NonNull Trip trip) {
-        // Use trip title (stored in carModel) or destination as chat name
-        String chatName = trip.carModel != null && !trip.carModel.isEmpty() 
-                ? trip.carModel 
-                : trip.destinationCity;
+        try {
+            // Use the trip title (stored in carModel field) for the group chat name
+            String chatName;
+            if (trip.carModel != null && !trip.carModel.isEmpty()) {
+                chatName = trip.carModel;
+            } else {
+                chatName = trip.destinationCity != null ? trip.destinationCity : "Adventure";
+            }
 
-        // Include the trip's cover image URL in the group chat
-        String imageUrl = trip.imageUrl != null ? trip.imageUrl : "";
+            // Include the trip's cover image URL in the group chat
+            String imageUrl = trip.imageUrl != null ? trip.imageUrl : "";
 
-        GroupChat groupChat = new GroupChat(tripId, tripId, chatName, imageUrl, trip.driverUid);
-        
-        // Save group chat info at /chats/{tripId}/info
-        firebase.getChatRef(tripId).child("info").setValue(groupChat.toMap())
-                .addOnSuccessListener(aVoid -> {
-                    android.util.Log.d("TripRepository", "Group chat created successfully for trip: " + tripId);
-                })
-                .addOnFailureListener(e -> {
-                    android.util.Log.e("TripRepository", "Failed to create group chat: " + e.getMessage());
-                });
-        
-        // Add chat to driver's userChats
-        Map<String, Object> userChatEntry = new HashMap<>();
-        userChatEntry.put("chatId", tripId);
-        userChatEntry.put("tripId", tripId);
-        userChatEntry.put("otherPartyName", chatName);  // Use trip name for group chats
-        userChatEntry.put("isGroupChat", true);
-        userChatEntry.put("lastMessage", "");
-        userChatEntry.put("lastMessageTime", System.currentTimeMillis());
-        
-        firebase.getUserChatsRef(trip.driverUid).child(tripId).setValue(userChatEntry)
-                .addOnSuccessListener(aVoid -> {
-                    android.util.Log.d("TripRepository", "UserChat entry created for user: " + trip.driverUid);
-                })
-                .addOnFailureListener(e -> {
-                    android.util.Log.e("TripRepository", "Failed to create userChat entry: " + e.getMessage());
-                });
+            GroupChat groupChat = new GroupChat(tripId, tripId, chatName, imageUrl, trip.driverUid);
+            
+            // Save group chat info at /chats/{tripId}/info
+            firebase.getChatRef(tripId).child("info").setValue(groupChat.toMap())
+                    .addOnSuccessListener(aVoid -> {
+                        android.util.Log.d("TripRepository", "Group chat created successfully for trip: " + tripId);
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.e("TripRepository", "Failed to create group chat: " + e.getMessage());
+                    });
+            
+            // Add chat to driver's userChats
+            Map<String, Object> userChatEntry = new HashMap<>();
+            userChatEntry.put("chatId", tripId);
+            userChatEntry.put("tripId", tripId);
+            userChatEntry.put("otherPartyName", chatName);  // Use trip name for group chats
+            userChatEntry.put("isGroupChat", true);
+            userChatEntry.put("lastMessage", "");
+            userChatEntry.put("lastMessageTime", System.currentTimeMillis());
+            
+            firebase.getUserChatsRef(trip.driverUid).child(tripId).setValue(userChatEntry)
+                    .addOnSuccessListener(aVoid -> {
+                        android.util.Log.d("TripRepository", "UserChat entry created for user: " + trip.driverUid);
+                    })
+                    .addOnFailureListener(e -> {
+                        android.util.Log.e("TripRepository", "Failed to create userChat entry: " + e.getMessage());
+                    });
+        } catch (Exception e) {
+            android.util.Log.e("TripRepository", "Exception in createGroupChatForTrip: " + e.getMessage());
+        }
     }
 
     /**

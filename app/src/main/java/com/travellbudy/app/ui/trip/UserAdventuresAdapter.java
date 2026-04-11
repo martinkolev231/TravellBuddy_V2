@@ -81,15 +81,10 @@ public class UserAdventuresAdapter extends RecyclerView.Adapter<UserAdventuresAd
             tvDate.setText(startDate.format(formatter));
 
             // Image
-            if (trip.imageUrl != null && !trip.imageUrl.isEmpty()) {
-                Glide.with(itemView.getContext())
-                        .load(trip.imageUrl)
-                        .centerCrop()
-                        .error(R.drawable.placeholder_adventure_1)
-                        .into(ivImage);
-            } else {
-                ivImage.setImageResource(R.drawable.placeholder_adventure_1);
-            }
+            Glide.with(itemView.getContext())
+                    .load(trip.imageUrl)
+                    .centerCrop()
+                    .into(ivImage);
 
             // Click
             itemView.setOnClickListener(v -> {

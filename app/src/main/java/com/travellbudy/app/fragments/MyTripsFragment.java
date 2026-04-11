@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.R;
@@ -40,6 +41,10 @@ public class MyTripsFragment extends Fragment {
     
     // Tab states: 0 = Joined, 1 = Hosted, 2 = Saved
     private int currentTab = 0;
+    
+    // Firebase listener tracking
+    private DatabaseReference currentTripsRef;
+    private ValueEventListener currentTripsListener;
 
     @Nullable
     @Override
@@ -57,8 +62,8 @@ public class MyTripsFragment extends Fragment {
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         }
 
-        // Setup toolbar back navigation
-        binding.toolbar.setNavigationOnClickListener(v -> {
+        // Setup back button navigation
+        view.findViewById(R.id.btnBack).setOnClickListener(v -> {
             Navigation.findNavController(v).navigateUp();
         });
 
@@ -71,7 +76,28 @@ public class MyTripsFragment extends Fragment {
         
         // Select Joined tab by default
         selectTab(0);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reload trips when returning to this fragment (e.g., after deleting a trip)
         loadTrips();
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Remove listener when fragment is paused
+        removeCurrentListener();
+    }
+    
+    private void removeCurrentListener() {
+        if (currentTripsRef != null && currentTripsListener != null) {
+            currentTripsRef.removeEventListener(currentTripsListener);
+            currentTripsRef = null;
+            currentTripsListener = null;
+        }
     }
 
     private void setupTabListeners() {
@@ -80,12 +106,12 @@ public class MyTripsFragment extends Fragment {
             loadTrips();
         });
 
-        binding.tabHosted.setOnClickListener(v -> {
+        binding.tabComplete.setOnClickListener(v -> {
             selectTab(1);
             loadTrips();
         });
 
-        binding.tabSaved.setOnClickListener(v -> {
+        binding.tabFavorites.setOnClickListener(v -> {
             selectTab(2);
             loadTrips();
         });
@@ -99,22 +125,22 @@ public class MyTripsFragment extends Fragment {
         binding.tabJoined.setTextColor(getResources().getColor(R.color.text_secondary, null));
         binding.tabJoined.setTypeface(null, android.graphics.Typeface.NORMAL);
 
-        binding.tabHosted.setBackgroundResource(R.drawable.bg_tab_unselected);
-        binding.tabHosted.setTextColor(getResources().getColor(R.color.text_secondary, null));
-        binding.tabHosted.setTypeface(null, android.graphics.Typeface.NORMAL);
+        binding.tabComplete.setBackgroundResource(R.drawable.bg_tab_unselected);
+        binding.tabComplete.setTextColor(getResources().getColor(R.color.text_secondary, null));
+        binding.tabComplete.setTypeface(null, android.graphics.Typeface.NORMAL);
 
-        binding.tabSaved.setBackgroundResource(R.drawable.bg_tab_unselected);
-        binding.tabSaved.setTextColor(getResources().getColor(R.color.text_secondary, null));
-        binding.tabSaved.setTypeface(null, android.graphics.Typeface.NORMAL);
+        binding.tabFavorites.setBackgroundResource(R.drawable.bg_tab_unselected);
+        binding.tabFavorites.setTextColor(getResources().getColor(R.color.text_secondary, null));
+        binding.tabFavorites.setTypeface(null, android.graphics.Typeface.NORMAL);
 
         // Highlight selected tab
         TextView selectedTab;
         switch (tabIndex) {
             case 1:
-                selectedTab = binding.tabHosted;
+                selectedTab = binding.tabComplete;
                 break;
             case 2:
-                selectedTab = binding.tabSaved;
+                selectedTab = binding.tabFavorites;
                 break;
             default:
                 selectedTab = binding.tabJoined;
@@ -127,140 +153,294 @@ public class MyTripsFragment extends Fragment {
 
     private void loadTrips() {
         if (currentUserId == null) return;
+        
+        // Remove existing listener before starting a new one
+        removeCurrentListener();
 
         switch (currentTab) {
             case 0: // Joined
                 loadJoinedTrips();
                 break;
-            case 1: // Hosted
-                loadHostedTrips();
+            case 1: // Complete
+                loadCompletedTrips();
                 break;
-            case 2: // Saved
+            case 2: // Favorites
                 loadSavedTrips();
                 break;
         }
     }
 
-    private void loadHostedTrips() {
-        // Load trips where user is the driver/host
-        FirebaseDatabase.getInstance().getReference("trips")
-                .orderByChild("driverUid")
-                .equalTo(currentUserId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        trips.clear();
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            Trip trip = child.getValue(Trip.class);
-                            if (trip != null) trips.add(trip);
+    private void loadCompletedTrips() {
+        // Load completed trips where user participated
+        trips.clear();
+        safeNotifyAdapter();
+        
+        currentTripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        currentTripsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || binding == null) return;
+                
+                List<Trip> driverTrips = new ArrayList<>();
+                List<Trip> tripsToCheck = new ArrayList<>();
+                
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Trip trip = child.getValue(Trip.class);
+                    if (trip != null && "completed".equals(trip.status)) {
+                        // Check if user was the driver
+                        if (currentUserId.equals(trip.driverUid)) {
+                            driverTrips.add(trip);
+                        } else if (trip.tripId != null) {
+                            tripsToCheck.add(trip);
                         }
-                        adapter.notifyDataSetChanged();
-                        updateEmptyState(R.string.label_no_driver_trips);
                     }
+                }
+                
+                if (tripsToCheck.isEmpty()) {
+                    trips.clear();
+                    trips.addAll(driverTrips);
+                    safeNotifyAdapter();
+                    updateEmptyState(R.string.label_no_completed_trips);
+                    return;
+                }
+                
+                final int[] pending = {tripsToCheck.size()};
+                final List<Trip> riderTrips = new ArrayList<>();
+                final List<Trip> finalDriverTrips = driverTrips;
+                
+                for (Trip trip : tripsToCheck) {
+                    FirebaseDatabase.getInstance().getReference("tripRequests")
+                            .child(trip.tripId)
+                            .orderByChild("riderUid")
+                            .equalTo(currentUserId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
+                                        SeatRequest req = reqSnap.getValue(SeatRequest.class);
+                                        if (req != null && "approved".equals(req.status)) {
+                                            riderTrips.add(trip);
+                                            break;
+                                        }
+                                    }
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        trips.clear();
+                                        trips.addAll(finalDriverTrips);
+                                        trips.addAll(riderTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_completed_trips);
+                                    }
+                                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        trips.clear();
+                                        trips.addAll(finalDriverTrips);
+                                        trips.addAll(riderTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_completed_trips);
+                                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateEmptyState(R.string.label_no_completed_trips);
+            }
+        };
+        
+        currentTripsRef.addValueEventListener(currentTripsListener);
     }
 
     private void loadJoinedTrips() {
         // Load trips where user has an approved request
-        FirebaseDatabase.getInstance().getReference("trips")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        trips.clear();
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            Trip trip = child.getValue(Trip.class);
-                            if (trip == null) continue;
-
-                            // Check tripRequests for this user
-                            FirebaseDatabase.getInstance().getReference("tripRequests")
-                                    .child(trip.tripId)
-                                    .orderByChild("riderUid")
-                                    .equalTo(currentUserId)
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
-                                            for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
-                                                SeatRequest req = reqSnap.getValue(SeatRequest.class);
-                                                if (req != null && ("approved".equals(req.status)
-                                                        || "pending".equals(req.status))) {
-                                                    trips.add(trip);
-                                                    adapter.notifyDataSetChanged();
-                                                    updateEmptyState(R.string.label_no_rider_trips);
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                        }
-                                    });
-                        }
-                        adapter.notifyDataSetChanged();
-                        updateEmptyState(R.string.label_no_rider_trips);
+        trips.clear();
+        safeNotifyAdapter();
+        
+        currentTripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        currentTripsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || binding == null) return;
+                
+                List<Trip> allTrips = new ArrayList<>();
+                
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Trip trip = child.getValue(Trip.class);
+                    if (trip != null && trip.tripId != null) {
+                        allTrips.add(trip);
                     }
+                }
+                
+                if (allTrips.isEmpty()) {
+                    trips.clear();
+                    safeNotifyAdapter();
+                    updateEmptyState(R.string.label_no_rider_trips);
+                    return;
+                }
+                
+                // Track which trips to add
+                final int[] pending = {allTrips.size()};
+                final List<Trip> joinedTrips = new ArrayList<>();
+                
+                for (Trip trip : allTrips) {
+                    FirebaseDatabase.getInstance().getReference("tripRequests")
+                            .child(trip.tripId)
+                            .orderByChild("riderUid")
+                            .equalTo(currentUserId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
+                                        SeatRequest req = reqSnap.getValue(SeatRequest.class);
+                                        if (req != null && ("approved".equals(req.status)
+                                                || "pending".equals(req.status))) {
+                                            joinedTrips.add(trip);
+                                            break;
+                                        }
+                                    }
+                                    
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        // All trips checked, update UI
+                                        trips.clear();
+                                        trips.addAll(joinedTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_rider_trips);
+                                    }
+                                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        trips.clear();
+                                        trips.addAll(joinedTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_rider_trips);
+                                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateEmptyState(R.string.label_no_rider_trips);
+            }
+        };
+        
+        currentTripsRef.addValueEventListener(currentTripsListener);
     }
 
     private void loadSavedTrips() {
         // Load trips from user's savedTrips node
-        FirebaseDatabase.getInstance().getReference("users")
+        trips.clear();
+        safeNotifyAdapter();
+        
+        currentTripsRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(currentUserId)
-                .child("savedTrips")
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        trips.clear();
-                        for (DataSnapshot child : snapshot.getChildren()) {
-                            String tripId = child.getKey();
-                            if (tripId != null) {
-                                // Fetch trip details
-                                FirebaseDatabase.getInstance().getReference("trips")
-                                        .child(tripId)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot tripSnapshot) {
-                                                Trip trip = tripSnapshot.getValue(Trip.class);
-                                                if (trip != null) {
-                                                    trips.add(trip);
-                                                    adapter.notifyDataSetChanged();
-                                                    updateEmptyState(R.string.label_no_saved_trips);
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                            }
-                                        });
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                        updateEmptyState(R.string.label_no_saved_trips);
+                .child("savedTrips");
+        currentTripsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!isAdded() || binding == null) return;
+                
+                List<String> tripIds = new ArrayList<>();
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    String tripId = child.getKey();
+                    if (tripId != null) {
+                        tripIds.add(tripId);
                     }
+                }
+                
+                if (tripIds.isEmpty()) {
+                    trips.clear();
+                    safeNotifyAdapter();
+                    updateEmptyState(R.string.label_no_saved_trips);
+                    return;
+                }
+                
+                final int[] pending = {tripIds.size()};
+                final List<Trip> savedTrips = new ArrayList<>();
+                
+                for (String tripId : tripIds) {
+                    FirebaseDatabase.getInstance().getReference("trips")
+                            .child(tripId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot tripSnapshot) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    Trip trip = tripSnapshot.getValue(Trip.class);
+                                    if (trip != null) {
+                                        savedTrips.add(trip);
+                                    }
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        trips.clear();
+                                        trips.addAll(savedTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_saved_trips);
+                                    }
+                                }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                });
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    if (!isAdded() || binding == null) return;
+                                    
+                                    pending[0]--;
+                                    if (pending[0] <= 0) {
+                                        trips.clear();
+                                        trips.addAll(savedTrips);
+                                        safeNotifyAdapter();
+                                        updateEmptyState(R.string.label_no_saved_trips);
+                                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                updateEmptyState(R.string.label_no_saved_trips);
+            }
+        };
+        
+        currentTripsRef.addValueEventListener(currentTripsListener);
     }
 
     private void updateEmptyState(int emptyTextResId) {
+        if (binding == null) return;
+        
         binding.tvEmptyTitle.setText(emptyTextResId);
         binding.tvEmpty.setVisibility(trips.isEmpty() ? View.VISIBLE : View.GONE);
         binding.rvTrips.setVisibility(trips.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+    
+    private void safeNotifyAdapter() {
+        if (isAdded() && binding != null && adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        removeCurrentListener();
         binding = null;
     }
 
@@ -319,24 +499,23 @@ public class MyTripsFragment extends Fragment {
                 int joined = trip.totalSeats - trip.availableSeats;
                 itemBinding.tvJoined.setText(String.format(java.util.Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
 
-                // Status badge - different for hosted vs joined/saved trips
-                boolean isHostedByMe = currentUserId != null && currentUserId.equals(trip.driverUid);
+                // Status badge - UPCOMING or FULL based on availability
+                long currentTime = System.currentTimeMillis();
+                boolean isUpcoming = trip.departureTime > currentTime;
+                int spotsLeft = trip.availableSeats;
                 
-                if (isHostedByMe) {
-                    // User's own adventure
-                    itemBinding.tvStatusBadge.setText("HOSTED BY YOU");
-                    itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_hosted);
+                if (spotsLeft <= 0) {
+                    // Trip is full
+                    itemBinding.tvStatusBadge.setText("FULL");
+                    itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_full);
+                } else if (isUpcoming) {
+                    // Trip is upcoming and has spots
+                    itemBinding.tvStatusBadge.setText("UPCOMING");
+                    itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_upcoming);
                 } else {
-                    // Someone else's adventure (joined or saved)
-                    int spotsLeft = trip.availableSeats;
-                    if (spotsLeft > 0) {
-                        itemBinding.tvStatusBadge.setText(String.format(java.util.Locale.getDefault(), 
-                                "ONLY %d SPOT%s LEFT", spotsLeft, spotsLeft == 1 ? "" : "S"));
-                        itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_left);
-                    } else {
-                        itemBinding.tvStatusBadge.setText("FULLY BOOKED");
-                        itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_left);
-                    }
+                    // Ongoing or past trip
+                    itemBinding.tvStatusBadge.setText("ONGOING");
+                    itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_upcoming);
                 }
                 itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
 
@@ -345,7 +524,7 @@ public class MyTripsFragment extends Fragment {
                     Glide.with(itemBinding.ivAdventureImage)
                             .load(trip.imageUrl)
                             .centerCrop()
-                            .error(R.drawable.bg_adventure_image)
+                            .placeholder(R.drawable.bg_adventure_image)
                             .into(itemBinding.ivAdventureImage);
                 } else {
                     // Set background by activity type

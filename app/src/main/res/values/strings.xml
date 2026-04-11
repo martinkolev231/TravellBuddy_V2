@@ -106,6 +106,8 @@
     <string name="btn_publish_trip">Publish Adventure</string>
     <string name="btn_post_adventure">Post Adventure</string>
     <string name="error_empty_origin">Please enter a meeting point</string>
+    <string name="error_empty_cover_photo">Please add a cover photo</string>
+    <string name="error_empty_title">Please enter a title for your adventure</string>
     <string name="error_empty_destination">Please enter the destination or area</string>
     <string name="error_empty_date">Please select a date</string>
     <string name="error_empty_start_date">Please select a start date</string>
@@ -117,7 +119,6 @@
     <string name="error_invalid_budget">Please enter a valid budget amount</string>
     <string name="error_past_date">Adventure date must be in the future</string>
     <string name="error_empty_vehicle">Please describe the adventure</string>
-    <string name="error_no_cover_photo">Please add a cover photo for your adventure</string>
     <string name="success_trip_created">Adventure published successfully!</string>
     <string name="error_trip_creation_failed">Failed to create adventure. Please try again.</string>
     <string name="error_email_not_verified_trip">Please verify your email before creating an adventure.</string>
@@ -125,9 +126,12 @@
 
     <!-- Create Adventure - New Design -->
     <string name="label_add_cover_photo">Add Cover Photo</string>
+    <string name="label_change_photo">Change photo</string>
     <string name="label_photo_format">PNG, JPG up to 5MB</string>
     <string name="label_title">TITLE</string>
     <string name="hint_adventure_title">Give your adventure a catchy name</string>
+    <string name="hint_trip_title">Give your adventure a catchy name</string>
+    <string name="hint_select_date">Select date</string>
     <string name="label_destination">DESTINATION</string>
     <string name="hint_where_to">Where to?</string>
     <string name="label_type">TYPE</string>
@@ -320,10 +324,13 @@
     <string name="tab_joined">Joined</string>
     <string name="tab_hosted">Hosted</string>
     <string name="tab_saved">Saved</string>
+    <string name="tab_complete">Complete</string>
+    <string name="tab_favorites">Favorites</string>
     <string name="status_upcoming">Upcoming</string>
     <string name="status_completed">Completed</string>
     <string name="status_ongoing">Ongoing</string>
     <string name="label_no_saved_trips">You haven\'t saved any adventures yet</string>
+    <string name="label_no_completed_trips">You don\'t have any completed adventures yet</string>
 
     <!-- Filter -->
     <string name="title_filter">Filter Adventures</string>

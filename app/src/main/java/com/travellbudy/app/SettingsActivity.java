@@ -3,14 +3,13 @@ package com.travellbudy.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.ClearCredentialStateRequest;
-import androidx.credentials.CredentialManager;
+
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,7 +24,6 @@ import com.travellbudy.app.models.Trip;
 public class SettingsActivity extends AppCompatActivity {
 
     private ActivitySettingsBinding binding;
-    private CredentialManager credentialManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +31,12 @@ public class SettingsActivity extends AppCompatActivity {
         binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        credentialManager = CredentialManager.create(this);
+
+        // Check if user is admin and show admin section
+        checkAdminStatus();
 
         // Back button
         binding.btnBack.setOnClickListener(v -> finish());
-
-        // Version
-        binding.tvVersion.setText("TravellBuddy v1.0.0");
 
         // Personal Information
         binding.btnPersonalInfo.setOnClickListener(v -> {
@@ -50,9 +47,9 @@ public class SettingsActivity extends AppCompatActivity {
         // Password & Security
         binding.btnPasswordSecurity.setOnClickListener(v -> changePassword());
 
-        // Currency
-        binding.btnCurrency.setOnClickListener(v -> {
-            Toast.makeText(this, "Currency settings coming soon", Toast.LENGTH_SHORT).show();
+        // Admin Portal
+        binding.btnAdminPortal.setOnClickListener(v -> {
+            Toast.makeText(this, "Admin Portal coming soon", Toast.LENGTH_SHORT).show();
         });
 
         // Help Center
@@ -70,11 +67,35 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(this, "Privacy Policy coming soon", Toast.LENGTH_SHORT).show();
         });
 
-        // Log out
+        // Log Out
         binding.btnLogOut.setOnClickListener(v -> showLogoutDialog());
 
         // Delete account
         binding.btnDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
+    }
+
+    private void checkAdminStatus() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(user.getUid())
+                .child("isAdmin")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Boolean isAdmin = snapshot.getValue(Boolean.class);
+                        if (isAdmin != null && isAdmin) {
+                            binding.tvAdminSectionHeader.setVisibility(View.VISIBLE);
+                            binding.adminCard.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Silently ignore - admin section stays hidden
+                    }
+                });
     }
 
     private void changePassword() {
@@ -84,6 +105,8 @@ public class SettingsActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(this, R.string.msg_password_reset_sent, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, R.string.error_generic, Toast.LENGTH_SHORT).show();
                         }
                     });
         }
@@ -109,6 +132,24 @@ public class SettingsActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    private void performLogout() {
+        try {
+            FirebaseAuth.getInstance().signOut();
+        } catch (Exception e) {
+            // Ignore sign out errors
+        }
+        
+        try {
+            Intent intent = new Intent(SettingsActivity.this, WelcomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            // If navigation fails, just finish the activity
+            finish();
+        }
+    }
+
     private void showDeleteAccountDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
         android.view.View dialogView = getLayoutInflater().inflate(R.layout.dialog_delete_account, null);
@@ -127,85 +168,6 @@ public class SettingsActivity extends AppCompatActivity {
         dialogView.findViewById(R.id.btnCancelDelete).setOnClickListener(v -> dialog.dismiss());
         
         dialog.show();
-    }
-
-    private void performLogout() {
-        // Clear Credential Manager state (clears cached Google credential)
-        credentialManager.clearCredentialStateAsync(
-                new ClearCredentialStateRequest(),
-                new android.os.CancellationSignal(),
-                Runnable::run,
-                new androidx.credentials.CredentialManagerCallback<Void, androidx.credentials.exceptions.ClearCredentialException>() {
-                    @Override
-                    public void onResult(Void unused) {
-                        // Credential state cleared
-                    }
-
-                    @Override
-                    public void onError(@NonNull androidx.credentials.exceptions.ClearCredentialException e) {
-                        // Non-fatal — proceed with sign-out anyway
-                    }
-                }
-        );
-
-        FirebaseAuth.getInstance().signOut();
-        Intent intent = new Intent(SettingsActivity.this, WelcomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    private void resendVerificationEmail() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Toast.makeText(this, "Please sign in first", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Log.d("SettingsActivity", "Attempting to send verification email to: " + user.getEmail());
-        Log.d("SettingsActivity", "User UID: " + user.getUid());
-        Log.d("SettingsActivity", "Email verified: " + user.isEmailVerified());
-
-        // Reload user to get latest email verification status
-        user.reload().addOnCompleteListener(reloadTask -> {
-            if (!reloadTask.isSuccessful()) {
-                Log.e("SettingsActivity", "Failed to reload user", reloadTask.getException());
-                Toast.makeText(this, "Failed to check verification status", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            FirebaseUser refreshedUser = FirebaseAuth.getInstance().getCurrentUser();
-            if (refreshedUser == null) {
-                Log.e("SettingsActivity", "User is null after reload");
-                return;
-            }
-
-            Log.d("SettingsActivity", "After reload - Email verified: " + refreshedUser.isEmailVerified());
-
-            if (refreshedUser.isEmailVerified()) {
-                Toast.makeText(this, "Your email is already verified!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Log.d("SettingsActivity", "Sending verification email...");
-            
-            refreshedUser.sendEmailVerification()
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("SettingsActivity", "Verification email sent successfully!");
-                        Toast.makeText(this, 
-                                "Verification email sent to " + refreshedUser.getEmail() + 
-                                ". Please check your inbox and spam folder.", 
-                                Toast.LENGTH_LONG).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("SettingsActivity", "Failed to send verification email", e);
-                        Log.e("SettingsActivity", "Error class: " + e.getClass().getName());
-                        Log.e("SettingsActivity", "Error message: " + e.getMessage());
-                        Toast.makeText(this, 
-                                "Failed to send email: " + e.getMessage(), 
-                                Toast.LENGTH_LONG).show();
-                    });
-        });
     }
 
     private void deleteAccount() {

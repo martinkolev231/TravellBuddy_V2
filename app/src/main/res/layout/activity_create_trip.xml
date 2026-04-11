@@ -5,10 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:fillViewport="true"
-    android:clickable="true"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,8 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@color/white"
-            android:clipToPadding="false">
+            android:background="@color/white">
 
             <!-- Header Content Row -->
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:paddingStart="8dp"
-                android:paddingEnd="24dp">
+                android:paddingEnd="16dp">
 
                 <!-- Back Button -->
                 <FrameLayout
@@ -145,15 +141,15 @@
                 android:contentDescription="@string/label_add_cover_photo" />
 
             <ImageView
-                android:id="@+id/btnRemoveCover"
+                android:id="@+id/btnChangeCover"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_gravity="top|end"
                 android:layout_margin="8dp"
                 android:background="@drawable/bg_icon_circle_dark"
                 android:padding="6dp"
-                android:src="@drawable/ic_back"
-                android:contentDescription="@null" />
+                android:src="@drawable/ic_camera"
+                android:contentDescription="@string/label_change_photo" />
         </FrameLayout>
 
         <!-- Main Form Content -->
@@ -196,7 +192,7 @@
                     android:layout_weight="1"
                     android:layout_marginStart="12dp"
                     android:background="@android:color/transparent"
-                    android:hint="@string/hint_adventure_title"
+                    android:hint="@string/hint_trip_title"
                     android:textColorHint="@color/text_hint"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
@@ -232,16 +228,13 @@
                         android:letterSpacing="0.05" />
 
                     <LinearLayout
-                        android:id="@+id/btnDestination"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginTop="8dp"
                         android:background="@drawable/bg_input_field_gray"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="16dp"
-                        android:clickable="true"
-                        android:focusable="true">
+                        android:paddingHorizontal="16dp">
 
                         <ImageView
                             android:layout_width="20dp"
@@ -249,17 +242,21 @@
                             android:src="@drawable/ic_location_gray"
                             android:contentDescription="@null" />
 
-                        <TextView
-                            android:id="@+id/tvDestination"
+                        <EditText
+                            android:id="@+id/etDestination"
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
-                            android:text="@string/hint_where_to"
-                            android:textColor="@color/text_hint"
+                            android:background="@android:color/transparent"
+                            android:hint="@string/hint_where_to"
+                            android:textColorHint="@color/text_hint"
+                            android:textColor="@color/text_primary"
                             android:textSize="15sp"
+                            android:inputType="text"
+                            android:imeOptions="actionDone"
                             android:maxLines="1"
-                            android:ellipsize="end" />
+                            android:importantForAutofill="no" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -339,8 +336,11 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
+                            android:text="@string/hint_select_date"
                             android:textColor="@color/text_hint"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -385,8 +385,11 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="12dp"
+                            android:text="@string/hint_select_date"
                             android:textColor="@color/text_hint"
-                            android:textSize="15sp" />
+                            android:textSize="15sp"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -523,32 +526,22 @@
                     android:textColorHint="@color/text_hint"
                     android:textColor="@color/text_primary"
                     android:textSize="15sp"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:imeOptions="actionDone"
+                    android:inputType="textMultiLine"
                     android:gravity="top"
                     android:importantForAutofill="no" />
             </LinearLayout>
 
             <!-- Post Adventure Button -->
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPublish"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="32dp"
-                android:background="@drawable/bg_button_rounded_flat"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_post_adventure"
-                    android:textColor="@color/white"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:text="@string/btn_post_adventure"
+                android:textSize="16sp"
+                android:textAllCaps="false"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="28dp" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -561,4 +554,3 @@
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
-

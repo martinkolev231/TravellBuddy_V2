@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="4dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:cardBackgroundColor="@color/white"
     app:strokeWidth="0dp">
 
@@ -19,7 +19,7 @@
         <!-- ── Adventure cover image with badges ── -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="180dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivAdventureImage"
@@ -36,27 +36,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_margin="12dp"
+                android:layout_marginStart="14dp"
+                android:layout_marginTop="14dp"
                 android:background="@drawable/bg_badge_hosted"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"
                 android:text="HOSTED BY YOU"
                 android:textColor="@color/white"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.02" />
+                android:letterSpacing="0.03" />
 
             <!-- Location pin icon - bottom right -->
             <FrameLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="12dp"
+                android:layout_marginEnd="14dp"
+                android:layout_marginBottom="14dp"
                 android:background="@drawable/bg_location_pin_dark">
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_location_pin"
                     app:tint="@color/white"
@@ -70,7 +72,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="16dp">
 
             <!-- Title and Price row -->
             <LinearLayout
@@ -78,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="12dp">
 
                 <!-- Title -->
                 <TextView
@@ -87,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textColor="@color/text_primary"
-                    android:textSize="18sp"
+                    android:textSize="17sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
                     android:maxLines="1"
@@ -100,11 +104,11 @@
                     android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_price_badge"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="6dp"
-                    android:textColor="@color/status_approved"
-                    android:textSize="14sp"
+                    android:background="@drawable/bg_price_badge_green"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:textColor="#10B981"
+                    android:textSize="13sp"
                     android:textStyle="bold"
                     tools:text="€ 350" />
             </LinearLayout>
@@ -125,18 +129,19 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_calendar_orange"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_calendar_outline"
+                        app:tint="#9CA3AF"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/tvDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="6dp"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         tools:text="Oct 10 - Oct 14" />
                 </LinearLayout>
 
@@ -148,19 +153,19 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
                         android:src="@drawable/ic_people"
-                        app:tint="@color/text_hint"
+                        app:tint="#9CA3AF"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/tvJoined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
+                        android:layout_marginStart="6dp"
                         android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
+                        android:textSize="13sp"
                         tools:text="0/4 joined" />
                 </LinearLayout>
             </LinearLayout>

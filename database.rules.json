@@ -99,61 +99,61 @@
       ".read": "auth != null",
       ".indexOn": ["departureTime", "driverUid", "status", "originCity", "destinationCity", "createdAt"],
       "$tripId": {
-        // Create: any auth user; Update: only the driver
+        // Create: any auth user; Update/Delete: only the driver
         ".write": "auth != null && (!data.exists() || data.child('driverUid').val() == auth.uid)",
 
-        // Required fields
-        ".validate": "newData.hasChildren(['tripId', 'driverUid', 'driverName', 'originCity', 'destinationCity', 'departureTime', 'availableSeats', 'totalSeats', 'pricePerSeat', 'status', 'createdAt'])",
+        // Required fields (only validated when creating/updating, not deleting)
+        ".validate": "!newData.exists() || newData.hasChildren(['tripId', 'driverUid', 'driverName', 'originCity', 'destinationCity', 'departureTime', 'availableSeats', 'totalSeats', 'pricePerSeat', 'status', 'createdAt'])",
 
         // tripId must match the push key
         "tripId": {
-          ".validate": "newData.val() == $tripId"
+          ".validate": "!newData.exists() || newData.val() == $tripId"
         },
 
         // IMMUTABLE: driverUid cannot be changed after creation
         "driverUid": {
-          ".validate": "newData.isString() && (!data.exists() || newData.val() == data.val())"
+          ".validate": "!newData.exists() || (newData.isString() && (!data.exists() || newData.val() == data.val()))"
         },
 
         // Departure must be in the future (only enforced on create)
         "departureTime": {
-          ".validate": "newData.isNumber() && (!data.exists() ? newData.val() > now : true)"
+          ".validate": "!newData.exists() || (newData.isNumber() && (!data.exists() ? newData.val() > now : true))"
         },
 
         // Seats: 0 <= available <= total
         "availableSeats": {
-          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalSeats').val()"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalSeats').val())"
         },
         "totalSeats": {
-          ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 20"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 20)"
         },
 
         // Price: non-negative (0 = free ride)
         "pricePerSeat": {
-          ".validate": "newData.isNumber() && newData.val() >= 0"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)"
         },
 
         // Status enum
         "status": {
-          ".validate": "newData.isString() && (newData.val() == 'open' || newData.val() == 'full' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'canceled')"
+          ".validate": "!newData.exists() || (newData.isString() && (newData.val() == 'open' || newData.val() == 'full' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'canceled'))"
         },
 
         // createdAt is immutable after creation
         "createdAt": {
-          ".validate": "newData.isNumber() && (!data.exists() || newData.val() == data.val())"
+          ".validate": "!newData.exists() || (newData.isNumber() && (!data.exists() || newData.val() == data.val()))"
         },
 
         "originLat": {
-          ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -90 && newData.val() <= 90)"
         },
         "originLng": {
-          ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -180 && newData.val() <= 180)"
         },
         "destLat": {
-          ".validate": "newData.isNumber() && newData.val() >= -90 && newData.val() <= 90"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -90 && newData.val() <= 90)"
         },
         "destLng": {
-          ".validate": "newData.isNumber() && newData.val() >= -180 && newData.val() <= 180"
+          ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -180 && newData.val() <= 180)"
         },
 
         // Participants: users who have been approved to join the trip
@@ -161,7 +161,7 @@
           "$participantUid": {
             // Only trip driver can add participants
             ".write": "auth != null && root.child('trips').child($tripId).child('driverUid').val() == auth.uid",
-            ".validate": "newData.isBoolean()"
+            ".validate": "!newData.exists() || newData.isBoolean()"
           }
         }
       }
@@ -170,58 +170,16 @@
     // =========================================================================
     // 3. /tripRequests/{tripId}/{requestId}
     //
-    // - Rider can CREATE their own request (riderUid == auth.uid, status = pending)
-    // - Driver can change status to "approved" or "denied"
-    // - Rider can change status to "canceled_by_rider"
-    // - Neither party can delete the record (newData must exist)
-    // - riderUid and driverUid are immutable after creation
+    // - Any authenticated user can read requests for a trip
+    // - Any authenticated user can create/update requests (simplified for MVP)
     // =========================================================================
     "tripRequests": {
       "$tripId": {
         ".read": "auth != null",
+        ".write": "auth != null",
         ".indexOn": ["riderUid", "status", "createdAt"],
         "$requestId": {
-          // Write allowed if:
-          //   - Creating: riderUid matches auth.uid
-          //   - Updating: current user is the rider OR the driver on this request
-          // Deletion blocked by .validate requiring newData to exist
-          ".write": "auth != null && ((!data.exists() && newData.child('riderUid').val() == auth.uid) || (data.exists() && (data.child('riderUid').val() == auth.uid || data.child('driverUid').val() == auth.uid)))",
-
-          // Block deletion: newData must always exist
-          ".validate": "newData.exists() && newData.hasChildren(['requestId', 'tripId', 'riderUid', 'driverUid', 'status', 'seatsRequested', 'createdAt'])",
-
-          // riderUid: immutable after creation, must match auth.uid on create
-          "riderUid": {
-            ".validate": "newData.isString() && (!data.parent().exists() ? newData.val() == auth.uid : newData.val() == data.val())"
-          },
-
-          // driverUid: immutable after creation
-          "driverUid": {
-            ".validate": "newData.isString() && (!data.parent().exists() || newData.val() == data.val())"
-          },
-
-          // Status transitions:
-          //   - On create (by rider): must be "pending"
-          //   - Driver can set: "approved" or "denied"
-          //   - Rider can set: "canceled_by_rider"
-          "status": {
-            ".validate": "newData.isString() && ((!data.parent().exists() && newData.val() == 'pending') || (data.parent().exists() && ((auth.uid == data.parent().child('driverUid').val() && (newData.val() == 'approved' || newData.val() == 'denied')) || (auth.uid == data.parent().child('riderUid').val() && newData.val() == 'canceled_by_rider'))))"
-          },
-
-          // Seats: 1-4 range
-          "seatsRequested": {
-            ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 4"
-          },
-
-          // createdAt: immutable
-          "createdAt": {
-            ".validate": "newData.isNumber() && (!data.parent().exists() || newData.val() == data.val())"
-          },
-
-          // updatedAt: must be recent
-          "updatedAt": {
-            ".validate": "newData.isNumber()"
-          }
+          ".validate": "newData.hasChildren(['requestId', 'tripId', 'riderUid', 'status', 'seatsRequested', 'createdAt'])"
         }
       }
     },

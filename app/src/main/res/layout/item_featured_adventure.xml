@@ -6,74 +6,78 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
     app:cardBackgroundColor="@color/white"
-    app:strokeWidth="0dp">
+    app:strokeWidth="0dp"
+    app:cardForegroundColor="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ── Adventure cover image with badges ── -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- Top trip image with overlay badges                                  -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp">
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivAdventureImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="190dp"
                 android:scaleType="centerCrop"
                 android:background="@drawable/bg_adventure_image"
                 android:contentDescription="@string/cd_adventure_image"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.CardImageTop" />
+                app:shapeAppearance="@style/ShapeAppearance.TravellBuddy.RoundedImage" />
 
-            <!-- ONLY X SPOTS LEFT badge - coral/red color -->
+            <!-- X SPOTS LEFT badge - pink/red color (top-left) -->
             <TextView
                 android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_marginStart="14dp"
-                android:layout_marginTop="14dp"
-                android:background="@drawable/bg_badge_spots_left"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_badge_spots_pink"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
                 android:textColor="@color/white"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.03"
-                tools:text="ONLY 1 SPOTS LEFT" />
+                android:letterSpacing="0.02"
+                tools:text="2 SPOTS LEFT" />
 
-            <!-- Organizer profile photo - top right with white border -->
+            <!-- Organizer profile photo - top right (hidden by default, shown in adapter) -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivOrganizerPhoto"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:layout_gravity="top|end"
-                android:layout_marginEnd="14dp"
-                android:layout_marginTop="14dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="12dp"
                 android:scaleType="centerCrop"
                 android:background="@color/white"
                 android:padding="2dp"
                 android:clickable="true"
                 android:focusable="true"
+                android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.Circle"
                 app:strokeColor="@color/white"
                 app:strokeWidth="3dp"
-                android:contentDescription="Organizer"
-                tools:visibility="visible" />
+                android:contentDescription="Organizer" />
 
-            <!-- Save/Bookmark button - hidden when organizer photo is shown -->
+            <!-- Save/Bookmark button - hidden by default -->
             <FrameLayout
                 android:id="@+id/btnSave"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_gravity="top|end"
-                android:layout_marginEnd="14dp"
-                android:layout_marginTop="14dp"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_save_button_subtle"
                 android:clickable="true"
                 android:focusable="true"
@@ -89,18 +93,18 @@
                     android:contentDescription="Save" />
             </FrameLayout>
 
-            <!-- Location pin icon - bottom right -->
+            <!-- Location icon (bottom-right of image) -->
             <FrameLayout
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:layout_gravity="bottom|end"
-                android:layout_marginEnd="14dp"
-                android:layout_marginBottom="14dp"
-                android:background="@drawable/bg_location_pin_dark">
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_location_button_dark">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_location_pin"
                     app:tint="@color/white"
@@ -109,13 +113,14 @@
 
         </FrameLayout>
 
-        <!-- ── Card content ── -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- Content section below image                                         -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingTop="14dp"
             android:paddingBottom="16dp">
 
             <!-- Title and Price row -->
@@ -123,46 +128,46 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="top"
-                android:layout_marginBottom="12dp">
+                android:gravity="top">
 
-                <!-- Title - can be 2 lines -->
+                <!-- Title - can be up to 2 lines -->
                 <TextView
                     android:id="@+id/tvTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
+                    android:textColor="#1E293B"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
                     android:maxLines="2"
                     android:ellipsize="end"
                     android:layout_marginEnd="12dp"
-                    tools:text="West Coast Surf &amp; Road Trip" />
+                    tools:text="Alpine Lake Hiking &amp; Camping" />
 
-                <!-- Price badge -->
+                <!-- Price pill -->
                 <TextView
                     android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_price_badge_green"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="5dp"
-                    android:textColor="#10B981"
-                    android:textSize="13sp"
+                    android:background="@drawable/bg_price_pill_teal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:textColor="#0D9488"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    tools:text="€ 300" />
+                    tools:text="€ 450" />
             </LinearLayout>
 
             <!-- Date and Joined row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Date -->
+                <!-- Date with orange calendar icon -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -171,23 +176,23 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_calendar_outline"
-                        app:tint="#9CA3AF"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_calendar_orange"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/tvDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        tools:text="Sep 01 - Sep 10" />
+                        android:layout_marginStart="8dp"
+                        android:textColor="#64748B"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="Aug 12 - Aug 16" />
                 </LinearLayout>
 
-                <!-- Joined count -->
+                <!-- Joined count with blue people icon -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -195,20 +200,20 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_people"
-                        app:tint="#9CA3AF"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_people_blue"
                         android:contentDescription="@null" />
 
                     <TextView
                         android:id="@+id/tvJoined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        tools:text="2/3 joined" />
+                        android:layout_marginStart="8dp"
+                        android:textColor="#64748B"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="2/4 joined" />
                 </LinearLayout>
             </LinearLayout>
 

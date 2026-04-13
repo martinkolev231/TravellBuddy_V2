@@ -52,6 +52,7 @@ public class MyTripsFragment extends Fragment {
     // Firebase references
     private DatabaseReference tripsRef;
     private DatabaseReference tripRequestsRef;
+    private DatabaseReference tripMembersRef;
 
     /**
      * Wrapper class to hold a trip with its role (hosted or joined).
@@ -84,6 +85,7 @@ public class MyTripsFragment extends Fragment {
 
         tripsRef = FirebaseDatabase.getInstance().getReference("trips");
         tripRequestsRef = FirebaseDatabase.getInstance().getReference("tripRequests");
+        tripMembersRef = FirebaseDatabase.getInstance().getReference("tripMembers");
 
         // Setup back button navigation
         view.findViewById(R.id.btnBack).setOnClickListener(v -> 
@@ -197,9 +199,10 @@ public class MyTripsFragment extends Fragment {
                     
                     // Log trip status info
                     String effectiveStatus = trip.getEffectiveStatus();
+                    String wouldAppearIn = trip.isUpcoming() ? "UPCOMING" : (trip.isOngoing() ? "ONGOING" : "COMPLETED");
                     Log.d(TAG, "Trip: " + trip.tripId + " (" + (trip.carModel != null ? trip.carModel : trip.destinationCity) + ")");
                     Log.d(TAG, "  - driverUid: " + trip.driverUid + " (current user: " + currentUserId + ")");
-                    Log.d(TAG, "  - effectiveStatus: " + effectiveStatus);
+                    Log.d(TAG, "  - effectiveStatus: " + effectiveStatus + " -> Would appear in: " + wouldAppearIn);
                     Log.d(TAG, "  - departureTime: " + trip.departureTime + " (" + new java.util.Date(trip.departureTime) + ")");
                     Log.d(TAG, "  - estimatedArrivalTime: " + trip.estimatedArrivalTime + " (" + new java.util.Date(trip.estimatedArrivalTime) + ")");
                     Log.d(TAG, "  - Current time: " + System.currentTimeMillis() + " (" + new java.util.Date() + ")");
@@ -222,7 +225,17 @@ public class MyTripsFragment extends Fragment {
                     }
                 }
                 
-                Log.d(TAG, "Found " + hostedTrips.size() + " hosted trips and " + potentialJoinedTrips.size() + " potential joined trips");
+                Log.d(TAG, "Found " + hostedTrips.size() + " hosted trips and " + potentialJoinedTrips.size() + " potential joined trips for this tab");
+                
+                // Debug: Also count how many trips would be potential joined if we ignore status
+                int totalPotentialJoined = 0;
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    Trip trip = child.getValue(Trip.class);
+                    if (trip != null && trip.tripId != null && !trip.isCanceled() && !currentUserId.equals(trip.driverUid)) {
+                        totalPotentialJoined++;
+                    }
+                }
+                Log.d(TAG, "Total potential joined trips (ignoring status): " + totalPotentialJoined);
                 
                 // If no potential joined trips, just show hosted trips
                 if (potentialJoinedTrips.isEmpty()) {
@@ -284,55 +297,93 @@ public class MyTripsFragment extends Fragment {
         final List<Trip> joinedTrips = java.util.Collections.synchronizedList(new ArrayList<>());
         
         for (Trip trip : potentialJoinedTrips) {
-            Log.d(TAG, "Checking seat requests for trip: " + trip.tripId + " (" + trip.carModel + ")");
+            Log.d(TAG, "Checking membership for trip: " + trip.tripId + " (" + trip.carModel + ")");
             
+            // Read ALL requests for this trip and filter locally
+            // This avoids index query issues
             tripRequestsRef.child(trip.tripId)
-                    .orderByChild("riderUid")
-                    .equalTo(currentUserId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (!isAdded() || binding == null) return;
                             
-                            Log.d(TAG, "  Trip " + trip.tripId + ": found " + reqSnapshot.getChildrenCount() + " requests matching riderUid");
+                            Log.d(TAG, "  Trip " + trip.tripId + ": total requests = " + snapshot.getChildrenCount());
                             
-                            for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
+                            boolean foundApproved = false;
+                            for (DataSnapshot reqSnap : snapshot.getChildren()) {
                                 SeatRequest req = reqSnap.getValue(SeatRequest.class);
-                                Log.d(TAG, "    Request: " + reqSnap.getKey() + ", status=" + (req != null ? req.status : "null"));
-                                // Only count approved requests
-                                if (req != null && "approved".equals(req.status)) {
-                                    Log.d(TAG, "    ✓ Found APPROVED request for trip: " + trip.tripId);
-                                    joinedTrips.add(trip);
-                                    break;
+                                if (req != null) {
+                                    Log.d(TAG, "    Request " + reqSnap.getKey() + ": riderUid=" + req.riderUid + ", status=" + req.status);
+                                    // Check if this request belongs to current user AND is approved
+                                    if (currentUserId.equals(req.riderUid) && "approved".equals(req.status)) {
+                                        Log.d(TAG, "    ✓ Found APPROVED request for current user!");
+                                        foundApproved = true;
+                                        break;
+                                    }
                                 }
                             }
                             
-                            synchronized (pending) {
-                                pending[0]--;
-                                Log.d(TAG, "  Pending trips to check: " + pending[0]);
-                                if (pending[0] <= 0) {
-                                    Log.d(TAG, "All trips checked. Found " + joinedTrips.size() + " joined trips");
-                                    displayTrips(hostedTrips, joinedTrips);
-                                }
+                            if (foundApproved) {
+                                joinedTrips.add(trip);
+                            } else {
+                                // Also check tripMembers as backup
+                                checkTripMembership(trip, joinedTrips, pending, hostedTrips);
+                                return; // Don't decrement pending here, it's done in checkTripMembership
                             }
+                            
+                            checkPendingComplete(pending, hostedTrips, joinedTrips);
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, "Error checking requests for trip " + trip.tripId + ": " + error.getMessage());
-                            synchronized (pending) {
-                                pending[0]--;
-                                if (pending[0] <= 0) {
-                                    displayTrips(hostedTrips, joinedTrips);
-                                }
-                            }
+                            Log.e(TAG, "Error reading requests for trip " + trip.tripId + ": " + error.getMessage());
+                            // Try tripMembers as fallback
+                            checkTripMembership(trip, joinedTrips, pending, hostedTrips);
                         }
                     });
         }
     }
     
+    private void checkTripMembership(Trip trip, List<Trip> joinedTrips, int[] pending, List<Trip> hostedTrips) {
+        tripMembersRef.child(trip.tripId).child(currentUserId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot memberSnapshot) {
+                        if (!isAdded() || binding == null) return;
+                        
+                        if (memberSnapshot.exists()) {
+                            Log.d(TAG, "  ✓ Found user in tripMembers for trip: " + trip.tripId);
+                            joinedTrips.add(trip);
+                        } else {
+                            Log.d(TAG, "  ✗ User NOT found in tripMembers for trip: " + trip.tripId);
+                        }
+                        
+                        checkPendingComplete(pending, hostedTrips, joinedTrips);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e(TAG, "Error checking tripMembers for trip " + trip.tripId + ": " + error.getMessage());
+                        checkPendingComplete(pending, hostedTrips, joinedTrips);
+                    }
+                });
+    }
+    
+    private void checkPendingComplete(int[] pending, List<Trip> hostedTrips, List<Trip> joinedTrips) {
+        synchronized (pending) {
+            pending[0]--;
+            Log.d(TAG, "  Pending trips to check: " + pending[0]);
+            if (pending[0] <= 0) {
+                Log.d(TAG, "All trips checked. Found " + joinedTrips.size() + " joined trips");
+                displayTrips(hostedTrips, joinedTrips);
+            }
+        }
+    }
+    
     private void displayTrips(List<Trip> hostedTrips, List<Trip> joinedTrips) {
         if (!isAdded() || binding == null) return;
+        
+        Log.d(TAG, "displayTrips: " + hostedTrips.size() + " hosted, " + joinedTrips.size() + " joined");
         
         trips.clear();
         
@@ -424,6 +475,11 @@ public class MyTripsFragment extends Fragment {
             VH(ItemMyAdventureCardBinding itemBinding) {
                 super(itemBinding.getRoot());
                 this.itemBinding = itemBinding;
+                
+                // Force white background color on the card using ColorStateList
+                android.content.res.ColorStateList whiteColor = android.content.res.ColorStateList.valueOf(0xFFFFFFFF);
+                itemBinding.getRoot().setCardBackgroundColor(whiteColor);
+                itemBinding.getRoot().setBackgroundTintList(null);
             }
 
             void bind(TripWithRole tripWithRole) {

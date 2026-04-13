@@ -73,6 +73,16 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
             super(binding.getRoot());
             this.binding = binding;
             this.context = binding.getRoot().getContext();
+            
+            // Force pure white background - override any Material3 harmonization
+            android.content.res.ColorStateList whiteColor = android.content.res.ColorStateList.valueOf(android.graphics.Color.WHITE);
+            android.content.res.ColorStateList transparent = android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT);
+            binding.getRoot().setCardBackgroundColor(whiteColor);
+            binding.getRoot().setBackgroundTintList(null);
+            binding.getRoot().setForegroundTintList(null);
+            // Disable surface tint / ripple foreground overlay
+            binding.getRoot().setRippleColor(transparent);
+            binding.getRoot().setCardForegroundColor(transparent);
         }
 
         void bind(Trip trip) {
@@ -102,42 +112,24 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
             int joined = trip.totalSeats - trip.availableSeats;
             binding.tvJoined.setText(String.format(java.util.Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
 
-            // Status badge - show ONLY X SPOTS LEFT or WAITLIST
+            // Status badge - show X SPOTS LEFT (pink) or FULL (dark navy)
             int spotsLeft = trip.availableSeats;
             if (spotsLeft > 0) {
+                // Format: "2 SPOTS LEFT" or "1 SPOT LEFT"
                 binding.tvStatusBadge.setText(String.format(java.util.Locale.getDefault(), 
-                        "ONLY %d SPOT%s LEFT", spotsLeft, spotsLeft == 1 ? "" : "S"));
-                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_left);
+                        "%d SPOT%s LEFT", spotsLeft, spotsLeft == 1 ? "" : "S"));
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_pink);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             } else {
-                binding.tvStatusBadge.setText("WAITLIST");
-                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_waitlist);
+                // Trip is full - show FULL badge with dark navy background
+                binding.tvStatusBadge.setText("FULL");
+                binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_full_dark);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             }
 
-            // Load organizer profile photo - always show when available
-            if (trip.driverPhotoUrl != null && !trip.driverPhotoUrl.isEmpty()) {
-                binding.ivOrganizerPhoto.setVisibility(View.VISIBLE);
-                binding.btnSave.setVisibility(View.GONE);
-                Glide.with(context)
-                        .load(trip.driverPhotoUrl)
-                        .placeholder(R.drawable.bg_profile_placeholder)
-                        .error(R.drawable.bg_profile_placeholder)
-                        .circleCrop()
-                        .into(binding.ivOrganizerPhoto);
-                
-                // Make organizer photo clickable to view profile
-                binding.ivOrganizerPhoto.setOnClickListener(v -> {
-                    if (trip.driverUid != null && !trip.driverUid.isEmpty()) {
-                        Intent intent = new Intent(context, UserProfileActivity.class);
-                        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, trip.driverUid);
-                        context.startActivity(intent);
-                    }
-                });
-            } else {
-                binding.ivOrganizerPhoto.setVisibility(View.GONE);
-                binding.btnSave.setVisibility(View.GONE);
-            }
+            // Hide organizer photo to match reference design (cleaner look)
+            binding.ivOrganizerPhoto.setVisibility(View.GONE);
+            binding.btnSave.setVisibility(View.GONE);
 
             // Load adventure image
             Glide.with(context)

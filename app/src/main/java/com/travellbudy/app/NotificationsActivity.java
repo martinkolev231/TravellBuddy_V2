@@ -186,6 +186,13 @@ public class NotificationsActivity extends AppCompatActivity {
                                                         .child("participants")
                                                         .child(notification.fromUserId)
                                                         .setValue(true);
+                                                
+                                                // Add rider to tripMembers (required for My Adventures screen)
+                                                com.travellbudy.app.models.TripMember member = new com.travellbudy.app.models.TripMember(
+                                                        notification.fromUserId, "rider", seatsToDeduct);
+                                                FirebaseDatabase.getInstance().getReference("tripMembers")
+                                                        .child(notification.tripId).child(notification.fromUserId)
+                                                        .setValue(member.toMap());
 
                                                 // Add user to the group chat
                                                 addUserToGroupChat(notification.tripId, notification.fromUserId);

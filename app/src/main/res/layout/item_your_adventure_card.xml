@@ -9,7 +9,8 @@
     app:cardCornerRadius="24dp"
     app:cardElevation="4dp"
     app:cardBackgroundColor="@color/white"
-    app:strokeWidth="0dp">
+    app:strokeWidth="0dp"
+    app:cardForegroundColor="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +34,7 @@
                 android:contentDescription="@string/cd_adventure_image"
                 app:shapeAppearance="@style/ShapeAppearance.TravellBuddy.RoundedImage" />
 
-            <!-- HOSTED BY YOU badge - teal color (top-left) -->
+            <!-- HOSTED badge - teal color (top-left) -->
             <TextView
                 android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
@@ -44,7 +45,7 @@
                 android:background="@drawable/bg_badge_hosted_teal"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="8dp"
-                android:text="@string/role_hosted_by_you"
+                android:text="@string/role_hosted"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"

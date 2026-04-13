@@ -194,9 +194,11 @@
     // =========================================================================
     "tripMembers": {
       "$tripId": {
-        // Read: driver or existing member of this trip
+        // Read at trip level: driver or existing member of this trip
         ".read": "auth != null && (root.child('trips').child($tripId).child('driverUid').val() == auth.uid || data.child(auth.uid).exists())",
         "$uid": {
+          // Read own membership entry directly (for My Adventures screen)
+          ".read": "auth != null && auth.uid == $uid",
           // Only the trip's driver can write membership entries
           ".write": "auth != null && root.child('trips').child($tripId).child('driverUid').val() == auth.uid",
 
@@ -451,22 +453,6 @@
         ".write": "auth != null",
         "$notificationId": {
           ".validate": "newData.hasChildren(['type', 'createdAt'])"
-        }
-      }
-    },
-
-    // =========================================================================
-    // TRIP JOIN REQUESTS
-    // - Any authenticated user can read join requests for a trip
-    // - Trip owner (driver) can approve/deny requests
-    // - Any authenticated user can create a request
-    // =========================================================================
-    "tripJoinRequests": {
-      "$tripId": {
-        ".read": "auth != null",
-        ".write": "auth != null",
-        "$oderId": {
-          ".validate": "newData.hasChildren(['status'])"
         }
       }
     }

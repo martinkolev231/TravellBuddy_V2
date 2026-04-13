@@ -1,6 +1,13 @@
 <resources>
     <!-- Base application theme (dark). -->
     <style name="Base.Theme.TravellBuddy" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Disable Material3 dynamic colors -->
+        <item name="dynamicColorThemeOverlay">@null</item>
+
+        <!-- Disable elevation overlay / surface tint that causes cyan tint -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="elevationOverlayColor">@android:color/transparent</item>
+
         <item name="colorPrimary">@color/primary_light</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimaryVariant">@color/primary_variant</item>
@@ -9,10 +16,18 @@
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorError">@color/error</item>
         <item name="colorOnError">@color/black</item>
+        <item name="colorSurface">#FFFFFF</item>
         <item name="colorOnSurface">@color/white</item>
         <item name="colorOnSurfaceVariant">@color/text_hint</item>
         <item name="colorOnBackground">@color/white</item>
         <item name="colorOutline">@color/on_surface_variant</item>
+
+        <!-- Material3 surface container colors - all white for cards -->
+        <item name="colorSurfaceContainer">#FFFFFF</item>
+        <item name="colorSurfaceContainerLow">#FFFFFF</item>
+        <item name="colorSurfaceContainerHigh">#FFFFFF</item>
+        <item name="colorSurfaceContainerHighest">#FFFFFF</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFF</item>
 
         <!-- Status bar -->
         <item name="android:statusBarColor">@android:color/black</item>
@@ -21,5 +36,8 @@
         <!-- Default font family -->
         <item name="android:fontFamily">sans-serif</item>
         <item name="fontFamily">sans-serif</item>
+
+        <!-- Component styles - must match day theme -->
+        <item name="materialCardViewStyle">@style/Widget.TravellBuddy.CardView</item>
     </style>
 </resources>

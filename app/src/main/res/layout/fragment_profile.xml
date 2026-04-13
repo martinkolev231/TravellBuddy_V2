@@ -149,30 +149,6 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Location - Centered -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="6dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_location_gray"
-                    app:tint="@color/text_hint"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:id="@+id/tvLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-            </LinearLayout>
 
             <!-- Edit Profile Button - Centered -->
             <LinearLayout
@@ -287,6 +263,7 @@
 
                 <!-- Rating Stat -->
                 <LinearLayout
+                    android:id="@+id/layoutRatingStat"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -294,7 +271,9 @@
                     android:background="@drawable/bg_stat_box"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingVertical="16dp">
+                    android:paddingVertical="16dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <LinearLayout
                         android:layout_width="wrap_content"

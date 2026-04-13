@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="4dp"
     app:cardBackgroundColor="@color/white"
     app:strokeWidth="0dp">
 
@@ -16,64 +17,108 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ── Adventure cover image with badges ── -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- Top trip image with overlay badges                                  -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp">
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivAdventureImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="190dp"
                 android:scaleType="centerCrop"
                 android:background="@drawable/bg_adventure_image"
                 android:contentDescription="@string/cd_adventure_image"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.CardImageTop" />
+                app:shapeAppearance="@style/ShapeAppearance.TravellBuddy.RoundedImage" />
 
-            <!-- Status badge (UPCOMING / FULL) -->
+            <!-- Single badge for upcoming hosted trips: "HOSTED BY YOU" (teal) -->
+            <TextView
+                android:id="@+id/tvHostedByYouBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_badge_hosted_teal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="@string/role_hosted_by_you"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- Status badge - COMPLETED/UPCOMING/ONGOING (top-left) - for non-upcoming-hosted cards -->
             <TextView
                 android:id="@+id/tvStatusBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_margin="12dp"
-                android:background="@drawable/bg_badge_upcoming"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="6dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_badge_dark_pill"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
                 android:textColor="@color/white"
-                android:textSize="11sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
-                android:letterSpacing="0.05"
-                android:text="UPCOMING"
-                tools:text="UPCOMING" />
+                android:letterSpacing="0.02"
+                android:visibility="gone"
+                tools:text="COMPLETED" />
 
-            <!-- Location pin icon - bottom right -->
+            <!-- Role badge - HOSTED/JOINED (top-right) - for non-upcoming-hosted cards -->
+            <TextView
+                android:id="@+id/tvRoleBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_marginEnd="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_badge_dark_pill"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                android:visibility="gone"
+                tools:text="HOSTED" />
+
+            <!-- Location icon (bottom-right of image) -->
             <FrameLayout
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:id="@+id/btnLocation"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="12dp"
-                android:background="@drawable/bg_location_pin_circle">
+                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_location_button_dark">
 
                 <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_location_pin"
-                    app:tint="@color/text_secondary"
+                    app:tint="@color/white"
                     android:contentDescription="@null" />
             </FrameLayout>
 
         </FrameLayout>
 
-        <!-- ── Card content ── -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
+        <!-- Content section below image                                         -->
+        <!-- ══════════════════════════════════════════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="14dp">
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="16dp">
 
             <!-- Title and Price row -->
             <LinearLayout
@@ -88,38 +133,38 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
+                    android:textColor="#1E293B"
+                    android:textSize="18sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:layout_marginEnd="10dp"
-                    tools:text="West Coast Surf &amp; Road T" />
+                    android:layout_marginEnd="12dp"
+                    tools:text="Weekend in Paris" />
 
-                <!-- Price badge - outline style -->
+                <!-- Price pill -->
                 <TextView
                     android:id="@+id/tvPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_price_badge_outline"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="5dp"
-                    android:textColor="@color/primary"
-                    android:textSize="14sp"
+                    android:background="@drawable/bg_price_pill_teal"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:textColor="#0D9488"
+                    android:textSize="15sp"
                     android:textStyle="bold"
-                    tools:text="€ 450" />
+                    tools:text="€ 350" />
             </LinearLayout>
 
             <!-- Date and Joined row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <!-- Date -->
+                <!-- Date with orange calendar icon -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -128,8 +173,9 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:id="@+id/ivCalendarIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:src="@drawable/ic_calendar_orange"
                         android:contentDescription="@null" />
 
@@ -138,12 +184,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        tools:text="Sep 01 - Sep 10" />
+                        android:textColor="#64748B"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="Oct 10 - Oct 14" />
                 </LinearLayout>
 
-                <!-- Joined count -->
+                <!-- Joined count with blue people icon -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -151,10 +198,10 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_people"
-                        app:tint="@color/text_hint"
+                        android:id="@+id/ivPeopleIcon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_people_blue"
                         android:contentDescription="@null" />
 
                     <TextView
@@ -162,11 +209,159 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        tools:text="3/4 joined" />
+                        android:textColor="#64748B"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        tools:text="0/4 joined" />
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="#E5E7EB"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- ══════════════════════════════════════════════════════════════════ -->
+            <!-- Rating Section (for completed joined trips only)                    -->
+            <!-- ══════════════════════════════════════════════════════════════════ -->
+
+            <!-- State 1: Before rating - Prompt to rate host -->
+            <LinearLayout
+                android:id="@+id/layoutPendingRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <!-- Prompt text -->
+                <TextView
+                    android:id="@+id/tvRatingPrompt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="12dp"
+                    android:textColor="#475569"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"
+                    tools:text="How was Sarah Collins?" />
+
+                <!-- Rate Host button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRateHost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:text="@string/btn_rate_host"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:backgroundTint="#0D9488"
+                    app:cornerRadius="12dp"
+                    app:elevation="0dp" />
+            </LinearLayout>
+
+            <!-- State 2: After rating - Show submitted rating -->
+            <LinearLayout
+                android:id="@+id/layoutSubmittedRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_rating_container"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                tools:visibility="gone">
+
+                <!-- Label -->
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_your_rating"
+                    android:textColor="#64748B"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <!-- Stars container -->
+                <LinearLayout
+                    android:id="@+id/layoutStars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/star1"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="#F59E0B"
+                        android:contentDescription="@null" />
+
+                    <ImageView
+                        android:id="@+id/star2"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="#F59E0B"
+                        android:contentDescription="@null" />
+
+                    <ImageView
+                        android:id="@+id/star3"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="#F59E0B"
+                        android:contentDescription="@null" />
+
+                    <ImageView
+                        android:id="@+id/star4"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="#F59E0B"
+                        android:contentDescription="@null" />
+
+                    <ImageView
+                        android:id="@+id/star5"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_star_filled"
+                        app:tint="#F59E0B"
+                        android:contentDescription="@null" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- View Summary button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewSummary"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/btn_view_summary"
+                android:textColor="#374151"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:backgroundTint="#F3F4F6"
+                android:visibility="gone"
+                app:cornerRadius="16dp"
+                app:elevation="0dp"
+                app:rippleColor="#D1D5DB"
+                tools:visibility="gone" />
 
         </LinearLayout>
     </LinearLayout>

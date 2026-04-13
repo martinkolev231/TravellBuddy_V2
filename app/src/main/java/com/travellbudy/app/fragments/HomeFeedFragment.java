@@ -241,8 +241,10 @@ public class HomeFeedFragment extends Fragment {
             // Only include trips where:
             // 1. Driver account exists
             // 2. Trip is in the future
+            // 3. Trip is not canceled
             Boolean exists = driverExists.get(trip.driverUid);
-            if (exists != null && exists && trip.departureTime > currentTime) {
+            boolean isNotCanceled = !"canceled".equals(trip.status);
+            if (exists != null && exists && trip.departureTime > currentTime && isNotCanceled) {
                 allTrips.add(trip);
             }
         }

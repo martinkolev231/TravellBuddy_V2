@@ -30,6 +30,22 @@ public class RateUserDialogFragment extends DialogFragment {
     private static final String ARG_RECIPIENT_NAME = "recipient_name";
     private static final String ARG_TRIP_ID = "trip_id";
 
+    private OnRatingSubmittedListener onRatingSubmittedListener;
+
+    /**
+     * Listener for rating submission events.
+     */
+    public interface OnRatingSubmittedListener {
+        void onRatingSubmitted();
+    }
+
+    /**
+     * Sets the listener to be called when a rating is successfully submitted.
+     */
+    public void setOnRatingSubmittedListener(OnRatingSubmittedListener listener) {
+        this.onRatingSubmittedListener = listener;
+    }
+
     public static RateUserDialogFragment newInstance(String recipientUid, String recipientName, String tripId) {
         RateUserDialogFragment fragment = new RateUserDialogFragment();
         Bundle args = new Bundle();
@@ -99,6 +115,10 @@ public class RateUserDialogFragment extends DialogFragment {
                                         updateRatingSummary(recipientUid, score);
                                         Toast.makeText(requireContext(), R.string.success_rating_submitted,
                                                 Toast.LENGTH_SHORT).show();
+                                        // Notify listener
+                                        if (onRatingSubmittedListener != null) {
+                                            onRatingSubmittedListener.onRatingSubmitted();
+                                        }
                                         dismiss();
                                     })
                                     .addOnFailureListener(e ->

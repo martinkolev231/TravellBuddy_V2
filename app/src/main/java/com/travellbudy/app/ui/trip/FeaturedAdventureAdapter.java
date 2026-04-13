@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.travellbudy.app.R;
 import com.travellbudy.app.TripDetailsActivity;
+import com.travellbudy.app.UserProfileActivity;
 import com.travellbudy.app.databinding.ItemFeaturedAdventureBinding;
 import com.travellbudy.app.models.Trip;
 import com.travellbudy.app.util.DateTimeUtils;
@@ -124,6 +125,15 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
                         .error(R.drawable.bg_profile_placeholder)
                         .circleCrop()
                         .into(binding.ivOrganizerPhoto);
+                
+                // Make organizer photo clickable to view profile
+                binding.ivOrganizerPhoto.setOnClickListener(v -> {
+                    if (trip.driverUid != null && !trip.driverUid.isEmpty()) {
+                        Intent intent = new Intent(context, UserProfileActivity.class);
+                        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, trip.driverUid);
+                        context.startActivity(intent);
+                    }
+                });
             } else {
                 binding.ivOrganizerPhoto.setVisibility(View.GONE);
                 binding.btnSave.setVisibility(View.GONE);

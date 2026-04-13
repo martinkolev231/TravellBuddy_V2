@@ -62,7 +62,6 @@
                         android:id="@+id/btnShare"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:layout_marginEnd="8dp"
                         android:background="@drawable/bg_icon_circle_dark"
                         android:clickable="true"
                         android:focusable="true">
@@ -73,23 +72,6 @@
                             android:src="@drawable/ic_share"
                             app:tint="@color/white"
                             android:contentDescription="@string/btn_share_trip" />
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/btnFavorite"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:background="@drawable/bg_icon_circle_dark"
-                        android:clickable="true"
-                        android:focusable="true">
-                        <ImageView
-                            android:id="@+id/ivFavorite"
-                            android:layout_width="22dp"
-                            android:layout_height="22dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_heart_outline"
-                            app:tint="@color/white"
-                            android:contentDescription="@string/btn_favorite" />
                     </FrameLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -331,7 +313,10 @@
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
                                 android:contentDescription="@string/cd_profile_photo"
-                                android:src="@drawable/ic_profile" />
+                                android:src="@drawable/ic_profile"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:foreground="?attr/selectableItemBackgroundBorderless" />
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -442,6 +427,24 @@
             app:backgroundTint="@color/primary"
             app:cornerRadius="16dp" />
 
+
+        <!-- Rate Host button (only visible for completed trips where user participated) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRateHost"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/btn_rate_host"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:icon="@drawable/ic_star_filled"
+            app:iconGravity="textStart"
+            app:iconTint="@color/star_filled"
+            app:strokeColor="@color/primary"
+            app:strokeWidth="2dp"
+            android:visibility="gone" />
 
         <!-- Delete Adventure button (only visible to host) -->
         <LinearLayout

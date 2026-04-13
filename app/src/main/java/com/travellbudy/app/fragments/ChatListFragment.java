@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.ChatActivity;
 import com.travellbudy.app.R;
+import com.travellbudy.app.UserProfileActivity;
 import com.travellbudy.app.databinding.FragmentChatListBinding;
 import com.travellbudy.app.databinding.ItemChatPreviewBinding;
 import com.travellbudy.app.models.SeatRequest;
@@ -197,6 +198,11 @@ public class ChatListFragment extends Fragment {
                             String lastMessageSenderId = chatSnapshot.child("lastMessageSenderId").getValue(String.class);
                             boolean isDirectMessage = Boolean.TRUE.equals(chatSnapshot.child("isDirectMessage").getValue(Boolean.class));
                             String otherUserId = chatSnapshot.child("otherPartyUid").getValue(String.class);
+                            
+                            // Fallback: check if tripId starts with "dm_" to identify direct messages
+                            if (!isDirectMessage && tripId.startsWith("dm_")) {
+                                isDirectMessage = true;
+                            }
 
                             ChatSnapshotData data = new ChatSnapshotData();
                             data.tripId = tripId;
@@ -715,6 +721,25 @@ public class ChatListFragment extends Fragment {
                     b.ivReadIndicator.setVisibility(View.VISIBLE);
                     b.tvUnreadCount.setVisibility(View.GONE);
                 }
+
+                // Make avatar clickable to view user profile (for direct messages and trip organizers)
+                b.ivAvatar.setOnClickListener(v -> {
+                    String userIdToView = null;
+                    
+                    if (item.isDirectMessage && item.otherUserId != null && !item.otherUserId.isEmpty()) {
+                        // For direct messages, navigate to the other user's profile
+                        userIdToView = item.otherUserId;
+                    } else if (!item.isOrganizer && item.trip != null && item.trip.driverUid != null) {
+                        // For group chats where user is NOT the organizer, show organizer's profile
+                        userIdToView = item.trip.driverUid;
+                    }
+                    
+                    if (userIdToView != null) {
+                        Intent intent = new Intent(requireContext(), UserProfileActivity.class);
+                        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, userIdToView);
+                        startActivity(intent);
+                    }
+                });
 
                 b.getRoot().setOnClickListener(v -> {
                     Intent intent = new Intent(requireContext(), ChatActivity.class);

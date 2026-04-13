@@ -197,6 +197,12 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- CircleImageView style for ShapeableImageView -->
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- Rounded button shape -->
     <style name="RoundedButton" parent="">
         <item name="cornerFamily">rounded</item>
@@ -210,6 +216,12 @@
         <item name="cornerSizeTopRight">18dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- Rounded image for adventure cards (all corners 20dp) -->
+    <style name="ShapeAppearance.TravellBuddy.RoundedImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">20dp</item>
     </style>
 
     <!-- ── Toolbar — light background ── -->
@@ -231,6 +243,15 @@
         <item name="cornerSizeTopRight">@dimen/bottom_sheet_corner_radius</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- Bottom Sheet Dialog Theme -->
+    <style name="Theme.TravellBuddy.BottomSheet" parent="Theme.Material3.DayNight.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.TravellBuddy.BottomSheet</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/white</item>
     </style>
 
     <!-- ── Status chips ── -->

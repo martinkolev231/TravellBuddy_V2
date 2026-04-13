@@ -30,6 +30,7 @@ import com.travellbudy.app.EditProfileActivity;
 import com.travellbudy.app.R;
 import com.travellbudy.app.SettingsActivity;
 import com.travellbudy.app.databinding.FragmentProfileBinding;
+import com.travellbudy.app.dialogs.ProfileReviewsBottomSheet;
 import com.travellbudy.app.models.User;
 
 import java.util.Locale;
@@ -42,6 +43,14 @@ public class ProfileFragment extends Fragment {
     private StorageReference storageRef;
     private boolean isUploadingPhoto = false;
     private boolean isUploadingCover = false;
+    
+    // Trip counter listeners
+    private DatabaseReference tripsRef;
+    private DatabaseReference tripRequestsRef;
+    private ValueEventListener hostedTripsListener;
+    private ValueEventListener joinedTripsListener;
+    private String currentUserId;
+    private String currentUserName = "User";
 
     private final ActivityResultLauncher<String> profilePhotoPickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -72,8 +81,11 @@ public class ProfileFragment extends Fragment {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
-        userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+        currentUserId = currentUser.getUid();
+        userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId);
         storageRef = FirebaseStorage.getInstance().getReference();
+        tripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        tripRequestsRef = FirebaseDatabase.getInstance().getReference("tripRequests");
 
         // Edit Profile button
         binding.btnEditProfile.setOnClickListener(v ->
@@ -112,7 +124,13 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(v).navigate(R.id.myTripsFragment);
         });
 
+        // Rating stat - open reviews bottom sheet
+        binding.layoutRatingStat.setOnClickListener(v -> {
+            openReviewsBottomSheet();
+        });
+
         loadProfile();
+        loadTripCounters();
     }
 
     private void loadProfile() {
@@ -123,6 +141,9 @@ public class ProfileFragment extends Fragment {
 
                 User user = snapshot.getValue(User.class);
                 if (user == null) return;
+
+                // Save display name for reviews bottom sheet
+                currentUserName = user.displayName != null ? user.displayName : "User";
 
                 // Display name
                 binding.tvDisplayName.setText(user.displayName != null ? user.displayName : "");
@@ -139,15 +160,6 @@ public class ProfileFragment extends Fragment {
                 double avgRating = user.ratingSummary != null ? user.ratingSummary.averageRating : 0.0;
                 binding.tvAvgRating.setText(String.format(Locale.getDefault(), "%.1f", avgRating));
 
-                // Trip counters
-                int joinedCount = 0;
-                int hostedCount = 0;
-                if (user.tripCounters != null) {
-                    joinedCount = user.tripCounters.tripsAsRider;
-                    hostedCount = user.tripCounters.tripsAsDriver;
-                }
-                binding.tvJoinedCount.setText(String.valueOf(joinedCount));
-                binding.tvHostedCount.setText(String.valueOf(hostedCount));
 
                 // Profile photo
                 if (getContext() != null) {
@@ -181,6 +193,134 @@ public class ProfileFragment extends Fragment {
             }
         };
         userRef.addValueEventListener(userListener);
+    }
+
+    /**
+     * Load trip counters by querying actual trip data from Firebase.
+     * - Hosted = trips where driverUid equals current user (excluding canceled)
+     * - Joined = trips where user has an approved request (excluding canceled trips)
+     */
+    private void loadTripCounters() {
+        if (currentUserId == null) {
+            android.util.Log.e("ProfileFragment", "currentUserId is null, cannot load counters");
+            return;
+        }
+        
+        android.util.Log.d("ProfileFragment", "Loading trip counters for user: " + currentUserId);
+
+        // Load hosted trips count (trips created by this user, excluding canceled)
+        hostedTripsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (binding == null) return;
+                
+                android.util.Log.d("ProfileFragment", "Hosted trips snapshot received, count: " + snapshot.getChildrenCount());
+                
+                int hostedCount = 0;
+                for (DataSnapshot tripSnapshot : snapshot.getChildren()) {
+                    com.travellbudy.app.models.Trip trip = tripSnapshot.getValue(com.travellbudy.app.models.Trip.class);
+                    if (trip != null) {
+                        android.util.Log.d("ProfileFragment", "Trip: " + trip.tripId + ", effectiveStatus: " + trip.getEffectiveStatus());
+                        // Count only non-canceled trips using date-based status
+                        if (trip.isCountable()) {
+                            hostedCount++;
+                        }
+                    }
+                }
+                android.util.Log.d("ProfileFragment", "Final hosted count: " + hostedCount);
+                binding.tvHostedCount.setText(String.valueOf(hostedCount));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                android.util.Log.e("ProfileFragment", "Hosted trips query cancelled: " + error.getMessage());
+            }
+        };
+        tripsRef.orderByChild("driverUid").equalTo(currentUserId)
+                .addValueEventListener(hostedTripsListener);
+
+        // Load joined trips count (trips where user has approved request, excluding canceled trips)
+        loadJoinedTripsCount();
+    }
+
+    private void loadJoinedTripsCount() {
+        android.util.Log.d("ProfileFragment", "Loading joined trips count for user: " + currentUserId);
+        
+        // Use single-value listener to avoid flickering from real-time updates
+        // Count will refresh when profile is resumed
+        tripRequestsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot allRequestsSnapshot) {
+                if (binding == null) return;
+                
+                android.util.Log.d("ProfileFragment", "Trip requests snapshot received");
+                
+                // Collect all trip IDs where user has an approved request
+                final java.util.List<String> approvedTripIds = new java.util.ArrayList<>();
+                
+                for (DataSnapshot tripRequestsSnapshot : allRequestsSnapshot.getChildren()) {
+                    String tripId = tripRequestsSnapshot.getKey();
+                    
+                    for (DataSnapshot requestSnapshot : tripRequestsSnapshot.getChildren()) {
+                        String riderUid = requestSnapshot.child("riderUid").getValue(String.class);
+                        String status = requestSnapshot.child("status").getValue(String.class);
+                        
+                        if (currentUserId.equals(riderUid) && "approved".equals(status)) {
+                            approvedTripIds.add(tripId);
+                            android.util.Log.d("ProfileFragment", "Found approved request for trip: " + tripId);
+                            break;
+                        }
+                    }
+                }
+                
+                if (approvedTripIds.isEmpty()) {
+                    if (binding != null) {
+                        binding.tvJoinedCount.setText("0");
+                    }
+                    return;
+                }
+                
+                // Now check which of these trips are countable (not canceled)
+                final int[] validCount = {0};
+                final int[] checkedCount = {0};
+                final int totalToCheck = approvedTripIds.size();
+                
+                for (String tripId : approvedTripIds) {
+                    tripsRef.child(tripId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot tripSnapshot) {
+                            checkedCount[0]++;
+                            
+                            com.travellbudy.app.models.Trip trip = tripSnapshot.getValue(com.travellbudy.app.models.Trip.class);
+                            if (trip != null && trip.isCountable()) {
+                                validCount[0]++;
+                            }
+                            
+                            if (checkedCount[0] >= totalToCheck && binding != null) {
+                                android.util.Log.d("ProfileFragment", "Final joined count: " + validCount[0]);
+                                binding.tvJoinedCount.setText(String.valueOf(validCount[0]));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            checkedCount[0]++;
+                            if (checkedCount[0] >= totalToCheck && binding != null) {
+                                binding.tvJoinedCount.setText(String.valueOf(validCount[0]));
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                android.util.Log.e("ProfileFragment", "Trip requests query cancelled: " + error.getMessage());
+                if (binding != null) {
+                    binding.tvJoinedCount.setText("0");
+                }
+            }
+        });
     }
 
     private void uploadProfilePhoto(Uri imageUri) {
@@ -257,6 +397,17 @@ public class ProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Opens the Profile Reviews bottom sheet showing all reviews for this user.
+     */
+    private void openReviewsBottomSheet() {
+        if (currentUserId == null) return;
+        
+        ProfileReviewsBottomSheet bottomSheet = ProfileReviewsBottomSheet.newInstance(
+                currentUserId, currentUserName);
+        bottomSheet.show(getParentFragmentManager(), "ProfileReviewsBottomSheet");
+    }
+
     private void uploadCoverPhoto(Uri imageUri) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
@@ -305,31 +456,50 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Check if user is still logged in before reattaching listener
+        // Check if user is still logged in before reattaching listeners
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null && userRef != null && userListener != null) {
             userRef.addValueEventListener(userListener);
+        }
+        // Reload trip counters on resume
+        if (currentUser != null && tripsRef != null) {
+            loadTripCounters();
         }
     }
     
     @Override
     public void onPause() {
         super.onPause();
-        // Remove listener when fragment is paused to prevent callbacks during logout
+        // Remove listeners when fragment is paused to prevent callbacks during logout
         if (userListener != null && userRef != null) {
             userRef.removeEventListener(userListener);
         }
+        // Remove trip counter listeners
+        removeTripCounterListeners();
+    }
+    
+    private void removeTripCounterListeners() {
+        if (hostedTripsListener != null && tripsRef != null) {
+            tripsRef.orderByChild("driverUid").equalTo(currentUserId)
+                    .removeEventListener(hostedTripsListener);
+        }
+        // joinedTripsListener uses single-value listeners now, no need to remove
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Ensure listener is removed
+        // Ensure all listeners are removed
         if (userListener != null && userRef != null) {
             userRef.removeEventListener(userListener);
             userListener = null;
         }
+        removeTripCounterListeners();
+        hostedTripsListener = null;
+        joinedTripsListener = null;
         userRef = null;
+        tripsRef = null;
+        tripRequestsRef = null;
         binding = null;
     }
 }

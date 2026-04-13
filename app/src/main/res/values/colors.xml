@@ -63,6 +63,15 @@
     <!-- Rating star -->
     <color name="star_filled">#F59E0B</color>
     <color name="star_empty">#D1D5DB</color>
+    <color name="star_empty_rating">#CBD5E1</color>
+
+    <!-- Button states -->
+    <color name="button_disabled_bg">#E2E8F0</color>
+    <color name="button_disabled_text">#94A3B8</color>
+
+    <!-- Teal accent (for Rate Host) -->
+    <color name="teal_primary">#0D9488</color>
+    <color name="teal_dark">#0F766E</color>
 
     <!-- Chat bubbles -->
     <color name="chat_bubble_sent">#00BCD4</color>

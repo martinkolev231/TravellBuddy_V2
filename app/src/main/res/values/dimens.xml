@@ -96,9 +96,9 @@
     <dimen name="input_stroke_width_focused">2dp</dimen>
 
     <!-- Bottom sheet -->
-    <dimen name="bottom_sheet_corner_radius">24dp</dimen>
-    <dimen name="bottom_sheet_drag_handle_width">40dp</dimen>
-    <dimen name="bottom_sheet_drag_handle_height">4dp</dimen>
+    <dimen name="bottom_sheet_corner_radius">28dp</dimen>
+    <dimen name="bottom_sheet_drag_handle_width">70dp</dimen>
+    <dimen name="bottom_sheet_drag_handle_height">6dp</dimen>
     <dimen name="bottom_sheet_peek_height">400dp</dimen>
 
     <!-- Divider -->

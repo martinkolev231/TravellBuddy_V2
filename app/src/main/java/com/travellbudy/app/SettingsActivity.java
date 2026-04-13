@@ -20,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.databinding.ActivitySettingsBinding;
 import com.travellbudy.app.models.SeatRequest;
 import com.travellbudy.app.models.Trip;
+import com.travellbudy.app.utils.TestDataHelper;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -72,6 +73,17 @@ public class SettingsActivity extends AppCompatActivity {
 
         // Delete account
         binding.btnDeleteAccount.setOnClickListener(v -> showDeleteAccountDialog());
+
+        // DEBUG: Create test trips (REMOVE BEFORE PRODUCTION)
+        binding.btnCreateTestTrips.setOnClickListener(v -> {
+            TestDataHelper.createTestTrips();
+            Toast.makeText(this, 
+                "Creating test trips...\n" +
+                "• 3 HOSTED (ongoing + 2 completed)\n" +
+                "• 2 JOINED (ongoing in 1 min + upcoming)\n" +
+                "Check Logcat for details.", 
+                Toast.LENGTH_LONG).show();
+        });
     }
 
     private void checkAdminStatus() {
@@ -175,75 +187,62 @@ public class SettingsActivity extends AppCompatActivity {
         if (user == null) return;
 
         String uid = user.getUid();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-        // First, clean up user's active trips (edge case: user deletes account with active trips)
-        FirebaseDatabase.getInstance().getReference("trips")
+        // Clean up all user-related data before deleting the account
+        database.getReference("trips")
+                .orderByChild("driverUid")
+                .equalTo(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        // Delete all trips created by this user and their associated data
                         for (DataSnapshot tripSnap : snapshot.getChildren()) {
                             Trip trip = tripSnap.getValue(Trip.class);
                             if (trip == null) continue;
 
-                            // If user is the driver, cancel the trip
-                            if (uid.equals(trip.driverUid) && !"canceled".equals(trip.status)
-                                    && !"completed".equals(trip.status)) {
-                                tripSnap.getRef().child("status").setValue("canceled");
-                                // Cancel all requests via tripRequests node
-                                FirebaseDatabase.getInstance().getReference("tripRequests")
-                                        .child(trip.tripId)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
-                                                for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
-                                                    SeatRequest req = reqSnap.getValue(SeatRequest.class);
-                                                    if (req != null && ("approved".equals(req.status) || "pending".equals(req.status))) {
-                                                        reqSnap.getRef().child("status").setValue("canceled_by_rider");
-                                                    }
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                            }
-                                        });
-                            }
-
-                            // If user is a rider, cancel their requests via tripRequests node
-                            FirebaseDatabase.getInstance().getReference("tripRequests")
-                                    .child(trip.tripId)
-                                    .orderByChild("riderUid")
-                                    .equalTo(uid)
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot reqSnapshot) {
-                                            for (DataSnapshot reqSnap : reqSnapshot.getChildren()) {
-                                                SeatRequest req = reqSnap.getValue(SeatRequest.class);
-                                                if (req != null && ("approved".equals(req.status) || "pending".equals(req.status))) {
-                                                    reqSnap.getRef().child("status").setValue("canceled_by_rider");
-                                                }
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                        }
-                                    });
+                            String tripId = trip.tripId != null ? trip.tripId : tripSnap.getKey();
+                            
+                            // Delete trip requests for this trip
+                            database.getReference("tripRequests").child(tripId).removeValue();
+                            
+                            // Delete trip members for this trip
+                            database.getReference("tripMembers").child(tripId).removeValue();
+                            
+                            // Delete ratings for this trip
+                            database.getReference("ratings").child(tripId).removeValue();
+                            
+                            // Delete the group chat for this trip (chatId is "trip_" + tripId)
+                            String groupChatId = "trip_" + tripId;
+                            database.getReference("chats").child(groupChatId).removeValue();
+                            
+                            // Delete the trip itself
+                            tripSnap.getRef().removeValue();
                         }
 
-                        // Now remove user data and delete account
-                        FirebaseDatabase.getInstance().getReference("users").child(uid).removeValue();
+                        // Cancel user's seat requests on other trips
+                        cleanupUserRequests(uid, database, () -> {
+                            // Remove user from userChats
+                            database.getReference("userChats").child(uid).removeValue();
+                            
+                            // Remove user's notifications
+                            database.getReference("notifications").child(uid).removeValue();
+                            
+                            // Remove user data
+                            database.getReference("users").child(uid).removeValue();
 
-                        user.delete().addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Intent intent = new Intent(SettingsActivity.this, WelcomeActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            } else {
-                                Toast.makeText(SettingsActivity.this, R.string.error_generic,
-                                        Toast.LENGTH_SHORT).show();
-                            }
+                            // Finally delete the Firebase Auth account
+                            user.delete().addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Intent intent = new Intent(SettingsActivity.this, WelcomeActivity.class);
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(SettingsActivity.this, R.string.error_generic,
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         });
                     }
 
@@ -251,6 +250,34 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onCancelled(@NonNull DatabaseError error) {
                         Toast.makeText(SettingsActivity.this, R.string.error_generic,
                                 Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    
+    /**
+     * Cancels all seat requests made by the user on other people's trips.
+     */
+    private void cleanupUserRequests(String uid, FirebaseDatabase database, Runnable onComplete) {
+        database.getReference("tripRequests")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot tripRequestsSnap : snapshot.getChildren()) {
+                            for (DataSnapshot reqSnap : tripRequestsSnap.getChildren()) {
+                                SeatRequest req = reqSnap.getValue(SeatRequest.class);
+                                if (req != null && uid.equals(req.riderUid)) {
+                                    // Remove user's request
+                                    reqSnap.getRef().removeValue();
+                                }
+                            }
+                        }
+                        onComplete.run();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        // Continue even if cleanup fails
+                        onComplete.run();
                     }
                 });
     }

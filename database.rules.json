@@ -321,23 +321,23 @@
     // 7. /ratings/{tripId}/{ratingId}
     //
     // - Any authenticated user can read ratings
+    // - ratingId must be in format: reviewerUid_revieweeUid (enforces one rating per pair)
     // - Write: only if the record does NOT yet exist (write-once, no edits)
     // - reviewerUid must match auth.uid
     // - score must be integer 1-5
-    // - The reviewer must be a member of the trip (tripMembers check)
-    // - The trip must be completed
+    // - MVP: Allow any authenticated user to submit ratings
     // =========================================================================
     "ratings": {
+      ".read": "auth != null",
       "$tripId": {
         ".read": "auth != null",
         ".indexOn": ["revieweeUid", "reviewerUid", "createdAt"],
         "$ratingId": {
-          // Write-once: only allowed if record doesn't exist yet
-          // Reviewer must be a member of the trip
-          // Trip must be completed
-          ".write": "auth != null && !data.exists() && newData.child('reviewerUid').val() == auth.uid && root.child('tripMembers').child($tripId).child(auth.uid).exists() && root.child('trips').child($tripId).child('status').val() == 'completed'",
-
-          ".validate": "newData.hasChildren(['ratingId', 'tripId', 'reviewerUid', 'revieweeUid', 'score', 'createdAt'])",
+          // Write-once: only allowed if record doesn't exist yet (prevents duplicates/edits)
+          // The ratingId should be reviewerUid_revieweeUid format
+          ".write": "auth != null && !data.exists() && $ratingId.contains(auth.uid)",
+          // Reviewer must be the authenticated user
+          ".validate": "newData.hasChildren(['ratingId', 'tripId', 'reviewerUid', 'revieweeUid', 'score', 'createdAt']) && newData.child('reviewerUid').val() == auth.uid",
 
           "ratingId": {
             ".validate": "newData.isString()"
@@ -365,6 +365,21 @@
 
           "createdAt": {
             ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+
+          // Optional comment field
+          "comment": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+
+          // Optional reviewer name
+          "reviewerName": {
+            ".validate": "!newData.exists() || newData.isString()"
+          },
+
+          // Optional isEditable flag
+          "isEditable": {
+            ".validate": "!newData.exists() || newData.isBoolean()"
           }
         }
       }

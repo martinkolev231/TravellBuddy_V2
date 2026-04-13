@@ -117,6 +117,9 @@ public class ManageRequestsActivity extends AppCompatActivity {
                                 .child(tripId).child(request.riderUid)
                                 .setValue(member.toMap());
                     }
+                    
+                    // Increment the rider's tripsAsRider counter
+                    incrementRiderTripCounter(request.riderUid);
 
                     // If seats now 0, update trip status
                     Integer remainingSeats = snapshot.getValue(Integer.class);
@@ -136,6 +139,38 @@ public class ManageRequestsActivity extends AppCompatActivity {
         requestsRef.child(request.requestId).child("status").setValue("denied");
         requestsRef.child(request.requestId).child("updatedAt").setValue(System.currentTimeMillis());
         Toast.makeText(this, R.string.success_request_denied, Toast.LENGTH_SHORT).show();
+    }
+    
+    /**
+     * Increments the tripsAsRider counter for the user who just joined a trip.
+     */
+    private void incrementRiderTripCounter(String riderUid) {
+        if (riderUid == null) return;
+        
+        DatabaseReference counterRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(riderUid)
+                .child("tripCounters")
+                .child("tripsAsRider");
+        
+        counterRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                Integer current = currentData.getValue(Integer.class);
+                if (current == null) {
+                    currentData.setValue(1);
+                } else {
+                    currentData.setValue(current + 1);
+                }
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError error, boolean committed, DataSnapshot snapshot) {
+                // Silent - counter update is secondary
+            }
+        });
     }
 
     @Override

@@ -153,48 +153,6 @@
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <!-- LOCATION Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="LOCATION"
-                android:textAllCaps="true"
-                android:textColor="@color/text_primary"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_input_field_gray"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_location"
-                    app:tint="@color/text_hint"
-                    android:contentDescription="@null" />
-
-                <EditText
-                    android:id="@+id/etLocation"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:background="@null"
-                    android:hint="Add your location"
-                    android:inputType="text"
-                    android:maxLength="100"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_hint"
-                    android:textSize="16sp" />
-            </LinearLayout>
 
             <!-- BIO Section -->
             <TextView

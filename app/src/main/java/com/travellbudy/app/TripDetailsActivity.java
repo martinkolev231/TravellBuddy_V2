@@ -21,6 +21,8 @@ import com.travellbudy.app.databinding.ActivityTripDetailsBinding;
 import com.travellbudy.app.dialogs.RateUserDialogFragment;
 import com.travellbudy.app.models.SeatRequest;
 import com.travellbudy.app.models.Trip;
+import com.travellbudy.app.models.User;
+import com.travellbudy.app.repository.RatingRepository;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -44,6 +46,10 @@ public class TripDetailsActivity extends AppCompatActivity {
     private ValueEventListener requestListener;
     private String existingRequestId;
     private String existingRequestStatus;
+    private RatingRepository ratingRepository;
+    private boolean canRateTrip = false;
+    private String hostUidToRate;
+    private String hostNameToRate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,9 +72,11 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         tripRef = FirebaseDatabase.getInstance().getReference("trips").child(tripId);
         requestsRef = FirebaseDatabase.getInstance().getReference("tripRequests").child(tripId);
+        ratingRepository = new RatingRepository(getApplication());
 
         setupListeners();
         setupButtons();
+        checkRatingEligibility();
     }
 
     private void setupListeners() {
@@ -181,7 +189,21 @@ public class TripDetailsActivity extends AppCompatActivity {
         }
 
         // Host rating (placeholder for now)
-        binding.tvHostRating.setText("5");
+        binding.tvHostRating.setText("—");
+        
+        // Fetch actual host rating
+        fetchHostRating(currentTrip.driverUid);
+        
+        // Make host photo and name clickable to view profile
+        View.OnClickListener hostProfileClickListener = v -> {
+            if (currentTrip != null && currentTrip.driverUid != null) {
+                Intent intent = new Intent(TripDetailsActivity.this, UserProfileActivity.class);
+                intent.putExtra(UserProfileActivity.EXTRA_USER_ID, currentTrip.driverUid);
+                startActivity(intent);
+            }
+        };
+        binding.ivHostPhoto.setOnClickListener(hostProfileClickListener);
+        binding.tvHostName.setOnClickListener(hostProfileClickListener);
         
         // Fetch actual trips hosted count
         fetchHostTripsCount(currentTrip.driverUid);
@@ -291,17 +313,66 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Share button
         binding.btnShare.setOnClickListener(v -> shareTrip());
 
-        // Favorite button (placeholder)
-        binding.btnFavorite.setOnClickListener(v -> {
-            Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
-        });
-
 
         // Join Activity button
         binding.btnJoinActivity.setOnClickListener(v -> sendSeatRequest());
 
         // Delete Adventure button
         binding.btnDeleteAdventure.setOnClickListener(v -> showDeleteConfirmation());
+
+        // Rate Host button
+        binding.btnRateHost.setOnClickListener(v -> showRateHostDialog());
+    }
+
+    /**
+     * Checks if the current user is eligible to rate the host of this trip.
+     * Updates the Rate Host button visibility accordingly.
+     */
+    private void checkRatingEligibility() {
+        if (tripId == null || currentUserId == null) return;
+
+        ratingRepository.canUserRateTrip(tripId, currentUserId).observe(this, result -> {
+            if (result.isSuccess() && result.data != null) {
+                RatingRepository.CanRateResult canRateResult = result.data;
+                canRateTrip = canRateResult.canRate;
+                hostUidToRate = canRateResult.hostUid;
+                hostNameToRate = canRateResult.hostName;
+                updateRateButtonVisibility();
+            } else {
+                canRateTrip = false;
+                updateRateButtonVisibility();
+            }
+        });
+    }
+
+    /**
+     * Updates the visibility of the Rate Host button based on eligibility.
+     */
+    private void updateRateButtonVisibility() {
+        if (binding == null) return;
+        binding.btnRateHost.setVisibility(canRateTrip ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Shows the rate host dialog.
+     */
+    private void showRateHostDialog() {
+        if (!canRateTrip || hostUidToRate == null) {
+            Toast.makeText(this, R.string.error_cannot_rate, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RateUserDialogFragment dialog = RateUserDialogFragment.newInstance(
+                hostUidToRate,
+                hostNameToRate != null ? hostNameToRate : "Host",
+                tripId
+        );
+        dialog.setOnRatingSubmittedListener(() -> {
+            // Refresh the rating eligibility check after submission
+            canRateTrip = false;
+            updateRateButtonVisibility();
+        });
+        dialog.show(getSupportFragmentManager(), "RateUserDialog");
     }
 
     private void showDeleteConfirmation() {
@@ -461,6 +532,39 @@ public class TripDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                         binding.tvHostTrips.setText("• 0 trips hosted");
+                    }
+                });
+    }
+
+    private void fetchHostRating(String hostUid) {
+        if (hostUid == null || hostUid.isEmpty()) {
+            binding.tvHostRating.setText("—");
+            return;
+        }
+        
+        FirebaseDatabase.getInstance().getReference("users")
+                .child(hostUid)
+                .child("ratingSummary")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (binding == null) return;
+                        
+                        Double avgRating = snapshot.child("averageRating").getValue(Double.class);
+                        Long totalRatings = snapshot.child("totalRatings").getValue(Long.class);
+                        
+                        if (avgRating != null && totalRatings != null && totalRatings > 0) {
+                            binding.tvHostRating.setText(String.format(Locale.getDefault(), "%.1f", avgRating));
+                        } else {
+                            binding.tvHostRating.setText("—");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        if (binding != null) {
+                            binding.tvHostRating.setText("—");
+                        }
                     }
                 });
     }

@@ -189,6 +189,9 @@ public class NotificationsActivity extends AppCompatActivity {
 
                                                 // Add user to the group chat
                                                 addUserToGroupChat(notification.tripId, notification.fromUserId);
+                                                
+                                                // Increment the rider's tripsAsRider counter
+                                                incrementRiderTripCounter(notification.fromUserId);
 
                                                 // Update notification status
                                                 if (notification.notificationId != null) {
@@ -376,6 +379,38 @@ public class NotificationsActivity extends AppCompatActivity {
 
         userNotificationsRef.child(notificationId).setValue(responseNotification);
     }
+    
+    /**
+     * Increments the tripsAsRider counter for the user who just joined a trip.
+     */
+    private void incrementRiderTripCounter(String riderUid) {
+        if (riderUid == null) return;
+        
+        DatabaseReference counterRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(riderUid)
+                .child("tripCounters")
+                .child("tripsAsRider");
+        
+        counterRef.runTransaction(new Transaction.Handler() {
+            @NonNull
+            @Override
+            public Transaction.Result doTransaction(@NonNull MutableData currentData) {
+                Integer current = currentData.getValue(Integer.class);
+                if (current == null) {
+                    currentData.setValue(1);
+                } else {
+                    currentData.setValue(current + 1);
+                }
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError error, boolean committed, DataSnapshot snapshot) {
+                // Silent - counter update is secondary
+            }
+        });
+    }
 
     private void openNotification(Notification notification) {
         markAsRead(notification);
@@ -464,6 +499,15 @@ public class NotificationsActivity extends AppCompatActivity {
                 } else {
                     b.ivAvatar.setImageResource(R.drawable.bg_profile_placeholder);
                 }
+                
+                // Make avatar clickable to view user profile
+                b.ivAvatar.setOnClickListener(v -> {
+                    if (notification.fromUserId != null && !notification.fromUserId.isEmpty()) {
+                        Intent intent = new Intent(NotificationsActivity.this, UserProfileActivity.class);
+                        intent.putExtra(UserProfileActivity.EXTRA_USER_ID, notification.fromUserId);
+                        startActivity(intent);
+                    }
+                });
 
                 // Show action buttons for join requests that are pending
                 boolean isJoinRequest = "join_request".equals(notification.type);

@@ -251,10 +251,24 @@
     <string name="hint_rating_comment">Leave a comment (optional)</string>
     <string name="btn_submit_rating">Submit Rating</string>
     <string name="btn_rate_trip">Rate This Adventure</string>
+    <string name="btn_rate_host">Rate Host</string>
+    <string name="title_rate_host_name">Rate %1$s</string>
+    <string name="label_trip_subtitle">Trip: %1$s</string>
+    <string name="label_rate_experience_question">How was your experience?</string>
+    <string name="hint_review_optional">Write a short review… (optional)</string>
+    <string name="cd_star_1">Star 1</string>
+    <string name="cd_star_2">Star 2</string>
+    <string name="cd_star_3">Star 3</string>
+    <string name="cd_star_4">Star 4</string>
+    <string name="cd_star_5">Star 5</string>
     <string name="label_no_ratings">No ratings yet</string>
     <string name="success_rating_submitted">Rating submitted!</string>
     <string name="error_rating_failed">Failed to submit rating.</string>
     <string name="error_already_rated">You have already rated this user for this adventure.</string>
+    <string name="error_cannot_rate">Cannot rate this trip</string>
+    <string name="label_your_rating">Your rating</string>
+    <string name="label_how_was_host">How was %1$s?</string>
+    <string name="btn_view_summary">View Summary</string>
 
     <!-- Settings -->
     <string name="title_settings">Settings</string>
@@ -326,11 +340,19 @@
     <string name="tab_saved">Saved</string>
     <string name="tab_complete">Complete</string>
     <string name="tab_favorites">Favorites</string>
+    <string name="tab_upcoming">Upcoming</string>
+    <string name="tab_ongoing">Ongoing</string>
+    <string name="tab_completed">Completed</string>
     <string name="status_upcoming">Upcoming</string>
     <string name="status_completed">Completed</string>
     <string name="status_ongoing">Ongoing</string>
     <string name="label_no_saved_trips">You haven\'t saved any adventures yet</string>
     <string name="label_no_completed_trips">You don\'t have any completed adventures yet</string>
+    <string name="label_no_upcoming_trips">No upcoming adventures</string>
+    <string name="label_no_ongoing_trips">No ongoing adventures</string>
+    <string name="role_hosted">HOSTED</string>
+    <string name="role_hosted_by_you">HOSTED BY YOU</string>
+    <string name="role_joined">JOINED</string>
 
     <!-- Filter -->
     <string name="title_filter">Filter Adventures</string>
@@ -459,4 +481,18 @@
     <string name="title_notifications">Notifications</string>
     <string name="empty_notifications">No notifications yet</string>
     <string name="empty_notifications_hint">When you receive updates about adventures,\nrequests, and messages, they\'ll appear here.</string>
+
+    <!-- Profile Reviews Bottom Sheet -->
+    <string name="title_reviews_for">Reviews for %1$s</string>
+    <string name="filter_all">All</string>
+    <string name="filter_5_star">5 ★</string>
+    <string name="filter_4_star">4 ★</string>
+    <string name="filter_3_star">3 ★</string>
+    <string name="filter_2_star">2 ★</string>
+    <string name="filter_1_star">1 ★</string>
+    <string name="empty_reviews_title">No reviews yet</string>
+    <string name="empty_reviews_subtitle">This user has not received any reviews yet.</string>
+    <string name="empty_reviews_filtered">No %1$d-star reviews yet</string>
+    <string name="trip_tag_format">Trip: %1$s</string>
+    <string name="no_written_comment">No written comment</string>
 </resources>

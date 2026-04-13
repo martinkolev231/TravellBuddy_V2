@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.databinding.ActivityUserProfileBinding;
+import com.travellbudy.app.dialogs.ProfileReviewsBottomSheet;
 import com.travellbudy.app.models.Trip;
 import com.travellbudy.app.models.User;
 import com.travellbudy.app.ui.trip.UserAdventuresAdapter;
@@ -71,6 +72,9 @@ public class UserProfileActivity extends AppCompatActivity {
             Toast.makeText(this, "Coming soon", Toast.LENGTH_SHORT).show();
         });
 
+        // Rating stat - open reviews bottom sheet
+        binding.layoutRatingStat.setOnClickListener(v -> openReviewsBottomSheet());
+
         // Setup RecyclerView for recent adventures
         adventuresAdapter = new UserAdventuresAdapter(userTrips, trip -> {
             Intent intent = new Intent(this, TripDetailsActivity.class);
@@ -115,13 +119,6 @@ public class UserProfileActivity extends AppCompatActivity {
                     .into(binding.ivProfilePhoto);
         }
 
-        // Location - hide entire container (including icon) if no location
-        if (currentUser.location != null && !currentUser.location.isEmpty()) {
-            binding.tvLocation.setText(currentUser.location);
-            binding.locationContainer.setVisibility(View.VISIBLE);
-        } else {
-            binding.locationContainer.setVisibility(View.GONE);
-        }
 
         // Bio
         if (currentUser.bio != null && !currentUser.bio.isEmpty()) {
@@ -142,14 +139,8 @@ public class UserProfileActivity extends AppCompatActivity {
             binding.tvRatingLabel.setText("RATING");
         }
 
-        // Trip counters
-        if (currentUser.tripCounters != null) {
-            binding.tvHosted.setText(String.valueOf(currentUser.tripCounters.tripsAsDriver));
-            binding.tvJoined.setText(String.valueOf(currentUser.tripCounters.tripsAsRider));
-        } else {
-            binding.tvHosted.setText("0");
-            binding.tvJoined.setText("0");
-        }
+        // Trip counters - load dynamically from Firebase
+        loadTripCounters();
 
         // Hide message button if viewing own profile
         FirebaseUser me = FirebaseAuth.getInstance().getCurrentUser();
@@ -236,6 +227,102 @@ public class UserProfileActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Load trip counters by querying actual trip data from Firebase.
+     * Uses date-based automatic status detection:
+     * - Hosted = trips where driverUid equals the user (excluding canceled)
+     * - Joined = trips where user has an approved request (excluding canceled trips)
+     */
+    private void loadTripCounters() {
+        DatabaseReference tripsRef = FirebaseDatabase.getInstance().getReference("trips");
+        DatabaseReference tripRequestsRef = FirebaseDatabase.getInstance().getReference("tripRequests");
+
+        // Load hosted trips count using date-based status
+        tripsRef.orderByChild("driverUid").equalTo(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        int hostedCount = 0;
+                        for (DataSnapshot tripSnapshot : snapshot.getChildren()) {
+                            Trip trip = tripSnapshot.getValue(Trip.class);
+                            if (trip != null && trip.isCountable()) {
+                                hostedCount++;
+                            }
+                        }
+                        binding.tvHosted.setText(String.valueOf(hostedCount));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        binding.tvHosted.setText("0");
+                    }
+                });
+
+        // Load joined trips count - iterate through all trips and check requests for each
+        tripsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot tripsSnapshot) {
+                if (!tripsSnapshot.exists() || tripsSnapshot.getChildrenCount() == 0) {
+                    binding.tvJoined.setText("0");
+                    return;
+                }
+                
+                final int[] joinedCount = {0};
+                final int[] checkedCount = {0};
+                final long totalTrips = tripsSnapshot.getChildrenCount();
+                
+                for (DataSnapshot tripSnapshot : tripsSnapshot.getChildren()) {
+                    Trip trip = tripSnapshot.getValue(Trip.class);
+                    String tripId = tripSnapshot.getKey();
+                    
+                    // Skip canceled trips (using date-based status) and trips the user is hosting
+                    if (trip == null || !trip.isCountable() || userId.equals(trip.driverUid)) {
+                        checkedCount[0]++;
+                        if (checkedCount[0] >= totalTrips) {
+                            binding.tvJoined.setText(String.valueOf(joinedCount[0]));
+                        }
+                        continue;
+                    }
+                    
+                    // Check if user has approved or pending request for this trip
+                    tripRequestsRef.child(tripId).orderByChild("riderUid").equalTo(userId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot requestsSnapshot) {
+                                    checkedCount[0]++;
+                                    
+                                    for (DataSnapshot requestSnapshot : requestsSnapshot.getChildren()) {
+                                        String status = requestSnapshot.child("status").getValue(String.class);
+                                        // Count both approved AND pending requests
+                                        if ("approved".equals(status) || "pending".equals(status)) {
+                                            joinedCount[0]++;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (checkedCount[0] >= totalTrips) {
+                                        binding.tvJoined.setText(String.valueOf(joinedCount[0]));
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    checkedCount[0]++;
+                                    if (checkedCount[0] >= totalTrips) {
+                                        binding.tvJoined.setText(String.valueOf(joinedCount[0]));
+                                    }
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                binding.tvJoined.setText("0");
+            }
+        });
+    }
+
     private void startDirectMessage() {
         if (currentUser == null) return;
 
@@ -256,6 +343,20 @@ public class UserProfileActivity extends AppCompatActivity {
         intent.putExtra(ChatActivity.EXTRA_TRIP_ID, conversationId);
         intent.putExtra(ChatActivity.EXTRA_TRIP_ROUTE, chatTitle);
         startActivity(intent);
+    }
+
+    /**
+     * Opens the Profile Reviews bottom sheet showing all reviews for this user.
+     */
+    private void openReviewsBottomSheet() {
+        if (userId == null) return;
+        
+        String displayName = currentUser != null && currentUser.displayName != null 
+                ? currentUser.displayName : "User";
+        
+        ProfileReviewsBottomSheet bottomSheet = ProfileReviewsBottomSheet.newInstance(
+                userId, displayName);
+        bottomSheet.show(getSupportFragmentManager(), "ProfileReviewsBottomSheet");
     }
 
     @Override

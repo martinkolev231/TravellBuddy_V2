@@ -2,11 +2,21 @@ package com.travellbudy.app.models;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 @IgnoreExtraProperties
 public class Trip {
+    
+    /**
+     * Trip status constants for date-based status calculation
+     */
+    public static final String STATUS_CANCELED = "canceled";
+    public static final String STATUS_UPCOMING = "upcoming";
+    public static final String STATUS_ONGOING = "ongoing";
+    public static final String STATUS_COMPLETED = "completed";
+    
     public String tripId;
     public String driverUid;  // kept as-is in DB for backward compatibility (= organizer UID)
 
@@ -144,5 +154,107 @@ public class Trip {
 
     public boolean isOpen() {
         return "open".equals(status);
+    }
+    
+    /**
+     * Calculate the effective status of the trip based on dates and cancellation state.
+     * Uses DATE ONLY comparison (not exact time).
+     * 
+     * Rules:
+     * - Canceled: trip is marked as canceled (always takes priority)
+     * - Upcoming: current date is before the trip start date
+     * - Ongoing: current date is between start date and end date (inclusive)
+     * - Completed: current date is after the trip end date
+     * 
+     * @return The effective status string: "canceled", "upcoming", "ongoing", or "completed"
+     */
+    public String getEffectiveStatus() {
+        // Canceled trips always stay canceled
+        if (STATUS_CANCELED.equals(status)) {
+            return STATUS_CANCELED;
+        }
+        
+        // Get current date at midnight (start of day)
+        Calendar todayCal = Calendar.getInstance();
+        todayCal.set(Calendar.HOUR_OF_DAY, 0);
+        todayCal.set(Calendar.MINUTE, 0);
+        todayCal.set(Calendar.SECOND, 0);
+        todayCal.set(Calendar.MILLISECOND, 0);
+        long todayStart = todayCal.getTimeInMillis();
+        
+        // Get start date at midnight
+        Calendar startCal = Calendar.getInstance();
+        startCal.setTimeInMillis(departureTime);
+        startCal.set(Calendar.HOUR_OF_DAY, 0);
+        startCal.set(Calendar.MINUTE, 0);
+        startCal.set(Calendar.SECOND, 0);
+        startCal.set(Calendar.MILLISECOND, 0);
+        long startDateMidnight = startCal.getTimeInMillis();
+        
+        // Get end date at END of day (23:59:59.999)
+        Calendar endCal = Calendar.getInstance();
+        endCal.setTimeInMillis(estimatedArrivalTime);
+        endCal.set(Calendar.HOUR_OF_DAY, 23);
+        endCal.set(Calendar.MINUTE, 59);
+        endCal.set(Calendar.SECOND, 59);
+        endCal.set(Calendar.MILLISECOND, 999);
+        long endDateEnd = endCal.getTimeInMillis();
+        
+        // Also get end date at start of day for comparison
+        endCal.set(Calendar.HOUR_OF_DAY, 0);
+        endCal.set(Calendar.MINUTE, 0);
+        endCal.set(Calendar.SECOND, 0);
+        endCal.set(Calendar.MILLISECOND, 0);
+        long endDateMidnight = endCal.getTimeInMillis();
+        
+        // Determine status based on date comparisons
+        if (todayStart < startDateMidnight) {
+            // Current date is before start date
+            return STATUS_UPCOMING;
+        } else if (todayStart <= endDateMidnight) {
+            // Current date is between start date and end date (inclusive)
+            // Trip stays ongoing for the whole end date
+            return STATUS_ONGOING;
+        } else {
+            // Current date is after end date
+            return STATUS_COMPLETED;
+        }
+    }
+    
+    /**
+     * Check if this trip should be counted in statistics (not canceled).
+     * @return true if trip is upcoming, ongoing, or completed (not canceled)
+     */
+    public boolean isCountable() {
+        String effectiveStatus = getEffectiveStatus();
+        return !STATUS_CANCELED.equals(effectiveStatus);
+    }
+    
+    /**
+     * Check if trip is upcoming based on dates.
+     */
+    public boolean isUpcoming() {
+        return STATUS_UPCOMING.equals(getEffectiveStatus());
+    }
+    
+    /**
+     * Check if trip is currently ongoing based on dates.
+     */
+    public boolean isOngoing() {
+        return STATUS_ONGOING.equals(getEffectiveStatus());
+    }
+    
+    /**
+     * Check if trip has completed based on dates.
+     */
+    public boolean isCompleted() {
+        return STATUS_COMPLETED.equals(getEffectiveStatus());
+    }
+    
+    /**
+     * Check if trip is canceled.
+     */
+    public boolean isCanceled() {
+        return STATUS_CANCELED.equals(status);
     }
 }

@@ -118,8 +118,10 @@ public class ChatActivity extends AppCompatActivity {
     
     /**
      * Initialize a direct message chat with participants in /chats node, 
-     * then create userChats entry and start listening for messages.
+     * then start listening for messages.
      * This ensures Firebase read rules are satisfied before attaching listener.
+     * NOTE: userChats entries are NOT created here - they are only created when a message is sent.
+     * This prevents empty chats from appearing in both users' message lists.
      */
     private void initializeDirectMessageChatAndListen() {
         String[] parts = tripId.split("_");
@@ -130,7 +132,6 @@ public class ChatActivity extends AppCompatActivity {
         
         String otherUserId = parts[1].equals(currentUserId) ? parts[2] : parts[1];
         DatabaseReference chatRootRef = FirebaseDatabase.getInstance().getReference("chats").child(tripId);
-        DatabaseReference userChatsRef = FirebaseDatabase.getInstance().getReference("userChats");
         
         // For DMs, always ensure participants exist first before trying to listen
         // This is necessary because read rules require being a participant
@@ -138,9 +139,10 @@ public class ChatActivity extends AppCompatActivity {
             // Now we can listen for messages
             listenForMessages();
             
-            // Also create userChats entries
-            createUserChatEntry(userChatsRef, currentUserId, otherUserId);
-            createUserChatEntryForOther(userChatsRef, otherUserId, currentUserId);
+            // NOTE: We do NOT create userChats entries here anymore.
+            // They will be created only when the first message is sent.
+            // This fixes the bug where opening a chat without sending a message
+            // would make the chat appear in both users' message lists.
         });
     }
     
@@ -165,57 +167,6 @@ public class ChatActivity extends AppCompatActivity {
                 // Still try to listen in case we already have access
                 onComplete.run();
             });
-    }
-    
-    private void createUserChatEntry(DatabaseReference userChatsRef, String myUid, String otherUid) {
-        userChatsRef.child(myUid).child(tripId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    Map<String, Object> entry = new HashMap<>();
-                    entry.put("chatId", tripId);
-                    entry.put("otherPartyUid", otherUid);
-                    entry.put("lastMessageTime", System.currentTimeMillis());
-                    userChatsRef.child(myUid).child(tripId).setValue(entry);
-                    
-                    // Get other user's name
-                    FirebaseDatabase.getInstance().getReference("users").child(otherUid)
-                            .child("displayName")
-                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot nameSnapshot) {
-                                    String otherUserName = nameSnapshot.getValue(String.class);
-                                    if (otherUserName != null) {
-                                        userChatsRef.child(myUid).child(tripId)
-                                                .child("otherPartyName").setValue(otherUserName);
-                                    }
-                                }
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError error) {}
-                            });
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
-    }
-    
-    private void createUserChatEntryForOther(DatabaseReference userChatsRef, String otherUid, String myUid) {
-        userChatsRef.child(otherUid).child(tripId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists()) {
-                    Map<String, Object> entry = new HashMap<>();
-                    entry.put("chatId", tripId);
-                    entry.put("otherPartyUid", myUid);
-                    entry.put("otherPartyName", currentUserName);
-                    entry.put("lastMessageTime", System.currentTimeMillis());
-                    userChatsRef.child(otherUid).child(tripId).setValue(entry);
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
-        });
     }
 
     private void listenForMessages() {
@@ -399,6 +350,7 @@ public class ChatActivity extends AppCompatActivity {
                 myUpdateMap.put("lastMessageTime", timestamp);
                 myUpdateMap.put("lastMessageSenderId", currentUserId);
                 myUpdateMap.put("otherPartyUid", otherUserId);
+                myUpdateMap.put("isDirectMessage", true);  // Mark as direct message
                 userChatsRef.child(currentUserId).child(tripId).updateChildren(myUpdateMap);
                 
                 // Update other user's chat list
@@ -409,18 +361,47 @@ public class ChatActivity extends AppCompatActivity {
                 otherUpdateMap.put("lastMessageSenderId", currentUserId);
                 otherUpdateMap.put("otherPartyUid", currentUserId);
                 otherUpdateMap.put("otherPartyName", currentUserName);
-                userChatsRef.child(otherUserId).child(tripId).updateChildren(otherUpdateMap);
+                otherUpdateMap.put("chatName", currentUserName);  // For proper display in chat list
+                otherUpdateMap.put("isDirectMessage", true);  // Mark as direct message
                 
-                // Also save the other user's name in current user's chat for display
-                FirebaseDatabase.getInstance().getReference("users").child(otherUserId)
-                        .child("displayName")
+                // Also get current user's photo for the other user's chat entry
+                final String finalOtherUserId = otherUserId;
+                FirebaseDatabase.getInstance().getReference("users").child(currentUserId)
+                        .child("photoUrl")
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                String otherUserName = snapshot.getValue(String.class);
+                                String myPhoto = snapshot.getValue(String.class);
+                                if (myPhoto != null) {
+                                    otherUpdateMap.put("otherPartyPhoto", myPhoto);
+                                }
+                                userChatsRef.child(finalOtherUserId).child(tripId).updateChildren(otherUpdateMap);
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Still update without photo
+                                userChatsRef.child(finalOtherUserId).child(tripId).updateChildren(otherUpdateMap);
+                            }
+                        });
+                
+                // Also save the other user's name and photo in current user's chat for display
+                FirebaseDatabase.getInstance().getReference("users").child(otherUserId)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                String otherUserName = snapshot.child("displayName").getValue(String.class);
+                                String otherUserPhoto = snapshot.child("photoUrl").getValue(String.class);
+                                
+                                Map<String, Object> updates = new HashMap<>();
                                 if (otherUserName != null) {
-                                    userChatsRef.child(currentUserId).child(tripId)
-                                            .child("otherPartyName").setValue(otherUserName);
+                                    updates.put("otherPartyName", otherUserName);
+                                    updates.put("chatName", otherUserName);
+                                }
+                                if (otherUserPhoto != null) {
+                                    updates.put("otherPartyPhoto", otherUserPhoto);
+                                }
+                                if (!updates.isEmpty()) {
+                                    userChatsRef.child(currentUserId).child(tripId).updateChildren(updates);
                                 }
                             }
                             @Override

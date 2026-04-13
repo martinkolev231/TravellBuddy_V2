@@ -115,31 +115,6 @@
                             android:textStyle="bold"
                             tools:text="Lucas M." />
 
-                        <!-- Location -->
-                        <LinearLayout
-                            android:id="@+id/locationContainer"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:layout_width="14dp"
-                                android:layout_height="14dp"
-                                android:src="@drawable/ic_location"
-                                app:tint="@color/text_secondary"
-                                android:contentDescription="@null" />
-
-                            <TextView
-                                android:id="@+id/tvLocation"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="4dp"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="14sp"
-                                tools:text="Berlin, Germany" />
-                        </LinearLayout>
 
                         <!-- Message Button -->
                         <com.google.android.material.button.MaterialButton
@@ -183,11 +158,15 @@
 
                     <!-- Rating Stat -->
                     <LinearLayout
+                        android:id="@+id/layoutRatingStat"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
 
                         <TextView
                             android:id="@+id/tvRating"

@@ -28,6 +28,8 @@
                 android:layout_height="56dp"
                 android:scaleType="centerCrop"
                 android:background="@color/divider"
+                android:clickable="true"
+                android:focusable="true"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.Circle"
                 tools:src="@tools:sample/avatars" />
 

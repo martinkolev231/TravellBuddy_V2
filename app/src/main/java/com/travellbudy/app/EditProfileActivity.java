@@ -157,7 +157,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 User user = snapshot.getValue(User.class);
                 if (user != null) {
                     binding.etName.setText(user.displayName);
-                    binding.etLocation.setText(user.location);
                     binding.etBio.setText(user.bio);
 
                     // Load profile photo if available
@@ -178,7 +177,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void saveProfile() {
         String name = binding.etName.getText().toString().trim();
-        String location = binding.etLocation.getText().toString().trim();
         String bio = binding.etBio.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
@@ -191,7 +189,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
         Map<String, Object> updates = new HashMap<>();
         updates.put("displayName", name);
-        updates.put("location", location);
         updates.put("bio", bio);
 
         userRef.updateChildren(updates).addOnCompleteListener(task -> {

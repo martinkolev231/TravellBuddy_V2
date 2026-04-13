@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_rounded"
+    android:orientation="vertical"
+    android:paddingBottom="24dp">
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Drag Handle                                                         -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <View
+        android:layout_width="70dp"
+        android:layout_height="6dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Close Button (top-right)                                            -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_close"
+            android:src="@drawable/ic_close"
+            app:tint="#94A3B8" />
+    </FrameLayout>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Host Avatar with Badge                                              -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp">
+
+        <!-- Host Avatar -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivHostAvatar"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:background="@color/divider"
+            android:scaleType="centerCrop"
+            app:shapeAppearance="@style/ShapeAppearance.TravellBuddy.Circle"
+            tools:src="@drawable/bg_profile_placeholder" />
+
+        <!-- Host Badge (teal with star) -->
+        <FrameLayout
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="2dp"
+            android:background="@drawable/bg_host_badge">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_star_filled"
+                app:tint="@color/white"
+                android:contentDescription="@null" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Title: Rate [Host Name]                                             -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="#1E293B"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        tools:text="Rate Sarah Collins" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Subtitle: Trip Name                                                 -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <TextView
+        android:id="@+id/tvTripName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:fontFamily="sans-serif"
+        android:textColor="#64748B"
+        android:textSize="15sp"
+        tools:text="Trip: Bali Yoga Retreat" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Question: How was your experience?                                  -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/label_rate_experience_question"
+        android:textColor="#1E293B"
+        android:textSize="16sp" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Star Rating Row                                                     -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <LinearLayout
+        android:id="@+id/layoutStars"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/star1"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_star_empty"
+            app:tint="#CBD5E1"
+            android:contentDescription="@string/cd_star_1" />
+
+        <ImageView
+            android:id="@+id/star2"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_star_empty"
+            app:tint="#CBD5E1"
+            android:contentDescription="@string/cd_star_2" />
+
+        <ImageView
+            android:id="@+id/star3"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_star_empty"
+            app:tint="#CBD5E1"
+            android:contentDescription="@string/cd_star_3" />
+
+        <ImageView
+            android:id="@+id/star4"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_star_empty"
+            app:tint="#CBD5E1"
+            android:contentDescription="@string/cd_star_4" />
+
+        <ImageView
+            android:id="@+id/star5"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:padding="2dp"
+            android:src="@drawable/ic_star_empty"
+            app:tint="#CBD5E1"
+            android:contentDescription="@string/cd_star_5" />
+    </LinearLayout>
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Review Text Input                                                   -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <EditText
+        android:id="@+id/etReview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/bg_review_input"
+        android:gravity="top|start"
+        android:hint="@string/hint_review_optional"
+        android:inputType="textMultiLine|textCapSentences"
+        android:maxLength="500"
+        android:minHeight="120dp"
+        android:padding="16dp"
+        android:textColor="#1E293B"
+        android:textColorHint="#94A3B8"
+        android:textSize="15sp"
+        android:importantForAutofill="no" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Submit Button                                                       -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#E2E8F0"
+        android:enabled="false"
+        android:text="@string/btn_submit_rating"
+        android:textAllCaps="false"
+        android:textColor="#94A3B8"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="18dp"
+        app:elevation="0dp"
+        app:rippleColor="#CCCCCC" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Loading Indicator (hidden by default)                               -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:indeterminateTint="#0D9488"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <!-- Error Message (hidden by default)                                   -->
+    <!-- ══════════════════════════════════════════════════════════════════ -->
+    <TextView
+        android:id="@+id/tvError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/error"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="Failed to submit rating"
+        tools:visibility="visible" />
+
+</LinearLayout>
+

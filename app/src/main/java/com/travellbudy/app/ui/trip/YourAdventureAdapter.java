@@ -100,8 +100,8 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
             int joined = trip.totalSeats - trip.availableSeats;
             binding.tvJoined.setText(String.format(Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
 
-            // Always show "HOSTED BY YOU" badge
-            binding.tvStatusBadge.setText("HOSTED BY YOU");
+            // Always show "HOSTED BY YOU" badge (using string resource)
+            binding.tvStatusBadge.setText(context.getString(com.travellbudy.app.R.string.role_hosted_by_you));
             binding.tvStatusBadge.setVisibility(View.VISIBLE);
 
             // Load adventure image

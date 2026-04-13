@@ -220,6 +220,67 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- DEBUG Section (REMOVE BEFORE PRODUCTION) -->
+            <TextView
+                android:id="@+id/tvDebugSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:paddingHorizontal="20dp"
+                android:text="DEBUG (TESTING)"
+                android:textAllCaps="true"
+                android:textColor="#FF5722"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
+
+            <!-- Debug Card -->
+            <LinearLayout
+                android:id="@+id/debugCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_settings_card"
+                android:orientation="vertical">
+
+                <!-- Create Test Trips -->
+                <LinearLayout
+                    android:id="@+id/btnCreateTestTrips"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_add"
+                        app:tint="#FF5722"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:text="Create Test Trips (Ongoing + Completed)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/text_secondary"
+                        android:contentDescription="@null" />
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- SUPPORT & LEGAL Section -->
             <TextView
                 android:layout_width="match_parent"

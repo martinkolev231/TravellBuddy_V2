@@ -59,12 +59,12 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/tabJoined"
+                    android:id="@+id/tabUpcoming"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="@string/tab_joined"
-                    android:textSize="15sp"
+                    android:text="@string/tab_upcoming"
+                    android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
                     android:background="@drawable/bg_tab_selected"
@@ -78,12 +78,12 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/tabComplete"
+                    android:id="@+id/tabOngoing"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="@string/tab_complete"
-                    android:textSize="15sp"
+                    android:text="@string/tab_ongoing"
+                    android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:background="@drawable/bg_tab_unselected"
                     android:clickable="true"
@@ -96,12 +96,12 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/tabFavorites"
+                    android:id="@+id/tabCompleted"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="@string/tab_favorites"
-                    android:textSize="15sp"
+                    android:text="@string/tab_completed"
+                    android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:background="@drawable/bg_tab_unselected"
                     android:clickable="true"

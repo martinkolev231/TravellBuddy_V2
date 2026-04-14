@@ -6,12 +6,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -31,8 +34,15 @@ import com.travellbudy.app.R;
 import com.travellbudy.app.SettingsActivity;
 import com.travellbudy.app.databinding.FragmentProfileBinding;
 import com.travellbudy.app.dialogs.ProfileReviewsBottomSheet;
+import com.travellbudy.app.models.Rating;
+import com.travellbudy.app.models.Trip;
 import com.travellbudy.app.models.User;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class ProfileFragment extends Fragment {
@@ -51,6 +61,9 @@ public class ProfileFragment extends Fragment {
     private ValueEventListener joinedTripsListener;
     private String currentUserId;
     private String currentUserName = "User";
+    
+    // Reviews data
+    private int totalReviewCount = 0;
 
     private final ActivityResultLauncher<String> profilePhotoPickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -114,11 +127,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        // Add interest
-        binding.btnAddInterest.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Add interests coming soon", Toast.LENGTH_SHORT).show();
-        });
-
         // My Adventures - navigate to My Trips screen
         binding.btnMyAdventures.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.myTripsFragment);
@@ -129,8 +137,14 @@ public class ProfileFragment extends Fragment {
             openReviewsBottomSheet();
         });
 
+        // See all reviews button
+        binding.btnSeeAllReviews.setOnClickListener(v -> {
+            openReviewsBottomSheet();
+        });
+
         loadProfile();
         loadTripCounters();
+        loadReviewsPreview();
     }
 
     private void loadProfile() {
@@ -322,6 +336,170 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+    
+    /**
+     * Load first 2 reviews for preview display on profile screen.
+     */
+    private void loadReviewsPreview() {
+        if (currentUserId == null) return;
+        
+        DatabaseReference ratingsRef = FirebaseDatabase.getInstance().getReference("ratings");
+        
+        ratingsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (binding == null || !isAdded()) return;
+                
+                List<Rating> ratings = new ArrayList<>();
+                
+                // Collect all ratings for current user
+                for (DataSnapshot tripSnapshot : snapshot.getChildren()) {
+                    String tripId = tripSnapshot.getKey();
+                    for (DataSnapshot ratingSnapshot : tripSnapshot.getChildren()) {
+                        Rating rating = ratingSnapshot.getValue(Rating.class);
+                        if (rating != null && currentUserId.equals(rating.revieweeUid)) {
+                            rating.tripId = tripId;
+                            ratings.add(rating);
+                        }
+                    }
+                }
+                
+                // Sort by newest first
+                Collections.sort(ratings, (a, b) -> Long.compare(b.createdAt, a.createdAt));
+                
+                totalReviewCount = ratings.size();
+                
+                // Update reviews section title
+                binding.tvReviewsSectionTitle.setText("Reviews (" + totalReviewCount + ")");
+                
+                // Update review count text
+                binding.tvReviewCount.setText("(" + totalReviewCount + " reviews)");
+                
+                if (ratings.isEmpty()) {
+                    // Show empty state
+                    binding.layoutEmptyReviews.setVisibility(View.VISIBLE);
+                    binding.reviewsPreviewContainer.setVisibility(View.GONE);
+                    binding.btnSeeAllReviews.setVisibility(View.GONE);
+                } else {
+                    // Hide empty state, show reviews
+                    binding.layoutEmptyReviews.setVisibility(View.GONE);
+                    binding.reviewsPreviewContainer.setVisibility(View.VISIBLE);
+                    binding.btnSeeAllReviews.setVisibility(View.VISIBLE);
+                    
+                    // Show first review card
+                    if (!ratings.isEmpty()) {
+                        bindReviewCard(binding.reviewCard1.getRoot(), ratings.get(0));
+                        binding.reviewCard1.getRoot().setVisibility(View.VISIBLE);
+                    }
+                    
+                    // Show second review card if available
+                    if (ratings.size() >= 2) {
+                        bindReviewCard(binding.reviewCard2.getRoot(), ratings.get(1));
+                        binding.reviewCard2.getRoot().setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                android.util.Log.e("ProfileFragment", "Failed to load reviews: " + error.getMessage());
+            }
+        });
+    }
+    
+    /**
+     * Bind a Rating to a review preview card view.
+     */
+    private void bindReviewCard(View cardView, Rating rating) {
+        if (cardView == null || rating == null) return;
+        
+        de.hdodenhof.circleimageview.CircleImageView ivAvatar = cardView.findViewById(R.id.ivReviewerAvatar);
+        TextView tvName = cardView.findViewById(R.id.tvReviewerName);
+        TextView tvDate = cardView.findViewById(R.id.tvReviewDate);
+        TextView tvTripTag = cardView.findViewById(R.id.tvTripTag);
+        TextView tvReviewText = cardView.findViewById(R.id.tvReviewText);
+        ImageView star1 = cardView.findViewById(R.id.star1);
+        ImageView star2 = cardView.findViewById(R.id.star2);
+        ImageView star3 = cardView.findViewById(R.id.star3);
+        ImageView star4 = cardView.findViewById(R.id.star4);
+        ImageView star5 = cardView.findViewById(R.id.star5);
+        ImageView[] stars = {star1, star2, star3, star4, star5};
+        
+        // Set reviewer name
+        tvName.setText(rating.reviewerName != null ? rating.reviewerName : "User");
+        
+        // Set date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM yyyy", Locale.getDefault());
+        tvDate.setText(dateFormat.format(new Date(rating.createdAt)));
+        
+        // Set stars
+        int filledColor = ContextCompat.getColor(requireContext(), R.color.star_filled);
+        int emptyColor = ContextCompat.getColor(requireContext(), R.color.star_empty);
+        for (int i = 0; i < 5; i++) {
+            if (i < rating.score) {
+                stars[i].setImageResource(R.drawable.ic_star_filled);
+                stars[i].setColorFilter(filledColor);
+            } else {
+                stars[i].setImageResource(R.drawable.ic_star_empty);
+                stars[i].setColorFilter(emptyColor);
+            }
+        }
+        
+        // Set review text
+        if (rating.comment != null && !rating.comment.isEmpty()) {
+            tvReviewText.setText("\"" + rating.comment + "\"");
+            tvReviewText.setVisibility(View.VISIBLE);
+        } else {
+            tvReviewText.setVisibility(View.GONE);
+        }
+        
+        // Hide trip tag initially, load async
+        tvTripTag.setVisibility(View.GONE);
+        
+        // Load trip name
+        if (rating.tripId != null) {
+            FirebaseDatabase.getInstance().getReference("trips")
+                    .child(rating.tripId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Trip trip = snapshot.getValue(Trip.class);
+                            if (trip != null && binding != null && isAdded()) {
+                                String tripName = trip.originCity + " → " + trip.destinationCity;
+                                tvTripTag.setText("Trip: " + tripName);
+                                tvTripTag.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
+        }
+        
+        // Load reviewer avatar
+        if (rating.reviewerUid != null) {
+            FirebaseDatabase.getInstance().getReference("users")
+                    .child(rating.reviewerUid)
+                    .child("photoUrl")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            String photoUrl = snapshot.getValue(String.class);
+                            if (photoUrl != null && !photoUrl.isEmpty() && getContext() != null && isAdded()) {
+                                Glide.with(requireContext())
+                                        .load(photoUrl)
+                                        .placeholder(R.drawable.bg_profile_placeholder)
+                                        .error(R.drawable.bg_profile_placeholder)
+                                        .circleCrop()
+                                        .into(ivAvatar);
+                            }
+                        }
+                        
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {}
+                    });
+        }
+    }
 
     private void uploadProfilePhoto(Uri imageUri) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -465,6 +643,10 @@ public class ProfileFragment extends Fragment {
         if (currentUser != null && tripsRef != null) {
             loadTripCounters();
         }
+        // Reload reviews preview
+        if (currentUser != null) {
+            loadReviewsPreview();
+        }
     }
     
     @Override
@@ -503,4 +685,5 @@ public class ProfileFragment extends Fragment {
         binding = null;
     }
 }
+
 

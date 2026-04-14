@@ -499,15 +499,27 @@ public class MyTripsFragment extends Fragment {
                     itemBinding.tvPrice.setText(R.string.label_free);
                 }
 
-                // Date - format as "Oct 10 - Oct 14" style
-                java.time.format.DateTimeFormatter dateFormatter = 
-                        java.time.format.DateTimeFormatter.ofPattern("MMM d", java.util.Locale.getDefault());
-                java.time.LocalDateTime startDate = java.time.LocalDateTime.ofInstant(
-                        java.time.Instant.ofEpochMilli(trip.departureTime), java.time.ZoneId.systemDefault());
-                java.time.LocalDateTime endDate = java.time.LocalDateTime.ofInstant(
-                        java.time.Instant.ofEpochMilli(trip.estimatedArrivalTime), java.time.ZoneId.systemDefault());
-                String dateRange = startDate.format(dateFormatter) + " - " + endDate.format(dateFormatter);
-                itemBinding.tvDate.setText(dateRange);
+                // Date - format as "Apr 28 - 30" (same month) or "Apr 28 - May 2"
+                if (trip.departureTime > 0 && trip.estimatedArrivalTime > 0) {
+                    java.time.format.DateTimeFormatter monthDayFormatter = 
+                            java.time.format.DateTimeFormatter.ofPattern("MMM d", java.util.Locale.ENGLISH);
+                    java.time.format.DateTimeFormatter dayOnlyFormatter = 
+                            java.time.format.DateTimeFormatter.ofPattern("d", java.util.Locale.ENGLISH);
+                    java.time.LocalDateTime startDate = java.time.LocalDateTime.ofInstant(
+                            java.time.Instant.ofEpochMilli(trip.departureTime), java.time.ZoneId.systemDefault());
+                    java.time.LocalDateTime endDate = java.time.LocalDateTime.ofInstant(
+                            java.time.Instant.ofEpochMilli(trip.estimatedArrivalTime), java.time.ZoneId.systemDefault());
+                    
+                    String dateRange;
+                    if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
+                        dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+                    } else {
+                        dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
+                    }
+                    itemBinding.tvDate.setText(dateRange);
+                } else {
+                    itemBinding.tvDate.setText("Dates TBD");
+                }
 
                 // Joined count
                 int joined = trip.totalSeats - trip.availableSeats;
@@ -519,60 +531,82 @@ public class MyTripsFragment extends Fragment {
                 boolean isUpcomingHosted = isHosted && isUpcoming;
                 
                 // ═══════════════════════════════════════════════════════════════════
-                // Badge logic: Different styling for upcoming hosted trips
+                // Badge logic: All trips show status badge (left) + role badge (right)
                 // ═══════════════════════════════════════════════════════════════════
                 
-                if (isUpcomingHosted) {
-                    // UPCOMING HOSTED TRIP: Show single teal "HOSTED BY YOU" badge
-                    itemBinding.tvHostedByYouBadge.setVisibility(View.VISIBLE);
-                    itemBinding.tvStatusBadge.setVisibility(View.GONE);
-                    itemBinding.tvRoleBadge.setVisibility(View.GONE);
-                } else {
-                    // OTHER TRIPS: Show status badge (left) + role badge (right)
-                    itemBinding.tvHostedByYouBadge.setVisibility(View.GONE);
-                    
-                    // Status badge
-                    switch (effectiveStatus) {
-                        case Trip.STATUS_UPCOMING:
-                            itemBinding.tvStatusBadge.setText(R.string.status_upcoming);
-                            itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
-                            itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
-                            break;
-                        case Trip.STATUS_ONGOING:
-                            itemBinding.tvStatusBadge.setText(R.string.status_ongoing);
-                            itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
-                            itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
-                            break;
-                        case Trip.STATUS_COMPLETED:
-                            itemBinding.tvStatusBadge.setText(R.string.status_completed);
-                            itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
-                            itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
-                            break;
-                        default:
-                            itemBinding.tvStatusBadge.setVisibility(View.GONE);
-                            break;
-                    }
-                    
-                    // Role badge (Hosted / Joined) - use dark pill style
-                    itemBinding.tvRoleBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
-                    if (isHosted) {
-                        itemBinding.tvRoleBadge.setText(R.string.role_hosted);
-                    } else {
-                        itemBinding.tvRoleBadge.setText(R.string.role_joined);
-                    }
-                    itemBinding.tvRoleBadge.setVisibility(View.VISIBLE);
+                // Hide the old single "HOSTED BY YOU" badge - we now use two separate badges
+                itemBinding.tvHostedByYouBadge.setVisibility(View.GONE);
+                
+                // Status badge styling based on status
+                switch (effectiveStatus) {
+                    case Trip.STATUS_UPCOMING:
+                        itemBinding.tvStatusBadge.setText(R.string.status_upcoming);
+                        // Light/cream background with dark text for upcoming
+                        itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_upcoming_light);
+                        itemBinding.tvStatusBadge.setTextColor(0xFF1E293B); // Dark navy text
+                        itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
+                        break;
+                    case Trip.STATUS_ONGOING:
+                        itemBinding.tvStatusBadge.setText(R.string.status_ongoing);
+                        itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_ongoing_teal);
+                        itemBinding.tvStatusBadge.setTextColor(0xFFFFFFFF); // White text
+                        itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
+                        break;
+                    case Trip.STATUS_COMPLETED:
+                        itemBinding.tvStatusBadge.setText(R.string.status_completed);
+                        itemBinding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
+                        itemBinding.tvStatusBadge.setTextColor(0xFFFFFFFF); // White text
+                        itemBinding.tvStatusBadge.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        itemBinding.tvStatusBadge.setVisibility(View.GONE);
+                        break;
                 }
                 
-                // Determine if this is a completed trip
+                // Role badge (Hosted / Joined) - always show for all trips with dark pill style
+                itemBinding.tvRoleBadge.setBackgroundResource(R.drawable.bg_badge_dark_pill);
+                if (isHosted) {
+                    itemBinding.tvRoleBadge.setText(R.string.role_hosted);
+                } else {
+                    itemBinding.tvRoleBadge.setText(R.string.role_joined);
+                }
+                itemBinding.tvRoleBadge.setVisibility(View.VISIBLE);
+                
+                // Determine if this is a completed or ongoing trip
                 boolean isCompleted = Trip.STATUS_COMPLETED.equals(effectiveStatus);
+                boolean isOngoing = Trip.STATUS_ONGOING.equals(effectiveStatus);
                 boolean isCompletedJoined = !isHosted && isCompleted;
                 
-                // View Summary button and divider - show for all completed trips (hosted and joined)
-                itemBinding.divider.setVisibility(isCompleted ? View.VISIBLE : View.GONE);
+                // Divider - show for completed, ongoing, and upcoming trips
+                itemBinding.divider.setVisibility((isCompleted || isOngoing || isUpcoming) ? View.VISIBLE : View.GONE);
+                
+                // View Summary button - show only for completed trips
                 itemBinding.btnViewSummary.setVisibility(isCompleted ? View.VISIBLE : View.GONE);
                 if (isCompleted) {
                     itemBinding.btnViewSummary.setOnClickListener(v -> {
                         // Open trip details for now (could be a summary screen later)
+                        Intent intent = new Intent(requireContext(), TripDetailsActivity.class);
+                        intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, trip.tripId);
+                        startActivity(intent);
+                    });
+                }
+                
+                // Open Trip button - show only for ongoing trips
+                itemBinding.btnOpenTrip.setVisibility(isOngoing ? View.VISIBLE : View.GONE);
+                if (isOngoing) {
+                    itemBinding.btnOpenTrip.setOnClickListener(v -> {
+                        // Open the live trip / trip details screen
+                        Intent intent = new Intent(requireContext(), TripDetailsActivity.class);
+                        intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, trip.tripId);
+                        startActivity(intent);
+                    });
+                }
+                
+                // View Details button - show only for upcoming trips
+                itemBinding.btnViewDetails.setVisibility(isUpcoming ? View.VISIBLE : View.GONE);
+                if (isUpcoming) {
+                    itemBinding.btnViewDetails.setOnClickListener(v -> {
+                        // Open the trip details screen
                         Intent intent = new Intent(requireContext(), TripDetailsActivity.class);
                         intent.putExtra(TripDetailsActivity.EXTRA_TRIP_ID, trip.tripId);
                         startActivity(intent);

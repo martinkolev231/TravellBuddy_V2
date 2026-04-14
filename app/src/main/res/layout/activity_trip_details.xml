@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:clipToPadding="false"
+        android:clipChildren="false"
         android:paddingBottom="100dp">
 
         <LinearLayout
@@ -22,7 +23,7 @@
             <!-- Cover Photo with overlaid buttons -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="320dp">
+                android:layout_height="340dp">
 
                 <ImageView
                     android:id="@+id/ivCoverPhoto"
@@ -50,7 +51,7 @@
                         android:contentDescription="@string/btn_back" />
                 </FrameLayout>
 
-                <!-- Share and Favorite buttons -->
+                <!-- Share and Delete buttons (top-right) -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -73,6 +74,26 @@
                             app:tint="@color/white"
                             android:contentDescription="@string/btn_share_trip" />
                     </FrameLayout>
+
+                    <!-- Delete button (for hosts) -->
+                    <FrameLayout
+                        android:id="@+id/btnDeleteTop"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_icon_circle_dark"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+                        <ImageView
+                            android:layout_width="22dp"
+                            android:layout_height="22dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_delete"
+                            app:tint="@color/white"
+                            android:contentDescription="Delete" />
+                    </FrameLayout>
                 </LinearLayout>
             </FrameLayout>
 
@@ -80,8 +101,8 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-32dp"
-                app:cardCornerRadius="24dp"
+                android:layout_marginTop="-36dp"
+                app:cardCornerRadius="32dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="0dp"
                 app:cardBackgroundColor="#FFFFFF"
@@ -91,39 +112,62 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:paddingHorizontal="24dp"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="32dp"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
-                    <!-- Type and Spots badges -->
+                    <!-- Type and Status badges -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
+                        <!-- Category chip (mint outline) -->
                         <TextView
                             android:id="@+id/tvActivityType"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="6dp"
-                            android:background="@drawable/bg_badge_type"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="8dp"
+                            android:background="@drawable/bg_badge_category_mint"
+                            android:textColor="#0D9488"
+                            android:textSize="12sp"
                             android:textStyle="bold"
-                            android:letterSpacing="0.08"
-                            android:text="HIKING" />
+                            android:letterSpacing="0.04"
+                            android:text="CITY BREAK" />
 
+                        <!-- HOSTED badge (for host's trip) -->
+                        <TextView
+                            android:id="@+id/tvHostedBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="8dp"
+                            android:background="@drawable/bg_badge_hosted_navy"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.04"
+                            android:text="HOSTED"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <!-- Spots left badge (for non-host view) -->
                         <TextView
                             android:id="@+id/tvSpotsLeft"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="6dp"
+                            android:layout_marginStart="10dp"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="8dp"
                             android:background="@drawable/bg_badge_spots"
                             android:textColor="@color/status_denied"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             android:textStyle="bold"
-                            android:letterSpacing="0.08"
+                            android:letterSpacing="0.04"
                             android:text="2 SPOTS LEFT" />
                     </LinearLayout>
 
@@ -132,40 +176,43 @@
                         android:id="@+id/tvTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="26sp"
+                        android:layout_marginTop="18dp"
+                        android:textColor="#1E293B"
+                        android:textSize="28sp"
                         android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium"
                         android:lineSpacingMultiplier="1.1"
-                        android:text="Alpine Lake Hiking &amp; Camping" />
+                        android:maxLines="2"
+                        android:text="Weekend in Paris" />
 
                     <!-- Location -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="10dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
                         <ImageView
                             android:layout_width="18dp"
                             android:layout_height="18dp"
-                            android:src="@drawable/ic_location_gray"
+                            android:src="@drawable/ic_location_pin"
+                            app:tint="#0D9488"
                             android:contentDescription="@null" />
                         <TextView
                             android:id="@+id/tvLocation"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="6dp"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="15sp"
-                            android:text="Swiss Alps, Switzerland" />
+                            android:layout_marginStart="8dp"
+                            android:textColor="#64748B"
+                            android:textSize="16sp"
+                            android:text="Paris, France" />
                     </LinearLayout>
 
                     <!-- Date and Budget Info Cards -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="24dp"
                         android:orientation="horizontal">
 
                         <!-- Dates Card -->
@@ -175,44 +222,44 @@
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_info_card"
-                            android:padding="12dp"
+                            android:padding="14dp"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
                             <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
                                 android:background="@drawable/bg_icon_circle_light">
                                 <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_calendar_orange"
                                     android:contentDescription="@null" />
                             </FrameLayout>
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:layout_weight="1"
                                 android:layout_marginStart="10dp"
                                 android:orientation="vertical">
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="DATES"
-                                    android:textColor="@color/text_hint"
-                                    android:textSize="10sp"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="11sp"
                                     android:textStyle="bold"
-                                    android:letterSpacing="0.08" />
+                                    android:letterSpacing="0.06" />
                                 <TextView
                                     android:id="@+id/tvDates"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:textColor="@color/text_primary"
+                                    android:layout_marginTop="4dp"
+                                    android:textColor="#1E293B"
                                     android:textSize="13sp"
                                     android:textStyle="bold"
                                     android:maxLines="1"
-                                    android:singleLine="true"
-                                    tools:text="Oct 10 - Oct 14" />
+                                    tools:text="Apr 28 - 30" />
                             </LinearLayout>
                         </LinearLayout>
 
@@ -223,44 +270,44 @@
                             android:layout_weight="1"
                             android:layout_marginStart="8dp"
                             android:background="@drawable/bg_info_card"
-                            android:padding="12dp"
+                            android:padding="14dp"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
                             <FrameLayout
-                                android:layout_width="36dp"
-                                android:layout_height="36dp"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
                                 android:background="@drawable/bg_icon_circle_green">
                                 <ImageView
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
                                     android:layout_gravity="center"
-                                    android:src="@drawable/ic_dollar"
+                                    android:src="@drawable/ic_euro"
                                     android:contentDescription="@null" />
                             </FrameLayout>
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="10dp"
+                                android:layout_marginStart="12dp"
                                 android:orientation="vertical">
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="BUDGET"
-                                    android:textColor="@color/text_hint"
-                                    android:textSize="10sp"
+                                    android:textColor="#94A3B8"
+                                    android:textSize="11sp"
                                     android:textStyle="bold"
-                                    android:letterSpacing="0.08" />
+                                    android:letterSpacing="0.06" />
                                 <TextView
                                     android:id="@+id/tvBudget"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="13sp"
+                                    android:layout_marginTop="4dp"
+                                    android:textColor="#1E293B"
+                                    android:textSize="14sp"
                                     android:textStyle="bold"
                                     android:maxLines="1"
                                     android:singleLine="true"
-                                    android:text="$$ Moderate" />
+                                    android:text="€350" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -269,104 +316,112 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="28dp"
                         android:text="About this adventure"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#1E293B"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium" />
 
                     <TextView
                         android:id="@+id/tvDescription"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="14dp"
+                        android:textColor="#64748B"
                         android:textSize="15sp"
-                        android:lineSpacingMultiplier="1.4"
-                        android:text="Hey everyone! I'm planning a 4-day hike through some of the most beautiful trails in the Swiss Alps." />
+                        android:lineSpacingMultiplier="1.5"
+                        android:text="Hey! I'm planning a quick city break to Paris to enjoy the cafes, museums, and general atmosphere. Looking for fun people to join and split the Airbnb costs!" />
 
                     <!-- Hosted by section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="28dp"
+                        android:text="Hosted by"
+                        android:textColor="#1E293B"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
                     <LinearLayout
+                        android:id="@+id/hostCard"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
+                        android:layout_marginTop="12dp"
                         android:background="@drawable/bg_info_card"
                         android:padding="16dp"
-                        android:orientation="vertical">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Hosted by"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/ivHostPhoto"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:contentDescription="@string/cd_profile_photo"
+                            android:src="@drawable/ic_person"
+                            app:civ_circle_background_color="@color/surface_variant"
+                            app:civ_border_width="2dp"
+                            app:civ_border_color="@color/white" />
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
-                            <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/ivHostPhoto"
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:contentDescription="@string/cd_profile_photo"
-                                android:src="@drawable/ic_profile"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:foreground="?attr/selectableItemBackgroundBorderless" />
+                            <TextView
+                                android:id="@+id/tvHostName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="#1E293B"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-medium"
+                                android:text="Alex (You)" />
 
                             <LinearLayout
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="12dp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
+                                android:layout_marginTop="4dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:src="@drawable/ic_star_filled"
+                                    app:tint="#F59E0B"
+                                    android:contentDescription="@null" />
                                 <TextView
-                                    android:id="@+id/tvHostName"
+                                    android:id="@+id/tvHostRating"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="@color/text_primary"
-                                    android:textSize="16sp"
+                                    android:layout_marginStart="4dp"
+                                    android:textColor="#F59E0B"
+                                    android:textSize="14sp"
                                     android:textStyle="bold"
-                                    android:text="Alex Johnson" />
-
-                                <LinearLayout
+                                    android:text="5" />
+                                <TextView
+                                    android:id="@+id/tvHostTrips"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal">
-                                    <ImageView
-                                        android:layout_width="14dp"
-                                        android:layout_height="14dp"
-                                        android:src="@drawable/ic_star_filled"
-                                        app:tint="#F5A623"
-                                        android:contentDescription="@null" />
-                                    <TextView
-                                        android:id="@+id/tvHostRating"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="4dp"
-                                        android:textColor="#F5A623"
-                                        android:textSize="13sp"
-                                        android:textStyle="bold"
-                                        android:text="4.9" />
-                                    <TextView
-                                        android:id="@+id/tvHostTrips"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="6dp"
-                                        android:textColor="@color/text_secondary"
-                                        android:textSize="13sp"
-                                        android:text="• 12 trips hosted" />
-                                </LinearLayout>
+                                    android:layout_marginStart="6dp"
+                                    android:textColor="#64748B"
+                                    android:textSize="14sp"
+                                    android:text="• 1 trips hosted" />
                             </LinearLayout>
                         </LinearLayout>
+
+                        <!-- Chevron -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_right"
+                            app:tint="#94A3B8"
+                            android:contentDescription="@null" />
                     </LinearLayout>
 
                     <!-- Participants section -->
@@ -374,18 +429,23 @@
                         android:id="@+id/tvParticipantsTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:text="Participants (4/6)"
-                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="28dp"
+                        android:text="Participants (0/4)"
+                        android:textColor="#1E293B"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-medium" />
 
                     <LinearLayout
                         android:id="@+id/participantsContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:orientation="horizontal">
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="24dp"
+                        android:orientation="horizontal"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:gravity="center_vertical">
                         <!-- Participant avatars will be added programmatically -->
                     </LinearLayout>
 
@@ -394,10 +454,10 @@
                         android:id="@+id/tvStatus"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="20dp"
                         android:gravity="center"
                         android:paddingHorizontal="16dp"
-                        android:paddingVertical="10dp"
+                        android:paddingVertical="12dp"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:visibility="gone" />
@@ -408,15 +468,17 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Buttons -->
+    <!-- Bottom Buttons (hidden for upcoming hosted trips) -->
     <LinearLayout
+        android:id="@+id/bottomButtonsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/white"
         android:elevation="8dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:visibility="gone">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnJoinActivity"
@@ -427,7 +489,6 @@
             android:textStyle="bold"
             app:backgroundTint="@color/primary"
             app:cornerRadius="16dp" />
-
 
         <!-- Rate Host button (only visible for completed trips where user participated) -->
         <com.google.android.material.button.MaterialButton
@@ -447,7 +508,7 @@
             app:strokeWidth="2dp"
             android:visibility="gone" />
 
-        <!-- Delete Adventure button (only visible to host) -->
+        <!-- Delete Adventure button (only visible to host - legacy location, now using top button) -->
         <LinearLayout
             android:id="@+id/btnDeleteAdventure"
             android:layout_width="match_parent"

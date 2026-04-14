@@ -205,14 +205,9 @@ public class CreateTripActivity extends AppCompatActivity {
             return;
         }
 
-        // Check email verification
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
-        if (!currentUser.isEmailVerified()) {
-            Toast.makeText(this, R.string.error_email_not_verified_trip, Toast.LENGTH_LONG).show();
-            return;
-        }
 
         showLoading(true);
 

@@ -99,14 +99,25 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
                 binding.tvPrice.setText("Free");
             }
 
-            // Date - format as "Aug 12 - Aug 16" style with both months
-            java.time.format.DateTimeFormatter dateFormatter = java.time.format.DateTimeFormatter.ofPattern("MMM d", java.util.Locale.getDefault());
-            java.time.LocalDateTime startDate = java.time.LocalDateTime.ofInstant(
-                    java.time.Instant.ofEpochMilli(trip.departureTime), java.time.ZoneId.systemDefault());
-            java.time.LocalDateTime endDate = java.time.LocalDateTime.ofInstant(
-                    java.time.Instant.ofEpochMilli(trip.estimatedArrivalTime), java.time.ZoneId.systemDefault());
-            String dateRange = startDate.format(dateFormatter) + " - " + endDate.format(dateFormatter);
-            binding.tvDate.setText(dateRange);
+            // Date - format as "Apr 28 - 30" (same month) or "Apr 28 - May 2"
+            if (trip.departureTime > 0 && trip.estimatedArrivalTime > 0) {
+                java.time.format.DateTimeFormatter monthDayFormatter = java.time.format.DateTimeFormatter.ofPattern("MMM d", java.util.Locale.ENGLISH);
+                java.time.format.DateTimeFormatter dayOnlyFormatter = java.time.format.DateTimeFormatter.ofPattern("d", java.util.Locale.ENGLISH);
+                java.time.LocalDateTime startDate = java.time.LocalDateTime.ofInstant(
+                        java.time.Instant.ofEpochMilli(trip.departureTime), java.time.ZoneId.systemDefault());
+                java.time.LocalDateTime endDate = java.time.LocalDateTime.ofInstant(
+                        java.time.Instant.ofEpochMilli(trip.estimatedArrivalTime), java.time.ZoneId.systemDefault());
+                
+                String dateRange;
+                if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
+                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+                } else {
+                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
+                }
+                binding.tvDate.setText(dateRange);
+            } else {
+                binding.tvDate.setText("Dates TBD");
+            }
 
             // Joined count
             int joined = trip.totalSeats - trip.availableSeats;

@@ -75,10 +75,14 @@ public class UserAdventuresAdapter extends RecyclerView.Adapter<UserAdventuresAd
             tvTitle.setText(title);
 
             // Date
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault());
-            LocalDateTime startDate = LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(trip.departureTime), ZoneId.systemDefault());
-            tvDate.setText(startDate.format(formatter));
+            if (trip.departureTime > 0) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
+                LocalDateTime startDate = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(trip.departureTime), ZoneId.systemDefault());
+                tvDate.setText(startDate.format(formatter));
+            } else {
+                tvDate.setText("TBD");
+            }
 
             // Image
             Glide.with(itemView.getContext())

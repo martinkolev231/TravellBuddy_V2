@@ -92,14 +92,25 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
                 binding.tvPrice.setText("Free");
             }
 
-            // Date range
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault());
-            LocalDateTime startDate = LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(trip.departureTime), ZoneId.systemDefault());
-            LocalDateTime endDate = LocalDateTime.ofInstant(
-                    Instant.ofEpochMilli(trip.estimatedArrivalTime), ZoneId.systemDefault());
-            String dateRange = startDate.format(dateFormatter) + " - " + endDate.format(dateFormatter);
-            binding.tvDate.setText(dateRange);
+            // Date range - compact format
+            if (trip.departureTime > 0 && trip.estimatedArrivalTime > 0) {
+                DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
+                DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", Locale.ENGLISH);
+                LocalDateTime startDate = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(trip.departureTime), ZoneId.systemDefault());
+                LocalDateTime endDate = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(trip.estimatedArrivalTime), ZoneId.systemDefault());
+                
+                String dateRange;
+                if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
+                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+                } else {
+                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
+                }
+                binding.tvDate.setText(dateRange);
+            } else {
+                binding.tvDate.setText("Dates TBD");
+            }
 
             // Joined count
             int joined = trip.totalSeats - trip.availableSeats;

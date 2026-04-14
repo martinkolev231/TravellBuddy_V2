@@ -111,26 +111,6 @@ public class AuthRepository {
         return result;
     }
 
-    /**
-     * Send an email verification to the current user.
-     */
-    public LiveData<Result<Void>> sendEmailVerification() {
-        MutableLiveData<Result<Void>> result = new MutableLiveData<>(Result.loading());
-
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) {
-            result.setValue(Result.error("Not signed in"));
-            return result;
-        }
-
-        user.sendEmailVerification()
-                .addOnSuccessListener(aVoid -> result.setValue(Result.success(null)))
-                .addOnFailureListener(e ->
-                        result.setValue(Result.error(
-                                FirebaseErrorMapper.mapAuthException(application, e))));
-
-        return result;
-    }
 
     /**
      * Sign out the current user.

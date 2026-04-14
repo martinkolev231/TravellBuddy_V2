@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -44,15 +45,15 @@
                 <!-- Settings Button -->
                 <FrameLayout
                     android:id="@+id/btnSettings"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:background="@drawable/bg_settings_button"
                     android:clickable="true"
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
                         android:layout_gravity="center"
                         android:contentDescription="@string/cd_settings_button"
                         android:src="@drawable/ic_settings"
@@ -75,19 +76,19 @@
             android:background="@color/home_bg"
             android:paddingBottom="100dp">
 
-            <!-- Centered Profile Photo -->
+            <!-- Centered Profile Photo - Enlarged to 150dp -->
             <FrameLayout
-                android:layout_width="120dp"
-                android:layout_height="120dp"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/ivProfilePhoto"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
                     android:contentDescription="@string/cd_profile_photo"
                     android:src="@drawable/bg_profile_placeholder"
                     app:civ_border_color="@color/white"
@@ -96,11 +97,11 @@
                 <!-- Camera Icon on Profile Photo -->
                 <FrameLayout
                     android:id="@+id/btnChangePhoto"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="bottom|end"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/bg_camera_button"
                     android:clickable="true"
                     android:focusable="true"
@@ -108,65 +109,51 @@
                     android:visibility="gone">
 
                     <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_camera"
                         android:contentDescription="@string/cd_change_profile_photo" />
                 </FrameLayout>
             </FrameLayout>
 
-            <!-- Display Name with Admin Badge -->
-            <LinearLayout
+            <!-- Display Name - Clean, No Badge -->
+            <TextView
+                android:id="@+id/tvDisplayName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginTop="20dp"
+                android:textColor="@color/text_primary"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                tools:text="Mia Explorer" />
 
-                <TextView
-                    android:id="@+id/tvDisplayName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+            <!-- Hidden Admin Badge for backwards compatibility -->
+            <TextView
+                android:id="@+id/tvAdminBadge"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
 
-                <!-- Admin Badge -->
-                <TextView
-                    android:id="@+id/tvAdminBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_admin_badge"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="4dp"
-                    android:text="ADMIN"
-                    android:textColor="@color/primary"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-
-            <!-- Edit Profile Button - Centered -->
+            <!-- Edit Profile Button - Enhanced Style -->
             <LinearLayout
                 android:id="@+id/btnEditProfile"
                 android:layout_width="wrap_content"
-                android:layout_height="44dp"
+                android:layout_height="54dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_edit_profile_button"
+                android:background="@drawable/bg_edit_profile_button_premium"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
+                android:paddingHorizontal="28dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:elevation="2dp">
 
                 <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
                     android:src="@drawable/ic_edit_pencil"
                     app:tint="@color/text_primary"
                     android:contentDescription="@null" />
@@ -174,31 +161,32 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="10dp"
                     android:text="@string/label_edit_profile"
                     android:textColor="@color/text_primary"
-                    android:textSize="15sp"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Bio - Centered -->
+            <!-- Bio - Centered with generous padding -->
             <TextView
                 android:id="@+id/tvBio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
                 android:gravity="center"
-                android:paddingHorizontal="40dp"
+                android:paddingHorizontal="32dp"
                 android:textColor="@color/text_secondary"
                 android:textSize="15sp"
-                android:lineSpacingExtra="4dp" />
+                android:lineSpacingExtra="6dp"
+                tools:text="Adventure seeker, photography enthusiast. Always planning the next trip. 🌍📸 Let's go hiking!" />
 
-            <!-- Stats Row -->
+            <!-- Stats Row - Enhanced with fixed height cards -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="28dp"
                 android:orientation="horizontal">
 
                 <!-- Joined Stat -->
@@ -206,29 +194,31 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_stat_box"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_stat_card_premium"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingVertical="16dp">
+                    android:paddingVertical="20dp"
+                    android:minHeight="120dp">
 
                     <TextView
                         android:id="@+id/tvJoinedCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:text="12" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="@string/label_joined"
                         android:textAllCaps="true"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
-                        android:letterSpacing="0.05" />
+                        android:letterSpacing="0.08" />
                 </LinearLayout>
 
                 <!-- Hosted Stat -->
@@ -236,42 +226,45 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginHorizontal="6dp"
-                    android:background="@drawable/bg_stat_box"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/bg_stat_card_premium"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingVertical="16dp">
+                    android:paddingVertical="20dp"
+                    android:minHeight="120dp">
 
                     <TextView
                         android:id="@+id/tvHostedCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:text="4" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="@string/label_hosted"
                         android:textAllCaps="true"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
-                        android:letterSpacing="0.05" />
+                        android:letterSpacing="0.08" />
                 </LinearLayout>
 
-                <!-- Rating Stat -->
+                <!-- Rating Stat - Tappable -->
                 <LinearLayout
                     android:id="@+id/layoutRatingStat"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_stat_box"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_stat_card_premium"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:paddingVertical="16dp"
+                    android:paddingVertical="20dp"
+                    android:minHeight="120dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -281,137 +274,124 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/ic_star_orange"
-                            android:contentDescription="@null" />
-
                         <TextView
                             android:id="@+id/tvAvgRating"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="4dp"
                             android:textColor="@color/text_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            tools:text="4.8" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginStart="4dp"
+                            android:src="@drawable/ic_star_filled"
+                            app:tint="@color/star_filled"
+                            android:contentDescription="@null" />
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="@string/label_rating"
                         android:textAllCaps="true"
                         android:textColor="@color/text_secondary"
                         android:textSize="11sp"
-                        android:letterSpacing="0.05" />
+                        android:letterSpacing="0.08" />
+
+                    <TextView
+                        android:id="@+id/tvReviewCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/text_hint"
+                        android:textSize="11sp"
+                        tools:text="(23 reviews)" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Interests Section -->
+            <!-- Reviews Section Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvReviewsSectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    tools:text="Reviews (23)" />
+
+                <TextView
+                    android:id="@+id/btnSeeAllReviews"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_see_all"
+                    android:textColor="@color/primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp" />
+            </LinearLayout>
+
+            <!-- Reviews Preview Container -->
+            <LinearLayout
+                android:id="@+id/reviewsPreviewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="20dp"
+                android:orientation="vertical">
+
+                <!-- First Review Card Placeholder -->
+                <include
+                    android:id="@+id/reviewCard1"
+                    layout="@layout/item_profile_review_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <!-- Second Review Card Placeholder -->
+                <include
+                    android:id="@+id/reviewCard2"
+                    layout="@layout/item_profile_review_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- Empty Reviews State -->
+            <LinearLayout
+                android:id="@+id/layoutEmptyReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_stat_card_premium"
+                android:gravity="center"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+                android:padding="24dp"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_interests"
-                    android:textColor="@color/text_primary"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <!-- Interests Tags Row 1 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/chipInterest1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/interest_hiking"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/chipInterest2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/interest_photography"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/chipInterest3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/interest_europe_trips"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Interests Tags Row 2 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/chipInterest4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/interest_camping"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/chipInterest5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/interest_coffee"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:id="@+id/btnAddInterest"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_interest_chip"
-                        android:gravity="center"
-                        android:paddingHorizontal="16dp"
-                        android:text="@string/label_add_interest"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:clickable="true"
-                        android:focusable="true" />
-                </LinearLayout>
+                    android:text="@string/label_no_reviews_yet"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <!-- My Adventures Card -->
@@ -420,22 +400,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_adventures_card"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/bg_adventures_card_premium"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp"
+                android:padding="20dp"
                 android:clickable="true"
                 android:focusable="true">
 
                 <FrameLayout
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
-                    android:background="@drawable/bg_icon_rounded_light">
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_icon_rounded_mint">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_grid"
                         app:tint="@color/primary"
@@ -445,16 +425,16 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
+                    android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:text="@string/label_my_adventures"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
+                    android:textSize="17sp"
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_arrow_right"
                     app:tint="@color/text_hint"
                     android:contentDescription="@null" />

@@ -61,6 +61,7 @@ public class HomeActivity extends AppCompatActivity {
     private void initializeApp() {
         maybeRequestNotificationPermission();
         syncFcmToken();
+        syncUserPhoto();  // Sync photo from Firebase Auth to database
 
         // Set up Navigation Component
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -104,6 +105,33 @@ public class HomeActivity extends AppCompatActivity {
                     .child(Constants.FIELD_FCM_TOKEN)
                     .setValue(token);
         });
+    }
+
+    /**
+     * Syncs the current user's photo from Firebase Auth to the database.
+     * This ensures profile photos are always available for participant avatars.
+     */
+    private void syncUserPhoto() {
+        com.google.firebase.auth.FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null || currentUser.getPhotoUrl() == null) {
+            return;
+        }
+        
+        String uid = currentUser.getUid();
+        String photoUrl = currentUser.getPhotoUrl().toString();
+        
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            FirebaseManager.getInstance().getUserRef(uid)
+                    .child("photoUrl")
+                    .setValue(photoUrl);
+            
+            // Also update display name if available
+            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+                FirebaseManager.getInstance().getUserRef(uid)
+                        .child("displayName")
+                        .setValue(currentUser.getDisplayName());
+            }
+        }
     }
 
     private void setupConnectivityListener() {

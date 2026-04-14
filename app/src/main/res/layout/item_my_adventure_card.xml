@@ -346,8 +346,8 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- View Summary button -->
-            <com.google.android.material.button.MaterialButton
+            <!-- View Summary button (for completed trips) -->
+            <TextView
                 android:id="@+id/btnViewSummary"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
@@ -356,12 +356,58 @@
                 android:textColor="#374151"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textAllCaps="false"
-                android:backgroundTint="#F3F4F6"
+                android:gravity="center"
+                android:background="@drawable/bg_button_view_summary"
                 android:visibility="gone"
-                app:cornerRadius="16dp"
-                app:elevation="0dp"
-                app:rippleColor="#D1D5DB"
+                android:clickable="true"
+                android:focusable="true"
+                tools:visibility="gone" />
+
+            <!-- Open Trip button (for ongoing trips) -->
+            <LinearLayout
+                android:id="@+id/btnOpenTrip"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_button_open_trip"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true"
+                tools:visibility="gone">
+
+                <!-- Leading dot indicator -->
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/bg_dot_white" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_open_trip"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- View Details button (for upcoming trips) -->
+            <TextView
+                android:id="@+id/btnViewDetails"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginTop="16dp"
+                android:text="@string/btn_view_details"
+                android:textColor="#1E293B"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/bg_button_view_details"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true"
                 tools:visibility="gone" />
 
         </LinearLayout>

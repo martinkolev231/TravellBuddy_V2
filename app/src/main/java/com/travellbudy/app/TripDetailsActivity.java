@@ -131,14 +131,31 @@ public class TripDetailsActivity extends AppCompatActivity {
         String activityType = formatActivityType(currentTrip.activityType);
         binding.tvActivityType.setText(activityType.toUpperCase());
 
-        // Spots left badge
-        int spotsLeft = currentTrip.availableSeats;
-        if (spotsLeft == 1) {
-            binding.tvSpotsLeft.setText("1 SPOT LEFT");
+        // Check if user is host and if trip is upcoming
+        boolean isHost = currentUserId != null && currentUserId.equals(currentTrip.driverUid);
+        boolean isUpcoming = currentTrip.isUpcoming();
+        boolean isUpcomingHosted = isHost && isUpcoming;
+
+        android.util.Log.d("TripDetails", "currentUserId: " + currentUserId + ", driverUid: " + currentTrip.driverUid + ", isHost: " + isHost + ", isUpcoming: " + isUpcoming);
+
+        // Show HOSTED badge for host's trips, show spots left for non-hosts
+        if (isHost) {
+            binding.tvHostedBadge.setVisibility(View.VISIBLE);
+            binding.tvSpotsLeft.setVisibility(View.GONE);
+            // Show delete button in top overlay for hosts
+            binding.btnDeleteTop.setVisibility(View.VISIBLE);
         } else {
-            binding.tvSpotsLeft.setText(spotsLeft + " SPOTS LEFT");
+            binding.tvHostedBadge.setVisibility(View.GONE);
+            binding.btnDeleteTop.setVisibility(View.GONE);
+            // Spots left badge for non-hosts
+            int spotsLeft = currentTrip.availableSeats;
+            if (spotsLeft == 1) {
+                binding.tvSpotsLeft.setText("1 SPOT LEFT");
+            } else {
+                binding.tvSpotsLeft.setText(spotsLeft + " SPOTS LEFT");
+            }
+            binding.tvSpotsLeft.setVisibility(spotsLeft > 0 ? View.VISIBLE : View.GONE);
         }
-        binding.tvSpotsLeft.setVisibility(spotsLeft > 0 ? View.VISIBLE : View.GONE);
 
         // Title - use carModel as title, fallback to destination
         String title = currentTrip.carModel != null && !currentTrip.carModel.isEmpty() 
@@ -149,14 +166,27 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Location
         binding.tvLocation.setText(currentTrip.destinationCity);
 
-        // Dates - Display in single line format like "Oct 10 - Oct 14"
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.getDefault());
-        LocalDateTime startDate = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(currentTrip.departureTime), ZoneId.systemDefault());
-        LocalDateTime endDate = LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(currentTrip.estimatedArrivalTime), ZoneId.systemDefault());
-        String dateRange = startDate.format(dateFormatter) + " - " + endDate.format(dateFormatter);
-        binding.tvDates.setText(dateRange);
+        // Dates - Display in compact format like "Apr 28 - 30" (same month) or "Apr 28 - May 2"
+        if (currentTrip.departureTime > 0 && currentTrip.estimatedArrivalTime > 0) {
+            DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
+            DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", Locale.ENGLISH);
+            LocalDateTime startDate = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(currentTrip.departureTime), ZoneId.systemDefault());
+            LocalDateTime endDate = LocalDateTime.ofInstant(
+                    Instant.ofEpochMilli(currentTrip.estimatedArrivalTime), ZoneId.systemDefault());
+            
+            String dateRange;
+            if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
+                // Same month: "Apr 28 - 30"
+                dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+            } else {
+                // Different months: "Apr 28 - May 2"
+                dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
+            }
+            binding.tvDates.setText(dateRange);
+        } else {
+            binding.tvDates.setText("Dates TBD");
+        }
 
         // Budget - Display as €amount format
         if (currentTrip.pricePerSeat > 0) {
@@ -172,20 +202,23 @@ public class TripDetailsActivity extends AppCompatActivity {
         binding.tvDescription.setText(description);
 
         // Host info - Show "(You)" if current user is the host
-        boolean isHost = currentUserId != null && currentUserId.equals(currentTrip.driverUid);
-        android.util.Log.d("TripDetails", "currentUserId: " + currentUserId + ", driverUid: " + currentTrip.driverUid + ", isHost: " + isHost);
         if (isHost) {
             binding.tvHostName.setText(currentTrip.driverName + " (You)");
         } else {
             binding.tvHostName.setText(currentTrip.driverName);
         }
         
+        // Set background color for the host avatar
+        binding.ivHostPhoto.setCircleBackgroundColor(getColor(R.color.surface_variant));
+        
         if (currentTrip.driverPhotoUrl != null && !currentTrip.driverPhotoUrl.isEmpty()) {
             Glide.with(this)
                     .load(currentTrip.driverPhotoUrl)
-                    .placeholder(R.drawable.ic_profile)
-                    .circleCrop()
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
                     .into(binding.ivHostPhoto);
+        } else {
+            binding.ivHostPhoto.setImageResource(R.drawable.ic_person);
         }
 
         // Host rating (placeholder for now)
@@ -194,7 +227,7 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Fetch actual host rating
         fetchHostRating(currentTrip.driverUid);
         
-        // Make host photo and name clickable to view profile
+        // Make host card clickable to view profile
         View.OnClickListener hostProfileClickListener = v -> {
             if (currentTrip != null && currentTrip.driverUid != null) {
                 Intent intent = new Intent(TripDetailsActivity.this, UserProfileActivity.class);
@@ -204,6 +237,7 @@ public class TripDetailsActivity extends AppCompatActivity {
         };
         binding.ivHostPhoto.setOnClickListener(hostProfileClickListener);
         binding.tvHostName.setOnClickListener(hostProfileClickListener);
+        binding.hostCard.setOnClickListener(hostProfileClickListener);
         
         // Fetch actual trips hosted count
         fetchHostTripsCount(currentTrip.driverUid);
@@ -212,13 +246,20 @@ public class TripDetailsActivity extends AppCompatActivity {
         int totalParticipants = currentTrip.totalSeats - currentTrip.availableSeats;
         binding.tvParticipantsTitle.setText(String.format("Participants (%d/%d)", totalParticipants, currentTrip.totalSeats));
 
-        // Show/hide Delete button based on whether user is host
-        if (isHost) {
-            android.util.Log.d("TripDetails", "Showing delete button - user is host");
+        // Load participant avatars
+        loadParticipantAvatars();
+
+        // For upcoming hosted trips: hide bottom buttons entirely, use top delete button
+        if (isUpcomingHosted) {
+            binding.bottomButtonsContainer.setVisibility(View.GONE);
+        } else if (isHost) {
+            // For non-upcoming hosted trips, show bottom delete button
+            binding.bottomButtonsContainer.setVisibility(View.VISIBLE);
             binding.btnDeleteAdventure.setVisibility(View.VISIBLE);
             binding.btnJoinActivity.setVisibility(View.GONE);
         } else {
-            android.util.Log.d("TripDetails", "Hiding delete button - user is NOT host");
+            // For non-hosts, show join button
+            binding.bottomButtonsContainer.setVisibility(View.VISIBLE);
             binding.btnDeleteAdventure.setVisibility(View.GONE);
             binding.btnJoinActivity.setVisibility(View.VISIBLE);
         }
@@ -237,6 +278,130 @@ public class TripDetailsActivity extends AppCompatActivity {
         }
 
         updateButtonStates();
+    }
+
+    private void loadParticipantAvatars() {
+        if (currentTrip == null || tripId == null) return;
+
+        // Clear existing avatars
+        binding.participantsContainer.removeAllViews();
+
+        android.util.Log.d("TripDetails", "Loading participant avatars. Host UID: " + currentTrip.driverUid);
+
+        // First fetch the host's current photo from users node (more reliable than trip snapshot)
+        fetchAndAddParticipantAvatar(currentTrip.driverUid);
+
+        // Then load approved participants from trip requests
+        FirebaseDatabase.getInstance().getReference("tripRequests").child(tripId)
+                .orderByChild("status").equalTo("approved")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        android.util.Log.d("TripDetails", "Found " + snapshot.getChildrenCount() + " approved requests");
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            SeatRequest request = child.getValue(SeatRequest.class);
+                            if (request != null && request.riderUid != null) {
+                                // Fetch rider photo from users node
+                                fetchAndAddParticipantAvatar(request.riderUid);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.e("TripDetails", "Error loading trip requests: " + error.getMessage());
+                    }
+                });
+    }
+
+    private void fetchAndAddParticipantAvatar(String userId) {
+        // First try to get photo from users database
+        FirebaseDatabase.getInstance().getReference("users").child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String photoUrl = null;
+                        
+                        // Try different photo field names
+                        if (snapshot.hasChild("photoUrl")) {
+                            photoUrl = snapshot.child("photoUrl").getValue(String.class);
+                        }
+                        if ((photoUrl == null || photoUrl.isEmpty()) && snapshot.hasChild("photoURL")) {
+                            photoUrl = snapshot.child("photoURL").getValue(String.class);
+                        }
+                        if ((photoUrl == null || photoUrl.isEmpty()) && snapshot.hasChild("profilePhotoUrl")) {
+                            photoUrl = snapshot.child("profilePhotoUrl").getValue(String.class);
+                        }
+                        
+                        android.util.Log.d("TripDetails", "Fetched user " + userId + " - photoUrl: " + photoUrl);
+                        
+                        // If still no photo and this is the current user, try Firebase Auth
+                        if ((photoUrl == null || photoUrl.isEmpty()) && userId.equals(currentUserId)) {
+                            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                            if (currentUser != null && currentUser.getPhotoUrl() != null) {
+                                photoUrl = currentUser.getPhotoUrl().toString();
+                                android.util.Log.d("TripDetails", "Using Firebase Auth photo for current user: " + photoUrl);
+                            }
+                        }
+                        
+                        addParticipantAvatar(photoUrl, userId);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        android.util.Log.e("TripDetails", "Error fetching user " + userId + ": " + error.getMessage());
+                        addParticipantAvatar(null, userId);
+                    }
+                });
+    }
+
+    private void addParticipantAvatar(String photoUrl, String userId) {
+        // Use CircleImageView for perfect circles
+        de.hdodenhof.circleimageview.CircleImageView avatar = 
+                new de.hdodenhof.circleimageview.CircleImageView(this);
+        float density = getResources().getDisplayMetrics().density;
+        int size = (int) (48 * density);
+        android.widget.LinearLayout.LayoutParams params = new android.widget.LinearLayout.LayoutParams(size, size);
+        
+        // Add slight overlap between avatars (except first one)
+        int childCount = binding.participantsContainer.getChildCount();
+        if (childCount > 0) {
+            params.leftMargin = (int) (-10 * density);
+        }
+        avatar.setLayoutParams(params);
+        
+        // White border
+        avatar.setBorderWidth((int) (2 * density));
+        avatar.setBorderColor(getColor(R.color.white));
+        
+        // Gray background for placeholder
+        avatar.setCircleBackgroundColor(getColor(R.color.surface_variant));
+        
+        // Set elevation for proper stacking
+        avatar.setElevation((childCount + 1) * density);
+
+        android.util.Log.d("TripDetails", "Loading avatar for user: " + userId + ", photoUrl: " + photoUrl);
+
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(photoUrl)
+                    .placeholder(R.drawable.ic_person)
+                    .error(R.drawable.ic_person)
+                    .into(avatar);
+        } else {
+            avatar.setImageResource(R.drawable.ic_person);
+        }
+
+        // Make avatar clickable to view profile
+        avatar.setOnClickListener(v -> {
+            if (userId != null) {
+                Intent intent = new Intent(TripDetailsActivity.this, UserProfileActivity.class);
+                intent.putExtra(UserProfileActivity.EXTRA_USER_ID, userId);
+                startActivity(intent);
+            }
+        });
+
+        binding.participantsContainer.addView(avatar);
     }
 
     private String formatActivityType(String type) {
@@ -313,11 +478,13 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Share button
         binding.btnShare.setOnClickListener(v -> shareTrip());
 
+        // Delete button (top overlay - for hosts)
+        binding.btnDeleteTop.setOnClickListener(v -> showDeleteConfirmation());
 
         // Join Activity button
         binding.btnJoinActivity.setOnClickListener(v -> sendSeatRequest());
 
-        // Delete Adventure button
+        // Delete Adventure button (legacy bottom button)
         binding.btnDeleteAdventure.setOnClickListener(v -> showDeleteConfirmation());
 
         // Rate Host button

@@ -89,13 +89,13 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
             if (trip.pricePerSeat > 0) {
                 binding.tvPrice.setText(String.format(Locale.getDefault(), "€ %.0f", trip.pricePerSeat));
             } else {
-                binding.tvPrice.setText("Free");
+                binding.tvPrice.setText(context.getString(com.travellbudy.app.R.string.label_free));
             }
 
             // Date range - compact format
             if (trip.departureTime > 0 && trip.estimatedArrivalTime > 0) {
-                DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
-                DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", Locale.ENGLISH);
+                DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("d MMM", new Locale("bg"));
+                DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", new Locale("bg"));
                 LocalDateTime startDate = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(trip.departureTime), ZoneId.systemDefault());
                 LocalDateTime endDate = LocalDateTime.ofInstant(
@@ -103,18 +103,18 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
                 
                 String dateRange;
                 if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
-                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+                    dateRange = startDate.format(dayOnlyFormatter) + " - " + endDate.format(monthDayFormatter);
                 } else {
                     dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
                 }
                 binding.tvDate.setText(dateRange);
             } else {
-                binding.tvDate.setText("Dates TBD");
+                binding.tvDate.setText(context.getString(com.travellbudy.app.R.string.label_dates_tbd));
             }
 
             // Joined count
             int joined = trip.totalSeats - trip.availableSeats;
-            binding.tvJoined.setText(String.format(Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
+            binding.tvJoined.setText(context.getString(com.travellbudy.app.R.string.label_joined_count, joined, trip.totalSeats));
 
             // Always show "HOSTED" badge (using string resource)
             binding.tvStatusBadge.setText(context.getString(com.travellbudy.app.R.string.role_hosted));
@@ -145,9 +145,9 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
                 String preposition = getPrepositionForActivity(trip.activityType);
                 return activityLabel + " " + preposition + " " + destination;
             } else if (activityLabel != null) {
-                return activityLabel + " Adventure";
+                return activityLabel;
             } else if (destination != null && !destination.isEmpty()) {
-                return "Adventure in " + destination;
+                return context.getString(com.travellbudy.app.R.string.activity_adventure_in, destination);
             } else {
                 return trip.originCity + " → " + trip.destinationCity;
             }
@@ -156,25 +156,25 @@ public class YourAdventureAdapter extends RecyclerView.Adapter<YourAdventureAdap
         private String getActivityLabel(String activityType) {
             if (activityType == null || activityType.isEmpty()) return null;
             switch (activityType) {
-                case "hiking":          return "Hiking";
-                case "camping":         return "Camping";
-                case "road_trip":       return "Road Trip";
-                case "city_explore":    return "City Exploration";
-                case "festival":        return "Festival";
-                case "photography":     return "Photography Trip";
-                case "outdoor_sports":  return "Outdoor Sports";
-                case "backpacking":     return "Backpacking";
-                case "weekend":         return "Weekend Getaway";
+                case "hiking":          return context.getString(com.travellbudy.app.R.string.activity_label_hiking);
+                case "camping":         return context.getString(com.travellbudy.app.R.string.activity_label_camping);
+                case "road_trip":       return context.getString(com.travellbudy.app.R.string.activity_label_road_trip);
+                case "city_explore":    return context.getString(com.travellbudy.app.R.string.activity_label_city_explore);
+                case "festival":        return context.getString(com.travellbudy.app.R.string.activity_label_festival);
+                case "photography":     return context.getString(com.travellbudy.app.R.string.activity_label_photography);
+                case "outdoor_sports":  return context.getString(com.travellbudy.app.R.string.activity_label_outdoor_sports);
+                case "backpacking":     return context.getString(com.travellbudy.app.R.string.activity_label_backpacking);
+                case "weekend":         return context.getString(com.travellbudy.app.R.string.activity_label_weekend);
                 default:                return null;
             }
         }
 
         private String getPrepositionForActivity(String activityType) {
-            if (activityType == null) return "in";
+            if (activityType == null) return context.getString(com.travellbudy.app.R.string.preposition_in);
             switch (activityType) {
-                case "road_trip":       return "to";
-                case "backpacking":     return "through";
-                default:                return "in";
+                case "road_trip":       return context.getString(com.travellbudy.app.R.string.preposition_to);
+                case "backpacking":     return context.getString(com.travellbudy.app.R.string.preposition_through);
+                default:                return context.getString(com.travellbudy.app.R.string.preposition_in);
             }
         }
     }

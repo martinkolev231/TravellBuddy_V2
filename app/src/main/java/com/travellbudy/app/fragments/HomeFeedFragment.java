@@ -319,13 +319,13 @@ public class HomeFeedFragment extends Fragment {
     private String getTimeBasedGreeting() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         if (hour >= 5 && hour < 12) {
-            return "Good morning";
+            return getString(R.string.greeting_morning);
         } else if (hour >= 12 && hour < 17) {
-            return "Good afternoon";
+            return getString(R.string.greeting_afternoon);
         } else if (hour >= 17 && hour < 21) {
-            return "Good evening";
+            return getString(R.string.greeting_evening);
         } else {
-            return "Good night";
+            return getString(R.string.greeting_night);
         }
     }
 
@@ -380,12 +380,6 @@ public class HomeFeedFragment extends Fragment {
             public void onJoinClick(Trip trip) {
                 navigateToTripDetails(trip.tripId);
             }
-        });
-
-        // Manage button
-        binding.tvManage.setOnClickListener(v -> {
-            // Navigate to My Trips
-            Navigation.findNavController(requireView()).navigate(R.id.myTripsFragment);
         });
         
         // FAB to create new adventure

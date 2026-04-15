@@ -3,6 +3,7 @@ package com.travellbudy.app;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -11,11 +12,16 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 import com.travellbudy.app.util.Constants;
 
+import java.util.Locale;
+
 public class TravellBuddyApp extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // Set Bulgarian locale for the entire app
+        setBulgarianLocale();
 
         FirebaseApp.initializeApp(this);
 
@@ -53,5 +59,18 @@ public class TravellBuddyApp extends Application {
                 && !"YOUR_GOOGLE_MAPS_API_KEY".equals(apiKey)) {
             Places.initialize(getApplicationContext(), apiKey);
         }
+    }
+
+    private void setBulgarianLocale() {
+        Locale bulgarian = new Locale("bg");
+        Locale.setDefault(bulgarian);
+
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(bulgarian);
+        config.setLayoutDirection(bulgarian);
+        
+        // Use createConfigurationContext for API 25+
+        createConfigurationContext(config);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

@@ -68,7 +68,7 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.Circle"
                 app:strokeColor="@color/white"
                 app:strokeWidth="3dp"
-                android:contentDescription="Organizer" />
+                android:contentDescription="@string/label_hosted_by_text" />
 
             <!-- Save/Bookmark button - hidden by default -->
             <FrameLayout
@@ -90,7 +90,7 @@
                     android:layout_gravity="center"
                     android:src="@drawable/ic_bookmark_outline"
                     app:tint="@color/white"
-                    android:contentDescription="Save" />
+                    android:contentDescription="@string/btn_favorite" />
             </FrameLayout>
 
             <!-- Location icon (bottom-right of image) -->

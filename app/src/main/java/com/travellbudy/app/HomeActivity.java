@@ -9,7 +9,6 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,7 +28,7 @@ import com.travellbudy.app.databinding.ActivityHomeBinding;
 import com.travellbudy.app.firebase.FirebaseManager;
 import com.travellbudy.app.util.Constants;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends BaseActivity {
 
     private ActivityHomeBinding binding;
     private NavController navController;

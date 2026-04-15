@@ -8,7 +8,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class RatingsActivity extends AppCompatActivity {
+public class RatingsActivity extends BaseActivity {
 
     public static final String EXTRA_USER_ID = "user_id";
 

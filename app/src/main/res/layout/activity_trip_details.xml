@@ -92,7 +92,7 @@
                             android:layout_gravity="center"
                             android:src="@drawable/ic_delete"
                             app:tint="@color/white"
-                            android:contentDescription="Delete" />
+                            android:contentDescription="@string/cd_delete" />
                     </FrameLayout>
                 </LinearLayout>
             </FrameLayout>
@@ -151,7 +151,7 @@
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:letterSpacing="0.04"
-                            android:text="HOSTED"
+                            android:text="@string/label_hosted_badge"
                             android:visibility="gone"
                             tools:visibility="visible" />
 
@@ -245,7 +245,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="DATES"
+                                    android:text="@string/label_dates_text"
                                     android:textColor="#94A3B8"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
@@ -292,7 +292,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="BUDGET"
+                                    android:text="@string/label_budget_text"
                                     android:textColor="#94A3B8"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
@@ -317,7 +317,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"
-                        android:text="About this adventure"
+                        android:text="@string/label_about_this_adventure"
                         android:textColor="#1E293B"
                         android:textSize="18sp"
                         android:textStyle="bold"
@@ -338,7 +338,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="28dp"
-                        android:text="Hosted by"
+                        android:text="@string/label_hosted_by_text"
                         android:textColor="#1E293B"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -533,7 +533,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="Delete Adventure"
+                android:text="@string/btn_delete_adventure"
                 android:textColor="#DC2626"
                 android:textSize="16sp"
                 android:textStyle="bold" />

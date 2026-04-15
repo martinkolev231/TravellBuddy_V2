@@ -370,10 +370,14 @@ public class ProfileFragment extends Fragment {
                 totalReviewCount = ratings.size();
                 
                 // Update reviews section title
-                binding.tvReviewsSectionTitle.setText("Reviews (" + totalReviewCount + ")");
+                binding.tvReviewsSectionTitle.setText(getString(R.string.label_reviews_title, totalReviewCount));
                 
                 // Update review count text
-                binding.tvReviewCount.setText("(" + totalReviewCount + " reviews)");
+                if (totalReviewCount == 1) {
+                    binding.tvReviewCount.setText(getString(R.string.label_reviews_count_one, totalReviewCount));
+                } else {
+                    binding.tvReviewCount.setText(getString(R.string.label_reviews_count, totalReviewCount));
+                }
                 
                 if (ratings.isEmpty()) {
                     // Show empty state

@@ -55,30 +55,30 @@ public class CreateTripFragment extends Fragment {
     private LocalDate startDate;
     private LocalDate endDate;
     private final DateTimeFormatter dateFormatter =
-            DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault());
+            DateTimeFormatter.ofPattern("dd MMM yyyy", new Locale("bg"));
 
     private String selectedActivityType = "road_trip";
     private int selectedTypePosition = 0;
     private Uri selectedCoverPhotoUri = null;
 
-    // Activity types list for dropdown
-    private static final String[] ACTIVITY_LABELS = {
-            "Road Trip", "Hiking", "Beach", "City Break", "Camping", "Festival", "Other..."
-    };
+    // Activity keys for dropdown (corresponding to labels loaded from resources)
     private static final String[] ACTIVITY_KEYS = {
             "road_trip", "hiking", "beach", "city_break", "camping", "festival", "other"
     };
+    
+    // Activity labels loaded from string resources
+    private String[] activityLabels;
 
     // Map: display label → DB key (kept for backward compatibility)
     private static final LinkedHashMap<String, String> ACTIVITY_TYPE_MAP = new LinkedHashMap<>();
     static {
-        ACTIVITY_TYPE_MAP.put("Road Trip", "road_trip");
-        ACTIVITY_TYPE_MAP.put("Hiking", "hiking");
-        ACTIVITY_TYPE_MAP.put("Beach", "beach");
-        ACTIVITY_TYPE_MAP.put("City Break", "city_break");
-        ACTIVITY_TYPE_MAP.put("Camping", "camping");
-        ACTIVITY_TYPE_MAP.put("Festival", "festival");
-        ACTIVITY_TYPE_MAP.put("Other...", "other");
+        ACTIVITY_TYPE_MAP.put("road_trip_label", "road_trip");
+        ACTIVITY_TYPE_MAP.put("hiking_label", "hiking");
+        ACTIVITY_TYPE_MAP.put("beach_label", "beach");
+        ACTIVITY_TYPE_MAP.put("city_break_label", "city_break");
+        ACTIVITY_TYPE_MAP.put("camping_label", "camping");
+        ACTIVITY_TYPE_MAP.put("festival_label", "festival");
+        ACTIVITY_TYPE_MAP.put("other_label", "other");
     }
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
@@ -104,6 +104,17 @@ public class CreateTripFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(CreateTripViewModel.class);
 
+        // Initialize activity labels from string resources
+        activityLabels = new String[] {
+            getString(R.string.activity_dropdown_road_trip),
+            getString(R.string.activity_dropdown_hiking),
+            getString(R.string.activity_dropdown_beach),
+            getString(R.string.activity_dropdown_city_break),
+            getString(R.string.activity_dropdown_camping),
+            getString(R.string.activity_dropdown_festival),
+            getString(R.string.activity_dropdown_other)
+        };
+
         binding.toolbar.setNavigationOnClickListener(v ->
                 Navigation.findNavController(v).popBackStack());
 
@@ -116,7 +127,7 @@ public class CreateTripFragment extends Fragment {
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
-                ACTIVITY_LABELS
+                activityLabels
         );
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         binding.spinnerActivityType.setAdapter(spinnerAdapter);
@@ -129,8 +140,8 @@ public class CreateTripFragment extends Fragment {
                 selectedTypePosition = position;
                 selectedActivityType = ACTIVITY_KEYS[position];
                 
-                // Show/hide the "Other" input field
-                if ("Other...".equals(ACTIVITY_LABELS[position])) {
+                // Show/hide the "Other" input field (check if it's the last item - "Other...")
+                if (position == activityLabels.length - 1) {
                     binding.otherTypeContainer.setVisibility(View.VISIBLE);
                     binding.etOtherType.requestFocus();
                 } else {
@@ -153,7 +164,7 @@ public class CreateTripFragment extends Fragment {
         rvTypeList.setLayoutManager(new LinearLayoutManager(requireContext()));
         
         List<String> typesList = new ArrayList<>();
-        for (String label : ACTIVITY_LABELS) {
+        for (String label : activityLabels) {
             typesList.add(label);
         }
         
@@ -162,8 +173,8 @@ public class CreateTripFragment extends Fragment {
             selectedActivityType = ACTIVITY_KEYS[position];
             binding.spinnerActivityType.setSelection(position);
             
-            // Show/hide the "Other" input field
-            if ("Other...".equals(type)) {
+            // Show/hide the "Other" input field (check if it's the last item - "Other...")
+            if (position == activityLabels.length - 1) {
                 binding.otherTypeContainer.setVisibility(View.VISIBLE);
                 binding.etOtherType.requestFocus();
             } else {
@@ -258,12 +269,12 @@ public class CreateTripFragment extends Fragment {
 
         // Validate cover photo is required
         if (selectedCoverPhotoUri == null) {
-            Toast.makeText(requireContext(), "Please add a cover photo to create the trip", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), R.string.error_add_cover_photo, Toast.LENGTH_LONG).show();
             return;
         }
         // Validate title
         if (TextUtils.isEmpty(title)) {
-            Toast.makeText(requireContext(), "Please enter a title", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_enter_title, Toast.LENGTH_SHORT).show();
             return;
         }
         if (TextUtils.isEmpty(destination)) {
@@ -288,7 +299,7 @@ public class CreateTripFragment extends Fragment {
 
         // Validate group size is required
         if (TextUtils.isEmpty(seatsStr)) {
-            Toast.makeText(requireContext(), "Please enter the group size", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_enter_group_size, Toast.LENGTH_SHORT).show();
             return;
         }
         int seats;
@@ -305,7 +316,7 @@ public class CreateTripFragment extends Fragment {
 
         // Validate budget is required
         if (TextUtils.isEmpty(budgetStr)) {
-            Toast.makeText(requireContext(), "Please enter a budget", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_enter_budget, Toast.LENGTH_SHORT).show();
             return;
         }
         double budget;
@@ -321,7 +332,7 @@ public class CreateTripFragment extends Fragment {
         }
 
         if (TextUtils.isEmpty(description)) {
-            Toast.makeText(requireContext(), "Please add a description", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.error_add_description, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -344,7 +355,7 @@ public class CreateTripFragment extends Fragment {
         LocalDateTime endDateTime = LocalDateTime.of(tripEndDate, LocalTime.of(18, 0));
         long arrivalEstimate = endDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-        String driverName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : "Organizer";
+        String driverName = currentUser.getDisplayName() != null ? currentUser.getDisplayName() : getString(R.string.label_organizer_default);
 
         // Generate trip ID first for the photo upload path
         String tripId = com.google.firebase.database.FirebaseDatabase.getInstance()

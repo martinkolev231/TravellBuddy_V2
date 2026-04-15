@@ -2,503 +2,690 @@
     <string name="app_name">TravellBuddy</string>
 
     <!-- Welcome Screen -->
-    <string name="welcome_to">WELCOME TO</string>
+    <string name="welcome_to">ДОБРЕ ДОШЛИ В</string>
     <string name="welcome_title">TravellBuddy</string>
-    <string name="welcome_subtitle">Find your next adventure partner and explore the world together.</string>
-    <string name="btn_sign_up_welcome">Sign Up</string>
-    <string name="btn_log_in_welcome">Log In</string>
+    <string name="welcome_subtitle">Намерете своя партньор за приключения и изследвайте света заедно.</string>
+    <string name="btn_sign_up_welcome">Регистрация</string>
+    <string name="btn_log_in_welcome">Вход</string>
 
     <!-- Splash / Onboarding -->
-    <string name="splash_tagline">This platform is designed to help you discover exciting journeys and connect with fellow adventurers conveniently!</string>
-    <string name="splash_heading">Find Your Next\nAdventure</string>
-    <string name="onboarding_title_1">Discover Adventures</string>
-    <string name="onboarding_desc_1">Browse exciting adventures — hiking, camping, road trips, festivals — and find your next experience.</string>
-    <string name="onboarding_title_2">Propose an Adventure</string>
-    <string name="onboarding_desc_2">Have a plan? Create an adventure, set the details, and invite others to join you.</string>
-    <string name="onboarding_title_3">Explore Together Safely</string>
-    <string name="onboarding_desc_3">Chat with your adventure buddies, rate your experience, and share your plans for safety.</string>
-    <string name="btn_next">Next</string>
-    <string name="btn_get_started">Get Started</string>
-    <string name="btn_skip">Skip</string>
+    <string name="splash_tagline">Тази платформа е създадена да ви помогне да откриете вълнуващи пътувания и да се свържете с други приключенци лесно!</string>
+    <string name="splash_heading">Открийте следващото\nси приключение</string>
+    <string name="onboarding_title_1">Открийте приключения</string>
+    <string name="onboarding_desc_1">Разгледайте вълнуващи приключения — походи, къмпинг, пътувания с кола, фестивали — и намерете следващото си преживяване.</string>
+    <string name="onboarding_title_2">Предложете приключение</string>
+    <string name="onboarding_desc_2">Имате план? Създайте приключение, задайте детайлите и поканете други да се присъединят.</string>
+    <string name="onboarding_title_3">Изследвайте заедно безопасно</string>
+    <string name="onboarding_desc_3">Чатете с вашите приятели за приключения, оценете преживяването си и споделете плановете си за безопасност.</string>
+    <string name="btn_next">Напред</string>
+    <string name="btn_get_started">Започнете</string>
+    <string name="btn_skip">Пропусни</string>
 
     <!-- Auth -->
-    <string name="sign_in_title">Welcome back</string>
-    <string name="sign_in_subtitle">Log in to find your adventure partner</string>
-    <string name="sign_up_title">Create account</string>
-    <string name="sign_up_subtitle">Join the community and find your next adventure partner.</string>
-    <string name="hint_email">Email</string>
-    <string name="hint_password">Password</string>
-    <string name="hint_confirm_password">Confirm Password</string>
-    <string name="hint_display_name">Display Name</string>
-    <string name="label_full_name">Full name</string>
-    <string name="label_email_address">Email address</string>
-    <string name="label_password">Password</string>
-    <string name="hint_full_name_placeholder">Alex Johnson</string>
-    <string name="hint_email_placeholder">hello@example.com</string>
+    <string name="sign_in_title">Добре дошли отново</string>
+    <string name="sign_in_subtitle">Влезте, за да намерите вашия партньор за приключения</string>
+    <string name="sign_up_title">Създайте профил</string>
+    <string name="sign_up_subtitle">Присъединете се към общността и намерете следващия си партньор за приключения.</string>
+    <string name="hint_email">Имейл</string>
+    <string name="hint_password">Парола</string>
+    <string name="hint_confirm_password">Потвърдете паролата</string>
+    <string name="hint_display_name">Име за показване</string>
+    <string name="label_full_name">Пълно име</string>
+    <string name="label_email_address">Имейл адрес</string>
+    <string name="label_password">Парола</string>
+    <string name="hint_full_name_placeholder">Иван Петров</string>
+    <string name="hint_email_placeholder">zdravei@primer.com</string>
     <string name="hint_password_placeholder">••••••••</string>
-    <string name="already_have_account">Already have an account?</string>
-    <string name="log_in_link">Log in</string>
-    <string name="dont_have_account">Don\'t have an account?</string>
-    <string name="sign_up_link">Sign up</string>
-    <string name="forgot_link">Forgot?</string>
-    <string name="btn_log_in">Log In</string>
-    <string name="btn_sign_in">Sign In</string>
-    <string name="btn_sign_up">Sign Up</string>
-    <string name="btn_google_sign_in">Sign in with Google</string>
-    <string name="btn_forgot_password">Forgot Password?</string>
-    <string name="link_sign_up">Don\'t have an account? Sign Up</string>
-    <string name="link_sign_in">Already have an account? Sign In</string>
-    <string name="label_or_divider">OR</string>
-    <string name="error_google_sign_in">Google sign-in failed. Please try again.</string>
+    <string name="already_have_account">Вече имате профил?</string>
+    <string name="log_in_link">Вход</string>
+    <string name="dont_have_account">Нямате профил?</string>
+    <string name="sign_up_link">Регистрация</string>
+    <string name="forgot_link">Забравена?</string>
+    <string name="btn_log_in">Вход</string>
+    <string name="btn_sign_in">Вход</string>
+    <string name="btn_sign_up">Регистрация</string>
+    <string name="btn_google_sign_in">Вход с Google</string>
+    <string name="btn_forgot_password">Забравена парола?</string>
+    <string name="link_sign_up">Нямате профил? Регистрирайте се</string>
+    <string name="link_sign_in">Вече имате профил? Влезте</string>
+    <string name="label_or_divider">ИЛИ</string>
+    <string name="error_google_sign_in">Входът с Google се провали. Моля, опитайте отново.</string>
     <!-- Replace with your Web Client ID from Firebase Console → Authentication → Google provider -->
     <string name="google_web_client_id">422784011997-tuvetkhruci7gekc2efdjf293be7vufm.apps.googleusercontent.com</string>
-    <string name="error_empty_email">Please enter your email</string>
-    <string name="error_invalid_email">Please enter a valid email</string>
-    <string name="error_empty_password">Please enter your password</string>
-    <string name="error_short_password">Password must be at least 6 characters</string>
-    <string name="error_passwords_mismatch">Passwords do not match</string>
-    <string name="error_empty_name">Please enter your name</string>
-    <string name="error_auth_failed">Authentication failed. Please try again.</string>
-    <string name="error_sign_up_failed">Sign up failed. Please try again.</string>
-    <string name="success_account_created">Account created! Please verify your email.</string>
-    <string name="msg_verification_sent">Verification email sent. Please check your inbox.</string>
-    <string name="msg_password_reset_sent">Password reset email sent.</string>
-    <string name="error_email_not_verified">Please verify your email before continuing.</string>
+    <string name="error_empty_email">Моля, въведете имейл</string>
+    <string name="error_invalid_email">Моля, въведете валиден имейл</string>
+    <string name="error_empty_password">Моля, въведете парола</string>
+    <string name="error_short_password">Паролата трябва да е поне 6 символа</string>
+    <string name="error_passwords_mismatch">Паролите не съвпадат</string>
+    <string name="error_empty_name">Моля, въведете вашето име</string>
+    <string name="error_auth_failed">Удостоверяването се провали. Моля, опитайте отново.</string>
+    <string name="error_sign_up_failed">Регистрацията се провали. Моля, опитайте отново.</string>
+    <string name="success_account_created">Профилът е създаден! Моля, потвърдете имейла си.</string>
+    <string name="msg_verification_sent">Имейл за потвърждение е изпратен. Моля, проверете входящата си поща.</string>
+    <string name="msg_password_reset_sent">Имейл за възстановяване на парола е изпратен.</string>
+    <string name="error_email_not_verified">Моля, потвърдете имейла си преди да продължите.</string>
 
     <!-- Home Feed -->
-    <string name="title_home">Home</string>
-    <string name="title_my_trips">My Adventures</string>
-    <string name="title_messages">Messages</string>
-    <string name="title_profile">Profile</string>
-    <string name="title_create">Create</string>
-    <string name="hint_search_destination">Search destinations…</string>
-    <string name="hint_search_messages">Search messages…</string>
-    <string name="label_more_options">More options</string>
-    <string name="label_home_title">Discover Adventures</string>
-    <string name="label_upcoming_trips">Upcoming Adventures</string>
-    <string name="label_no_trips">No adventures available</string>
-    <string name="label_no_trips_desc">Be the first to propose an adventure!</string>
-    <string name="label_seats_available">%1$d spots available</string>
-    <string name="label_per_seat">/spot</string>
-    <string name="label_trip_full">Full</string>
-    <string name="btn_join_adventure">Join Adventure</string>
-    <string name="btn_join">Join</string>
-    <string name="label_travelers">%1$d / %2$d travelers</string>
-    <string name="cd_adventure_image">Adventure cover photo</string>
-    <string name="label_trip_cancelled">Cancelled</string>
-    <string name="label_spot_left">1 spot left</string>
-    <string name="label_spots_left">%1$d spots left</string>
+    <string name="title_home">Начало</string>
+    <string name="title_my_trips">Моите приключения</string>
+    <string name="title_messages">Съобщения</string>
+    <string name="title_profile">Профил</string>
+    <string name="title_create">Създай</string>
+    <string name="hint_search_destination">Търсене на дестинации…</string>
+    <string name="hint_search_messages">Търсене в съобщенията…</string>
+    <string name="label_more_options">Още опции</string>
+    <string name="label_home_title">Открийте приключения</string>
+    <string name="label_upcoming_trips">Предстоящи приключения</string>
+    <string name="label_no_trips">Няма налични приключения</string>
+    <string name="label_no_trips_desc">Бъдете първият, който предложи приключение!</string>
+    <string name="label_seats_available">%1$d свободни места</string>
+    <string name="label_per_seat">/място</string>
+    <string name="label_trip_full">Пълно</string>
+    <string name="btn_join_adventure">Присъедини се</string>
+    <string name="btn_join">Присъедини се</string>
+    <string name="label_travelers">%1$d / %2$d пътешественици</string>
+    <string name="cd_adventure_image">Снимка на приключението</string>
+    <string name="label_trip_cancelled">Отменено</string>
+    <string name="label_spot_left">Остава 1 място</string>
+    <string name="label_spots_left">Остават %1$d места</string>
     <string name="label_more_count">+%1$d</string>
 
     <!-- Create Adventure -->
-    <string name="title_create_trip">Create Adventure</string>
-    <string name="hint_origin">Meeting point / Starting location</string>
-    <string name="hint_destination">Destination or area</string>
-    <string name="hint_date">Date</string>
-    <string name="hint_time">Time</string>
-    <string name="hint_seats">Available spots (1–20)</string>
-    <string name="hint_price">Price per spot (0 = free)</string>
-    <string name="hint_vehicle">Short description of the adventure</string>
-    <string name="label_preferences">Details</string>
-    <string name="label_smoking_allowed">Beginners welcome</string>
-    <string name="label_pets_allowed">Pet-friendly</string>
-    <string name="label_luggage_size">Difficulty Level</string>
-    <string name="btn_publish_trip">Publish Adventure</string>
-    <string name="btn_post_adventure">Post Adventure</string>
-    <string name="error_empty_origin">Please enter a meeting point</string>
-    <string name="error_empty_cover_photo">Please add a cover photo</string>
-    <string name="error_empty_title">Please enter a title for your adventure</string>
-    <string name="error_empty_destination">Please enter the destination or area</string>
-    <string name="error_empty_date">Please select a date</string>
-    <string name="error_empty_start_date">Please select a start date</string>
-    <string name="error_empty_end_date">Please select an end date</string>
-    <string name="error_empty_time">Please select a time</string>
-    <string name="error_invalid_seats">Please enter spots between 1 and 20</string>
-    <string name="error_empty_price">Please enter a price (0 for free)</string>
-    <string name="error_invalid_price">Please enter a valid price</string>
-    <string name="error_invalid_budget">Please enter a valid budget amount</string>
-    <string name="error_past_date">Adventure date must be in the future</string>
-    <string name="error_empty_vehicle">Please describe the adventure</string>
-    <string name="success_trip_created">Adventure published successfully!</string>
-    <string name="error_trip_creation_failed">Failed to create adventure. Please try again.</string>
-    <string name="error_email_not_verified_trip">Please verify your email before creating an adventure.</string>
-    <string name="error_not_logged_in">You must be signed in to create an adventure.</string>
+    <string name="title_create_trip">Създай приключение</string>
+    <string name="hint_origin">Място на среща / Начална точка</string>
+    <string name="hint_destination">Дестинация или район</string>
+    <string name="hint_date">Дата</string>
+    <string name="hint_time">Час</string>
+    <string name="hint_seats">Свободни места (1–20)</string>
+    <string name="hint_price">Цена на място (0 = безплатно)</string>
+    <string name="hint_vehicle">Кратко описание на приключението</string>
+    <string name="label_preferences">Детайли</string>
+    <string name="label_smoking_allowed">Подходящо за начинаещи</string>
+    <string name="label_pets_allowed">Домашни любимци са добре дошли</string>
+    <string name="label_luggage_size">Ниво на трудност</string>
+    <string name="btn_publish_trip">Публикувай приключение</string>
+    <string name="btn_post_adventure">Публикувай приключение</string>
+    <string name="error_empty_origin">Моля, въведете място на среща</string>
+    <string name="error_empty_cover_photo">Моля, добавете снимка</string>
+    <string name="error_empty_title">Моля, въведете заглавие за вашето приключение</string>
+    <string name="error_empty_destination">Моля, въведете дестинация или район</string>
+    <string name="error_empty_date">Моля, изберете дата</string>
+    <string name="error_empty_start_date">Моля, изберете начална дата</string>
+    <string name="error_empty_end_date">Моля, изберете крайна дата</string>
+    <string name="error_empty_time">Моля, изберете час</string>
+    <string name="error_invalid_seats">Моля, въведете места между 1 и 20</string>
+    <string name="error_empty_price">Моля, въведете цена (0 за безплатно)</string>
+    <string name="error_invalid_price">Моля, въведете валидна цена</string>
+    <string name="error_invalid_budget">Моля, въведете валидна сума за бюджет</string>
+    <string name="error_past_date">Датата на приключението трябва да е в бъдеще</string>
+    <string name="error_empty_vehicle">Моля, опишете приключението</string>
+    <string name="success_trip_created">Приключението е публикувано успешно!</string>
+    <string name="error_trip_creation_failed">Неуспешно създаване на приключение. Моля, опитайте отново.</string>
+    <string name="error_email_not_verified_trip">Моля, потвърдете имейла си преди да създадете приключение.</string>
+    <string name="error_not_logged_in">Трябва да сте влезли, за да създадете приключение.</string>
 
     <!-- Create Adventure - New Design -->
-    <string name="label_add_cover_photo">Add Cover Photo</string>
-    <string name="label_change_photo">Change photo</string>
-    <string name="label_photo_format">PNG, JPG up to 5MB</string>
-    <string name="label_title">TITLE</string>
-    <string name="hint_adventure_title">Give your adventure a catchy name</string>
-    <string name="hint_trip_title">Give your adventure a catchy name</string>
-    <string name="hint_select_date">Select date</string>
-    <string name="label_destination">DESTINATION</string>
-    <string name="hint_where_to">Where to?</string>
-    <string name="label_type">TYPE</string>
-    <string name="label_dates">DATES</string>
-    <string name="label_start_date">START DATE</string>
-    <string name="label_end_date">END DATE</string>
-    <string name="hint_select_dates">Select dates</string>
-    <string name="label_group_size">GROUP SIZE</string>
+    <string name="label_add_cover_photo">Добавете снимка</string>
+    <string name="label_change_photo">Смяна на снимката</string>
+    <string name="label_photo_format">PNG, JPG до 5MB</string>
+    <string name="label_title">ЗАГЛАВИЕ</string>
+    <string name="hint_adventure_title">Дайте привлекателно име на приключението</string>
+    <string name="hint_trip_title">Дайте привлекателно име на приключението</string>
+    <string name="hint_select_date">Изберете дата</string>
+    <string name="label_destination">ДЕСТИНАЦИЯ</string>
+    <string name="hint_where_to">Накъде?</string>
+    <string name="label_type">ВИД</string>
+    <string name="label_dates">ДАТИ</string>
+    <string name="label_start_date">НАЧАЛНА ДАТА</string>
+    <string name="label_end_date">КРАЙНА ДАТА</string>
+    <string name="hint_select_dates">Изберете дати</string>
+    <string name="label_group_size">РАЗМЕР НА ГРУПАТА</string>
     <string name="hint_group_size">2 - 20</string>
-    <string name="label_budget">BUDGET</string>
-    <string name="label_estimated_budget">ESTIMATED BUDGET PER PERSON</string>
-    <string name="hint_budget_amount">e.g. 500</string>
+    <string name="label_budget">БЮДЖЕТ</string>
+    <string name="label_estimated_budget">ПРИБЛИЗИТЕЛЕН БЮДЖЕТ НА ЧОВЕК</string>
+    <string name="hint_budget_amount">напр. 500</string>
     <string name="currency_symbol_eur">€</string>
     <string name="currency_eur">EUR</string>
     <string name="budget_low">$</string>
     <string name="budget_medium">$$</string>
     <string name="budget_high">$$$</string>
-    <string name="label_description">DESCRIPTION</string>
-    <string name="hint_description">What\'s the plan? Who are you looking for…</string>
+    <string name="label_description">ОПИСАНИЕ</string>
+    <string name="hint_description">Какъв е планът? Кого търсите…</string>
 
     <!-- Trip Details -->
-    <string name="btn_back">Back</string>
-    <string name="btn_favorite">Add to favorites</string>
-    <string name="cd_trip_image">Adventure cover image</string>
-    <string name="label_about_adventure">About this adventure</string>
-    <string name="label_hosted_by">Hosted by</string>
-    <string name="label_participants">Participants</string>
-    <string name="label_trips_hosted">%1$d trips hosted</string>
-    <string name="btn_join_activity">Join Activity</string>
-    <string name="label_join_with_spots">Join Activity  (%1$d spots left)</string>
+    <string name="btn_back">Назад</string>
+    <string name="btn_favorite">Добави в любими</string>
+    <string name="cd_trip_image">Снимка на приключението</string>
+    <string name="label_about_adventure">За това приключение</string>
+    <string name="label_hosted_by">Организатор</string>
+    <string name="label_participants">Участници</string>
+    <string name="label_trips_hosted">%1$d организирани пътувания</string>
+    <string name="btn_join_activity">Присъедини се</string>
+    <string name="label_join_with_spots">Присъедини се (%1$d свободни места)</string>
 
     <!-- Activity Type -->
-    <string name="label_activity_type">Activity Type</string>
-    <string name="hint_activity_type">Activity Type</string>
-    <string name="hint_image_url">Cover image URL (optional)</string>
-    <string name="activity_hiking">Hiking</string>
-    <string name="activity_camping">Camping</string>
-    <string name="activity_road_trip">Road Trip</string>
-    <string name="activity_city_explore">City Explore</string>
-    <string name="activity_festival">Festival / Event</string>
-    <string name="activity_photography">Photography</string>
-    <string name="activity_outdoor_sports">Outdoor Sports</string>
-    <string name="activity_backpacking">Backpacking</string>
-    <string name="activity_weekend">Weekend Getaway</string>
-    <string name="activity_other">Other</string>
+    <string name="label_activity_type">Вид дейност</string>
+    <string name="hint_activity_type">Вид дейност</string>
+    <string name="hint_image_url">URL на снимка (незадължително)</string>
+    <string name="activity_hiking">Поход</string>
+    <string name="activity_camping">Къмпинг</string>
+    <string name="activity_road_trip">Пътуване с кола</string>
+    <string name="activity_city_explore">Разглеждане на град</string>
+    <string name="activity_festival">Фестивал / Събитие</string>
+    <string name="activity_photography">Фотография</string>
+    <string name="activity_outdoor_sports">Спорт на открито</string>
+    <string name="activity_backpacking">Бекпекинг</string>
+    <string name="activity_weekend">Уикенд почивка</string>
+    <string name="activity_other">Друго</string>
 
     <!-- Difficulty -->
-    <string name="difficulty_easy">Easy</string>
-    <string name="difficulty_moderate">Moderate</string>
-    <string name="difficulty_hard">Challenging</string>
+    <string name="difficulty_easy">Лесно</string>
+    <string name="difficulty_moderate">Умерено</string>
+    <string name="difficulty_hard">Предизвикателно</string>
 
     <!-- New adventure fields -->
-    <string name="hint_meeting_point">Meeting point details</string>
-    <string name="hint_required_equipment">Required equipment (optional)</string>
-    <string name="label_required_equipment">What to Bring</string>
+    <string name="hint_meeting_point">Детайли за мястото на среща</string>
+    <string name="hint_required_equipment">Необходимо оборудване (незадължително)</string>
+    <string name="label_required_equipment">Какво да вземете</string>
 
     <!-- Adventure Details -->
-    <string name="title_trip_details">Adventure Details</string>
-    <string name="label_driver">Organizer</string>
-    <string name="label_departure">Start Time</string>
-    <string name="label_vehicle">Description</string>
-    <string name="label_price">Price</string>
-    <string name="label_confirmed_riders">Confirmed Participants</string>
-    <string name="label_no_riders_yet">No confirmed participants yet</string>
-    <string name="btn_request_seat">Join Adventure</string>
-    <string name="btn_cancel_request">Cancel Request</string>
-    <string name="btn_manage_requests">Manage Requests</string>
-    <string name="btn_open_chat">Open Chat</string>
-    <string name="btn_share_trip">Share Adventure</string>
-    <string name="btn_cancel_trip">Cancel Adventure</string>
-    <string name="label_request_pending">Your request is pending</string>
-    <string name="label_request_approved">You\'re in!</string>
-    <string name="label_request_denied">Your request was declined</string>
+    <string name="title_trip_details">Детайли за приключението</string>
+    <string name="label_driver">Организатор</string>
+    <string name="label_departure">Начален час</string>
+    <string name="label_vehicle">Описание</string>
+    <string name="label_price">Цена</string>
+    <string name="label_confirmed_riders">Потвърдени участници</string>
+    <string name="label_no_riders_yet">Все още няма потвърдени участници</string>
+    <string name="btn_request_seat">Присъедини се към приключението</string>
+    <string name="btn_cancel_request">Отмени заявката</string>
+    <string name="btn_manage_requests">Управление на заявките</string>
+    <string name="btn_open_chat">Отвори чат</string>
+    <string name="btn_share_trip">Сподели приключението</string>
+    <string name="btn_cancel_trip">Отмени приключението</string>
+    <string name="label_request_pending">Заявката ви чака одобрение</string>
+    <string name="label_request_approved">Приети сте!</string>
+    <string name="label_request_denied">Заявката ви беше отхвърлена</string>
 
     <!-- Join Request -->
-    <string name="title_request_seat">Join Adventure</string>
-    <string name="hint_request_message">Add a message to the organizer (optional)</string>
-    <string name="btn_send_request">Send Request</string>
-    <string name="success_request_sent">Join request sent!</string>
-    <string name="error_request_failed">Failed to send request. Please try again.</string>
-    <string name="error_trip_full">Sorry, this adventure is full.</string>
-    <string name="error_already_requested">You have already requested to join this adventure.</string>
+    <string name="title_request_seat">Присъединяване към приключение</string>
+    <string name="hint_request_message">Добавете съобщение към организатора (незадължително)</string>
+    <string name="btn_send_request">Изпрати заявка</string>
+    <string name="success_request_sent">Заявката за присъединяване е изпратена!</string>
+    <string name="error_request_failed">Неуспешно изпращане на заявка. Моля, опитайте отново.</string>
+    <string name="error_trip_full">Съжаляваме, това приключение е пълно.</string>
+    <string name="error_already_requested">Вече сте изпратили заявка за това приключение.</string>
 
     <!-- Manage Requests -->
-    <string name="title_manage_requests">Manage Requests</string>
-    <string name="label_no_requests">No join requests yet</string>
-    <string name="btn_approve">Approve</string>
-    <string name="btn_deny">Deny</string>
-    <string name="label_status_pending">Pending</string>
-    <string name="label_status_approved">Approved</string>
-    <string name="label_status_denied">Denied</string>
-    <string name="success_request_approved">Request approved!</string>
-    <string name="success_request_denied">Request denied.</string>
-    <string name="error_approve_failed">Failed to approve request.</string>
+    <string name="title_manage_requests">Управление на заявките</string>
+    <string name="label_no_requests">Все още няма заявки за присъединяване</string>
+    <string name="btn_approve">Одобри</string>
+    <string name="btn_deny">Отхвърли</string>
+    <string name="label_status_pending">Чакащa</string>
+    <string name="label_status_approved">Одобренa</string>
+    <string name="label_status_denied">Отхвърленa</string>
+    <string name="success_request_approved">Заявката е одобрена!</string>
+    <string name="success_request_denied">Заявката е отхвърлена.</string>
+    <string name="error_approve_failed">Неуспешно одобряване на заявка.</string>
 
     <!-- Chat -->
-    <string name="title_chat">Adventure Chat</string>
-    <string name="hint_type_message">Type a message…</string>
-    <string name="btn_send">Send</string>
-    <string name="label_no_messages">No messages yet. Start the conversation!</string>
-    <string name="label_chat_read_only">This chat is read-only (adventure ended or cancelled)</string>
+    <string name="title_chat">Чат за приключението</string>
+    <string name="hint_type_message">Напишете съобщение…</string>
+    <string name="btn_send">Изпрати</string>
+    <string name="label_no_messages">Все още няма съобщения. Започнете разговора!</string>
+    <string name="label_chat_read_only">Този чат е само за четене (приключението приключи или е отменено)</string>
 
     <!-- Profile -->
-    <string name="label_edit_profile">Edit Profile</string>
-    <string name="hint_phone">Phone number (optional)</string>
-    <string name="hint_bio">About me</string>
-    <string name="btn_save_profile">Save</string>
-    <string name="label_avg_rating">Average Rating</string>
-    <string name="label_total_trips">Total Adventures</string>
-    <string name="label_view_ratings">View Ratings</string>
-    <string name="success_profile_updated">Profile updated!</string>
-    <string name="error_profile_update_failed">Failed to update profile.</string>
+    <string name="label_edit_profile">Редактиране на профила</string>
+    <string name="hint_phone">Телефонен номер (незадължително)</string>
+    <string name="hint_bio">За мен</string>
+    <string name="btn_save_profile">Запази</string>
+    <string name="label_avg_rating">Средна оценка</string>
+    <string name="label_total_trips">Общо приключения</string>
+    <string name="label_view_ratings">Виж оценките</string>
+    <string name="success_profile_updated">Профилът е актуализиран!</string>
+    <string name="error_profile_update_failed">Неуспешна актуализация на профила.</string>
 
     <!-- Ratings -->
-    <string name="title_ratings">Ratings &amp; Reviews</string>
-    <string name="title_rate_user">Rate User</string>
-    <string name="hint_rating_comment">Leave a comment (optional)</string>
-    <string name="btn_submit_rating">Submit Rating</string>
-    <string name="btn_rate_trip">Rate This Adventure</string>
-    <string name="btn_rate_host">Rate Host</string>
-    <string name="title_rate_host_name">Rate %1$s</string>
-    <string name="label_trip_subtitle">Trip: %1$s</string>
-    <string name="label_rate_experience_question">How was your experience?</string>
-    <string name="hint_review_optional">Write a short review… (optional)</string>
-    <string name="cd_star_1">Star 1</string>
-    <string name="cd_star_2">Star 2</string>
-    <string name="cd_star_3">Star 3</string>
-    <string name="cd_star_4">Star 4</string>
-    <string name="cd_star_5">Star 5</string>
-    <string name="label_no_ratings">No ratings yet</string>
-    <string name="success_rating_submitted">Rating submitted!</string>
-    <string name="error_rating_failed">Failed to submit rating.</string>
-    <string name="error_already_rated">You have already rated this user for this adventure.</string>
-    <string name="error_cannot_rate">Cannot rate this trip</string>
-    <string name="label_your_rating">Your rating</string>
-    <string name="label_how_was_host">How was %1$s?</string>
-    <string name="btn_view_summary">View Summary</string>
-    <string name="btn_open_trip">Open Trip</string>
-    <string name="btn_view_details">View Details</string>
+    <string name="title_ratings">Оценки и отзиви</string>
+    <string name="title_rate_user">Оценете потребител</string>
+    <string name="hint_rating_comment">Оставете коментар (незадължително)</string>
+    <string name="btn_submit_rating">Изпрати оценка</string>
+    <string name="btn_rate_trip">Оценете приключението</string>
+    <string name="btn_rate_host">Оценете организатора</string>
+    <string name="title_rate_host_name">Оценете %1$s</string>
+    <string name="label_trip_subtitle">Пътуване: %1$s</string>
+    <string name="label_rate_experience_question">Как беше вашето преживяване?</string>
+    <string name="hint_review_optional">Напишете кратък отзив… (незадължително)</string>
+    <string name="cd_star_1">Звезда 1</string>
+    <string name="cd_star_2">Звезда 2</string>
+    <string name="cd_star_3">Звезда 3</string>
+    <string name="cd_star_4">Звезда 4</string>
+    <string name="cd_star_5">Звезда 5</string>
+    <string name="label_no_ratings">Все още няма оценки</string>
+    <string name="success_rating_submitted">Оценката е изпратена!</string>
+    <string name="error_rating_failed">Неуспешно изпращане на оценка.</string>
+    <string name="error_already_rated">Вече сте оценили този потребител за това приключение.</string>
+    <string name="error_cannot_rate">Не може да оцените това пътуване</string>
+    <string name="label_your_rating">Вашата оценка</string>
+    <string name="label_how_was_host">Как беше %1$s?</string>
+    <string name="btn_view_summary">Виж резюме</string>
+    <string name="btn_open_trip">Отвори пътуването</string>
+    <string name="btn_view_details">Виж детайли</string>
 
     <!-- Settings -->
-    <string name="title_settings">Settings</string>
-    <string name="label_change_password">Change Password</string>
-    <string name="label_notifications">Notifications</string>
-    <string name="label_about">About TravellBuddy</string>
-    <string name="label_version">Version %1$s</string>
-    <string name="btn_log_out">Log Out</string>
-    <string name="btn_delete_account">Delete Account</string>
-    <string name="dialog_log_out_title">Log Out</string>
-    <string name="dialog_log_out_message">Are you sure you want to log out?</string>
-    <string name="dialog_delete_account_title">Delete Account</string>
-    <string name="dialog_delete_account_message">This action cannot be undone. All your data will be permanently deleted.</string>
-    <string name="btn_cancel">Cancel</string>
-    <string name="btn_confirm">Confirm</string>
-    <string name="btn_delete">Delete</string>
+    <string name="title_settings">Настройки</string>
+    <string name="label_change_password">Промяна на парола</string>
+    <string name="label_notifications">Известия</string>
+    <string name="label_about">За TravellBuddy</string>
+    <string name="label_version">Версия %1$s</string>
+    <string name="btn_log_out">Изход</string>
+    <string name="btn_delete_account">Изтриване на профила</string>
+    <string name="dialog_log_out_title">Изход</string>
+    <string name="dialog_log_out_message">Сигурни ли сте, че искате да излезете?</string>
+    <string name="dialog_delete_account_title">Изтриване на профила</string>
+    <string name="dialog_delete_account_message">Това действие е необратимо. Всички ваши данни ще бъдат изтрити завинаги.</string>
+    <string name="btn_cancel">Отказ</string>
+    <string name="btn_confirm">Потвърди</string>
+    <string name="btn_delete">Изтрий</string>
 
     <!-- Share Adventure -->
-    <string name="share_trip_subject">Adventure on TravellBuddy</string>
-    <string name="share_trip_body">I\'m going on an adventure from %1$s to %2$s on %3$s. Join me on TravellBuddy!</string>
+    <string name="share_trip_subject">Приключение в TravellBuddy</string>
+    <string name="share_trip_body">Тръгвам на приключение от %1$s до %2$s на %3$s. Присъедини се към мен в TravellBuddy!</string>
 
     <!-- General / Connectivity -->
-    <string name="msg_offline">You are offline — changes will sync when connected</string>
-    <string name="msg_back_online">You are back online</string>
-    <string name="error_generic">Something went wrong. Please try again.</string>
-    <string name="label_loading">Loading…</string>
+    <string name="msg_offline">Офлайн сте — промените ще се синхронизират при връзка</string>
+    <string name="msg_back_online">Отново сте онлайн</string>
+    <string name="error_generic">Нещо се обърка. Моля, опитайте отново.</string>
+    <string name="label_loading">Зареждане…</string>
 
     <!-- Firebase Error Mapper (database errors) -->
-    <string name="error_permission_denied">You don\'t have permission to perform this action.</string>
-    <string name="error_network">Network error. Please check your connection.</string>
-    <string name="error_session_expired">Your session has expired. Please sign in again.</string>
-    <string name="error_max_retries">Connection failed after multiple attempts. Try again later.</string>
-    <string name="error_data_conflict">Data was updated by another user. Please refresh.</string>
-    <string name="error_write_canceled">Operation was canceled. Please try again.</string>
+    <string name="error_permission_denied">Нямате разрешение за това действие.</string>
+    <string name="error_network">Мрежова грешка. Моля, проверете връзката си.</string>
+    <string name="error_session_expired">Сесията ви е изтекла. Моля, влезте отново.</string>
+    <string name="error_max_retries">Връзката се провали след няколко опита. Опитайте по-късно.</string>
+    <string name="error_data_conflict">Данните бяха актуализирани от друг потребител. Моля, опреснете.</string>
+    <string name="error_write_canceled">Операцията беше отменена. Моля, опитайте отново.</string>
 
     <!-- Firebase Error Mapper (auth errors) -->
-    <string name="error_invalid_credentials">Invalid email or password.</string>
-    <string name="error_user_not_found">No account found with this email.</string>
-    <string name="error_wrong_password">Incorrect password.</string>
-    <string name="error_email_in_use">An account with this email already exists.</string>
-    <string name="error_weak_password">Password must be at least 6 characters.</string>
-    <string name="error_too_many_requests">Too many attempts. Please wait a moment and try again.</string>
+    <string name="error_invalid_credentials">Невалиден имейл или парола.</string>
+    <string name="error_user_not_found">Не е намерен профил с този имейл.</string>
+    <string name="error_wrong_password">Грешна парола.</string>
+    <string name="error_email_in_use">Профил с този имейл вече съществува.</string>
+    <string name="error_weak_password">Паролата трябва да е поне 6 символа.</string>
+    <string name="error_too_many_requests">Твърде много опити. Моля, изчакайте и опитайте отново.</string>
 
     <!-- Validation extras -->
-    <string name="error_name_too_long">Name must be 100 characters or less.</string>
-    <string name="error_empty_message">Please enter a message.</string>
-    <string name="error_message_too_long">Message must be 1000 characters or less.</string>
+    <string name="error_name_too_long">Името трябва да е до 100 символа.</string>
+    <string name="error_empty_message">Моля, въведете съобщение.</string>
+    <string name="error_message_too_long">Съобщението трябва да е до 1000 символа.</string>
 
     <!-- Content Descriptions -->
-    <string name="cd_app_logo">TravellBuddy logo</string>
-    <string name="cd_profile_photo">Profile photo</string>
-    <string name="cd_send_message">Send message</string>
-    <string name="cd_back">Go back</string>
-    <string name="cd_filter">Filter adventures</string>
-    <string name="cd_add_trip">Create a new adventure</string>
+    <string name="cd_app_logo">Лого на TravellBuddy</string>
+    <string name="cd_profile_photo">Профилна снимка</string>
+    <string name="cd_send_message">Изпрати съобщение</string>
+    <string name="cd_back">Назад</string>
+    <string name="cd_filter">Филтриране на приключения</string>
+    <string name="cd_add_trip">Създай ново приключение</string>
 
     <!-- Difficulty options (also used as chip text) -->
-    <string name="luggage_small">Easy</string>
-    <string name="luggage_medium">Moderate</string>
-    <string name="luggage_large">Challenging</string>
+    <string name="luggage_small">Лесно</string>
+    <string name="luggage_medium">Умерено</string>
+    <string name="luggage_large">Предизвикателно</string>
 
     <!-- My Adventures -->
-    <string name="label_as_driver">Organized</string>
-    <string name="label_as_rider">Joined</string>
-    <string name="label_no_driver_trips">You haven\'t organized any adventures yet</string>
-    <string name="label_no_rider_trips">You haven\'t joined any adventures yet</string>
-    <string name="tab_joined">Joined</string>
-    <string name="tab_hosted">Hosted</string>
-    <string name="tab_saved">Saved</string>
-    <string name="tab_complete">Complete</string>
-    <string name="tab_favorites">Favorites</string>
-    <string name="tab_upcoming">Upcoming</string>
-    <string name="tab_ongoing">Ongoing</string>
-    <string name="tab_completed">Completed</string>
-    <string name="status_upcoming">UPCOMING</string>
-    <string name="status_completed">COMPLETED</string>
-    <string name="status_ongoing">ONGOING</string>
-    <string name="label_no_saved_trips">You haven\'t saved any adventures yet</string>
-    <string name="label_no_completed_trips">You don\'t have any completed adventures yet</string>
-    <string name="label_no_upcoming_trips">No upcoming adventures</string>
-    <string name="label_no_ongoing_trips">No ongoing adventures</string>
-    <string name="role_hosted">HOSTED</string>
-    <string name="role_hosted_by_you">HOSTED BY YOU</string>
-    <string name="role_joined">JOINED</string>
+    <string name="label_as_driver">Организирани</string>
+    <string name="label_as_rider">Присъединени</string>
+    <string name="label_no_driver_trips">Все още не сте организирали приключения</string>
+    <string name="label_no_rider_trips">Все още не сте се присъединили към приключения</string>
+    <string name="tab_joined">Присъединени</string>
+    <string name="tab_hosted">Организирани</string>
+    <string name="tab_saved">Запазени</string>
+    <string name="tab_complete">Завършени</string>
+    <string name="tab_favorites">Любими</string>
+    <string name="tab_upcoming">Предстоящи</string>
+    <string name="tab_ongoing">В момента</string>
+    <string name="tab_completed">Завършени</string>
+    <string name="status_upcoming">ПРЕДСТОЯЩО</string>
+    <string name="status_completed">ЗАВЪРШЕНО</string>
+    <string name="status_ongoing">В МОМЕНТА</string>
+    <string name="label_no_saved_trips">Все още не сте запазили приключения</string>
+    <string name="label_no_completed_trips">Все още нямате завършени приключения</string>
+    <string name="label_no_upcoming_trips">Няма предстоящи приключения</string>
+    <string name="label_no_ongoing_trips">Няма текущи приключения</string>
+    <string name="role_hosted">ОРГАНИЗИРАНО</string>
+    <string name="role_hosted_by_you">ОРГАНИЗИРАНО ОТ ВАС</string>
+    <string name="role_joined">ПРИСЪЕДИНЕНО</string>
 
     <!-- Filter -->
-    <string name="title_filter">Filter Adventures</string>
-    <string name="btn_apply_filter">Apply</string>
-    <string name="btn_clear_filter">Clear</string>
-    <string name="hint_min_price">Min price</string>
-    <string name="hint_max_price">Max price</string>
+    <string name="title_filter">Филтриране на приключения</string>
+    <string name="btn_apply_filter">Приложи</string>
+    <string name="btn_clear_filter">Изчисти</string>
+    <string name="hint_min_price">Мин. цена</string>
+    <string name="hint_max_price">Макс. цена</string>
 
     <!-- Adventure Card UI -->
-    <string name="label_free">Free</string>
-    <string name="label_price_format">$%1$.2f</string>
-    <string name="label_seats_short">%1$d / %2$d spots</string>
+    <string name="label_free">Безплатно</string>
+    <string name="label_price_format">%1$.2f лв.</string>
+    <string name="label_seats_short">%1$d / %2$d места</string>
     <string name="label_route_arrow">→</string>
-    <string name="label_today">Today</string>
-    <string name="label_tomorrow">Tomorrow</string>
+    <string name="label_today">Днес</string>
+    <string name="label_tomorrow">Утре</string>
 
     <!-- Premium UI Labels -->
-    <string name="label_welcome_back">Welcome back,</string>
-    <string name="label_find_ride">Find your next adventure</string>
-    <string name="label_popular_routes">Trending Adventures</string>
-    <string name="label_recent_trips">Recent Adventures</string>
-    <string name="label_your_trips">Your Adventures</string>
-    <string name="label_trip_info">Adventure Information</string>
-    <string name="label_passengers">Participants</string>
-    <string name="label_about_driver">About the Organizer</string>
-    <string name="label_trip_route">Adventure Route</string>
-    <string name="label_member_since">Member since %1$s</string>
-    <string name="label_verified_driver">Verified Organizer</string>
+    <string name="label_welcome_back">Добре дошли отново,</string>
+    <string name="label_find_ride">Намерете следващото си приключение</string>
+    <string name="label_popular_routes">Популярни приключения</string>
+    <string name="label_recent_trips">Скорошни приключения</string>
+    <string name="label_your_trips">Вашите приключения</string>
+    <string name="label_trip_info">Информация за приключението</string>
+    <string name="label_passengers">Участници</string>
+    <string name="label_about_driver">За организатора</string>
+    <string name="label_trip_route">Маршрут на приключението</string>
+    <string name="label_member_since">Член от %1$s</string>
+    <string name="label_verified_driver">Потвърден организатор</string>
 
     <!-- Spot Counter -->
-    <string name="cd_seat_filled">Occupied spot</string>
-    <string name="cd_seat_empty">Available spot</string>
+    <string name="cd_seat_filled">Заето място</string>
+    <string name="cd_seat_empty">Свободно място</string>
 
     <!-- Chat UI -->
-    <string name="label_online">Online</string>
-    <string name="label_offline">Offline</string>
-    <string name="label_typing">Typing…</string>
-    <string name="label_just_now">Just now</string>
+    <string name="label_online">Онлайн</string>
+    <string name="label_offline">Офлайн</string>
+    <string name="label_typing">Пише…</string>
+    <string name="label_just_now">Току-що</string>
 
     <!-- Bottom Sheet / Map -->
-    <string name="label_estimated_time">Est. %1$s</string>
-    <string name="label_distance">%1$.1f km</string>
-    <string name="label_pickup">Meeting Point</string>
-    <string name="label_dropoff">Destination</string>
+    <string name="label_estimated_time">Прибл. %1$s</string>
+    <string name="label_distance">%1$.1f км</string>
+    <string name="label_pickup">Място на среща</string>
+    <string name="label_dropoff">Дестинация</string>
 
     <!-- Content Descriptions (new) -->
-    <string name="cd_route_indicator">Route from start to destination</string>
-    <string name="cd_seats_available">Spots available indicator</string>
-    <string name="cd_star_rating">Star rating %1$.1f out of 5</string>
-    <string name="cd_status_badge">Request status: %1$s</string>
-    <string name="cd_price_badge">Price per spot</string>
-    <string name="cd_date_chip">Adventure date and time</string>
-    <string name="cd_avatar">User avatar for %1$s</string>
-    <string name="cd_drag_handle">Drag to expand or collapse</string>
-    <string name="cd_search">Search for adventures</string>
-    <string name="cd_notifications">View notifications</string>
-    <string name="cd_close">Close</string>
+    <string name="cd_route_indicator">Маршрут от начало до дестинация</string>
+    <string name="cd_seats_available">Индикатор за свободни места</string>
+    <string name="cd_star_rating">Оценка %1$.1f от 5 звезди</string>
+    <string name="cd_status_badge">Статус на заявка: %1$s</string>
+    <string name="cd_price_badge">Цена на място</string>
+    <string name="cd_date_chip">Дата и час на приключението</string>
+    <string name="cd_avatar">Аватар на %1$s</string>
+    <string name="cd_drag_handle">Плъзнете за разширяване или свиване</string>
+    <string name="cd_search">Търсене на приключения</string>
+    <string name="cd_notifications">Преглед на известията</string>
+    <string name="cd_close">Затвори</string>
 
     <!-- Notifications -->
-    <string name="notification_channel_name">TravellBuddy Alerts</string>
-    <string name="notification_channel_description">Adventure updates, requests, and messages</string>
-    <string name="msg_notification_fallback">You have a new update</string>
+    <string name="notification_channel_name">Известия от TravellBuddy</string>
+    <string name="notification_channel_description">Актуализации за приключения, заявки и съобщения</string>
+    <string name="msg_notification_fallback">Имате ново известие</string>
 
     <!-- API Keys -->
     <string name="google_maps_api_key">YOUR_GOOGLE_MAPS_API_KEY</string>
 
     <!-- Map Picker Buttons -->
-    <string name="btn_pick_origin_map">Pick location on map</string>
-    <string name="btn_pick_destination_map">Pick destination on map</string>
+    <string name="btn_pick_origin_map">Изберете местоположение на карта</string>
+    <string name="btn_pick_destination_map">Изберете дестинация на карта</string>
 
     <!-- Home Dashboard (redesign) -->
-    <string name="label_greeting_morning">Good Morning 🌅</string>
-    <string name="label_greeting_afternoon">Good Afternoon ☀️</string>
-    <string name="label_greeting_evening">Good Evening 🌙</string>
-    <string name="label_ready_explore">Ready to explore something new?</string>
-    <string name="label_quick_actions">Quick Actions</string>
-    <string name="label_browse">Browse</string>
-    <string name="label_create">Create</string>
-    <string name="label_my_trips_short">My Trips</string>
-    <string name="label_nearby">Nearby</string>
+    <string name="label_greeting_morning">Добро утро 🌅</string>
+    <string name="label_greeting_afternoon">Добър ден ☀️</string>
+    <string name="label_greeting_evening">Добър вечер 🌙</string>
+    <string name="label_ready_explore">Готови ли сте да изследвате нещо ново?</string>
+    <string name="label_quick_actions">Бързи действия</string>
+    <string name="label_browse">Разгледай</string>
+    <string name="label_create">Създай</string>
+    <string name="label_my_trips_short">Моите пътувания</string>
+    <string name="label_nearby">Наблизо</string>
 
     <!-- Create Adventure (redesign) -->
-    <string name="label_section_where">📍 Where</string>
-    <string name="label_section_when">📅 When</string>
-    <string name="label_section_details">📝 Details</string>
-    <string name="label_section_preferences">⚙️ Preferences</string>
-    <string name="label_create_hero_title">Plan Your\nNext Adventure</string>
-    <string name="label_create_hero_subtitle">Fill in the details below to create an amazing adventure for others to join</string>
+    <string name="label_section_where">📍 Къде</string>
+    <string name="label_section_when">📅 Кога</string>
+    <string name="label_section_details">📝 Детайли</string>
+    <string name="label_section_preferences">⚙️ Предпочитания</string>
+    <string name="label_create_hero_title">Планирайте следващото\nси приключение</string>
+    <string name="label_create_hero_subtitle">Попълнете детайлите по-долу, за да създадете невероятно приключение, към което другите да се присъединят</string>
 
     <!-- My Trips (redesign) -->
-    <string name="label_trips_summary">Adventure Summary</string>
-    <string name="label_organized_count">Organized</string>
-    <string name="label_joined_count">Joined</string>
-    <string name="label_upcoming_count">Upcoming</string>
-    <string name="label_no_trips_yet">No adventures yet</string>
-    <string name="label_no_trips_yet_desc">Start exploring or create your first adventure!</string>
+    <string name="label_trips_summary">Резюме на приключенията</string>
+    <string name="label_organized_count">Организирани</string>
+    <string name="label_joined_count">%1$d/%2$d участници</string>
+    <string name="label_upcoming_count">Предстоящи</string>
+    <string name="label_no_trips_yet">Все още няма приключения</string>
+    <string name="label_no_trips_yet_desc">Започнете да изследвате или създайте първото си приключение!</string>
 
     <!-- Profile Screen -->
-    <string name="label_joined">JOINED</string>
-    <string name="label_hosted">HOSTED</string>
-    <string name="label_rating">RATING</string>
-    <string name="label_interests">Interests</string>
-    <string name="label_add_interest">+ Add</string>
-    <string name="label_my_adventures">My Adventures</string>
-    <string name="cd_profile_cover">Profile cover photo</string>
-    <string name="cd_settings_button">Settings</string>
-    <string name="cd_change_profile_photo">Change profile photo</string>
-    <string name="cd_change_cover_photo">Change cover photo</string>
-    <string name="placeholder_location">Add your location</string>
-    <string name="placeholder_bio">Share something about yourself and your travel interests…</string>
-    <string name="interest_hiking">Hiking</string>
-    <string name="interest_photography">Photography</string>
-    <string name="interest_europe_trips">Europe Trips</string>
-    <string name="interest_camping">Camping</string>
-    <string name="interest_coffee">Coffee</string>
+    <string name="label_joined">ПРИСЪЕДИНЕНИ</string>
+    <string name="label_hosted">ОРГАНИЗИРАНИ</string>
+    <string name="label_rating">ОЦЕНКА</string>
+    <string name="label_interests">Интереси</string>
+    <string name="label_add_interest">+ Добави</string>
+    <string name="label_my_adventures">Моите приключения</string>
+    <string name="cd_profile_cover">Корица на профила</string>
+    <string name="cd_settings_button">Настройки</string>
+    <string name="cd_change_profile_photo">Смяна на профилна снимка</string>
+    <string name="cd_change_cover_photo">Смяна на корица</string>
+    <string name="placeholder_location">Добавете местоположение</string>
+    <string name="placeholder_bio">Споделете нещо за себе си и интересите си за пътуване…</string>
+    <string name="interest_hiking">Походи</string>
+    <string name="interest_photography">Фотография</string>
+    <string name="interest_europe_trips">Пътувания в Европа</string>
+    <string name="interest_camping">Къмпинг</string>
+    <string name="interest_coffee">Кафе</string>
 
     <!-- Photo upload -->
-    <string name="uploading_photo">Uploading photo…</string>
-    <string name="upload_in_progress">Upload in progress, please wait…</string>
-    <string name="photo_updated">Profile photo updated!</string>
-    <string name="cover_photo_updated">Cover photo updated!</string>
-    <string name="error_photo_upload_failed">Failed to upload photo. Please try again.</string>
-    <string name="error_photo_update_failed">Failed to update photo. Please try again.</string>
+    <string name="uploading_photo">Качване на снимка…</string>
+    <string name="upload_in_progress">Качването е в ход, моля изчакайте…</string>
+    <string name="photo_updated">Профилната снимка е актуализирана!</string>
+    <string name="cover_photo_updated">Корицата е актуализирана!</string>
+    <string name="error_photo_upload_failed">Неуспешно качване на снимка. Моля, опитайте отново.</string>
+    <string name="error_photo_update_failed">Неуспешна актуализация на снимка. Моля, опитайте отново.</string>
 
     <!-- Notifications Screen -->
-    <string name="title_notifications">Notifications</string>
-    <string name="empty_notifications">No notifications yet</string>
-    <string name="empty_notifications_hint">When you receive updates about adventures,\nrequests, and messages, they\'ll appear here.</string>
+    <string name="title_notifications">Известия</string>
+    <string name="empty_notifications">Все още няма известия</string>
+    <string name="empty_notifications_hint">Когато получите актуализации за приключения,\nзаявки и съобщения, те ще се появят тук.</string>
 
     <!-- Profile Reviews Bottom Sheet -->
-    <string name="title_reviews_for">Reviews for %1$s</string>
-    <string name="filter_all">All</string>
+    <string name="title_reviews_for">Отзиви за %1$s</string>
+    <string name="filter_all">Всички</string>
     <string name="filter_5_star">5 ★</string>
     <string name="filter_4_star">4 ★</string>
     <string name="filter_3_star">3 ★</string>
     <string name="filter_2_star">2 ★</string>
     <string name="filter_1_star">1 ★</string>
-    <string name="empty_reviews_title">No reviews yet</string>
-    <string name="empty_reviews_subtitle">This user has not received any reviews yet.</string>
-    <string name="empty_reviews_filtered">No %1$d-star reviews yet</string>
-    <string name="trip_tag_format">Trip: %1$s</string>
-    <string name="no_written_comment">No written comment</string>
-    <string name="reviews_count_format">Reviews (%1$d)</string>
-    <string name="reviews_count_parentheses">(%1$d reviews)</string>
-    <string name="label_see_all">See all</string>
-    <string name="label_no_reviews_yet">No reviews yet</string>
+    <string name="empty_reviews_title">Все още няма отзиви</string>
+    <string name="empty_reviews_subtitle">Този потребител все още не е получил отзиви.</string>
+    <string name="empty_reviews_filtered">Все още няма отзиви с %1$d звезди</string>
+    <string name="trip_tag_format">Пътуване: %1$s</string>
+    <string name="no_written_comment">Без писмен коментар</string>
+    <string name="reviews_count_format">Отзиви (%1$d)</string>
+    <string name="reviews_count_parentheses">(%1$d отзива)</string>
+    <string name="label_see_all">Виж всички</string>
+    <string name="label_no_reviews_yet">Все още няма отзиви</string>
+
+    <!-- Additional strings for hardcoded text in layouts -->
+    <string name="settings_account_details">ДЕТАЙЛИ ЗА ПРОФИЛА</string>
+    <string name="settings_personal_info">Лична информация</string>
+    <string name="settings_password_security">Парола и сигурност</string>
+    <string name="settings_admin">АДМИНИСТРАТОР</string>
+    <string name="settings_admin_portal">Администраторски портал</string>
+    <string name="settings_debug">ТЕСТВАНЕ</string>
+    <string name="settings_create_test_trips">Създаване на тестови пътувания (Текущи + Завършени)</string>
+    <string name="settings_support_legal">ПОДДРЪЖКА И ПРАВНА ИНФОРМАЦИЯ</string>
+    <string name="settings_help_center">Помощен център</string>
+    <string name="settings_terms_of_service">Условия за ползване</string>
+    <string name="settings_privacy_policy">Политика за поверителност</string>
+    <string name="settings_version">TravellBuddy v1.0.0</string>
+
+    <!-- Dialog strings -->
+    <string name="dialog_complete_adventure_title">Завършване на приключение</string>
+    <string name="dialog_complete_adventure_message">Сигурни ли сте, че искате да маркирате това приключение като завършено? То ще бъде преместено към минали пътувания.</string>
+    <string name="dialog_complete_adventure_confirm">Да, завърши</string>
+    <string name="dialog_delete_adventure_title">Изтриване на приключение</string>
+    <string name="dialog_delete_adventure_message">Сигурни ли сте, че искате да изтриете това приключение? Това действие е необратимо.</string>
+    <string name="dialog_delete_confirm">Да, изтрий</string>
+    <string name="dialog_logout_message">Сигурни ли сте, че искате да излезете от профила си?</string>
+    <string name="dialog_logout_confirm">Да, излез</string>
+
+    <!-- Notification actions -->
+    <string name="btn_accept">Приеми</string>
+    <string name="btn_decline">Откажи</string>
+
+    <!-- Trip details additional -->
+    <string name="label_dates_section">ДАТИ</string>
+    <string name="label_budget_section">БЮДЖЕТ</string>
+    <string name="label_hosted_badge">ОРГАНИЗИРАНО</string>
+    <string name="label_spots_left_badge">ОСТАВАТ %1$d МЕСТА</string>
+    <string name="label_trips_hosted_count">• %1$d организирани пътувания</string>
+    <string name="label_participants_count">Участници (%1$d/%2$d)</string>
+    <string name="label_delete_adventure">Изтрий приключението</string>
+
+    <!-- Edit profile -->
+    <string name="label_change_profile_photo">Смяна на профилната снимка</string>
+    <string name="label_name_section">ИМЕ</string>
+    <string name="label_bio_section">БИОГРАФИЯ</string>
+    <string name="hint_bio_edit">Разкажете ни за себе си...</string>
+    <string name="btn_save_changes">Запази промените</string>
+
+    <!-- User profile -->
+    <string name="btn_message">Съобщение</string>
+    <string name="label_recent_adventures">Скорошни приключения</string>
+
+    <!-- Home feed -->
+    <string name="label_ready_for_trip">Готови за пътуване?</string>
+    <string name="label_your_adventures">Вашите приключения</string>
+    <string name="btn_manage">Управление</string>
+    <string name="label_explore_offers">Разгледайте офертите</string>
+    <string name="hint_search_destinations">Търсене на дестинации...</string>
+
+    <!-- Additional Bulgarian strings -->
+    <string name="label_dates_tbd">Дати предстоят</string>
+    <string name="label_spot_left_badge">ОСТАВА %1$d МЯСТО</string>
+    <string name="label_full">ПЪЛНО</string>
+    <string name="label_no_description">Няма описание.</string>
+    <string name="label_host_you_suffix"> (Вие)</string>
+    <string name="label_about_this_adventure">За това приключение</string>
+    <string name="label_hosted_by_text">Организатор</string>
+    <string name="label_dates_text">ДАТИ</string>
+    <string name="label_budget_text">БЮДЖЕТ</string>
+    <string name="btn_delete_adventure">Изтрий приключението</string>
+    <string name="btn_join_with_spots">Присъедини се (%1$d свободни места)</string>
+    <string name="cd_delete">Изтрий</string>
+
+    <!-- Notification messages -->
+    <string name="notif_title_approved">Заявката е одобрена!</string>
+    <string name="notif_title_declined">Заявката е отхвърлена</string>
+    <string name="notif_message_approved">Вашата заявка за присъединяване към %1$s беше одобрена!</string>
+    <string name="notif_message_declined">Вашата заявка за присъединяване към %1$s беше отхвърлена.</string>
+    <string name="label_the_trip">пътуването</string>
+    <string name="notif_join_request">%1$s иска да се присъедини към вашето приключение %2$s.</string>
+    <string name="notif_new_message">%1$s ви изпрати съобщение.</string>
+    <string name="notif_trip_update">%1$s беше актуализирано.</string>
+    <string name="notif_new_notification">Ново известие</string>
+    <string name="label_someone">Някой</string>
+    <string name="label_a_trip">приключение</string>
+
+    <!-- Activity titles for trip generation (Bulgarian) -->
+    <string name="activity_label_hiking">Поход</string>
+    <string name="activity_label_camping">Къмпинг</string>
+    <string name="activity_label_road_trip">Пътуване с кола</string>
+    <string name="activity_label_city_explore">Разглеждане на град</string>
+    <string name="activity_label_festival">Фестивал</string>
+    <string name="activity_label_photography">Фото пътуване</string>
+    <string name="activity_label_outdoor_sports">Спорт на открито</string>
+    <string name="activity_label_backpacking">Бекпекинг</string>
+    <string name="activity_label_weekend">Уикенд почивка</string>
+    <string name="activity_label_adventure">Приключение</string>
+
+    <!-- Prepositions for trip generation -->
+    <string name="preposition_in">в</string>
+    <string name="preposition_to">до</string>
+    <string name="preposition_through">през</string>
+    <string name="activity_adventure_in">Приключение в %1$s</string>
+
+    <!-- Rating -->
+    <string name="error_can_only_rate_completed">Можете да оценявате само завършени пътувания</string>
+
+    <!-- Activity type labels for details screen -->
+    <string name="activity_type_road_trip">ПЪТУВАНЕ С КОЛА</string>
+    <string name="activity_type_hiking">ПОХОД</string>
+    <string name="activity_type_beach">ПЛАЖ</string>
+    <string name="activity_type_city_break">УИКЕНД В ГРАД</string>
+    <string name="activity_type_camping">КЪМПИНГ</string>
+    <string name="activity_type_festival">ФЕСТИВАЛ</string>
+    <string name="activity_type_city_explore">РАЗГЛЕЖДАНЕ НА ГРАД</string>
+    <string name="activity_type_photography">ФОТОГРАФИЯ</string>
+    <string name="activity_type_outdoor_sports">СПОРТ НА ОТКРИТО</string>
+    <string name="activity_type_backpacking">БЕКПЕКИНГ</string>
+    <string name="activity_type_weekend">УИКЕНД</string>
+    <string name="activity_type_adventure">ПРИКЛЮЧЕНИЕ</string>
+
+    <!-- Budget labels -->
+    <string name="budget_label_free">Безплатно</string>
+    <string name="budget_label_budget">$ Бюджетно</string>
+    <string name="budget_label_moderate">$$ Умерено</string>
+    <string name="budget_label_premium">$$$ Премиум</string>
+
+    <!-- Time-based greetings -->
+    <string name="greeting_morning">Добро утро</string>
+    <string name="greeting_afternoon">Добър ден</string>
+    <string name="greeting_evening">Добър вечер</string>
+    <string name="greeting_night">Лека нощ</string>
+
+    <!-- Host trips count -->
+    <string name="label_host_trips_count_one">• 1 организирано пътуване</string>
+    <string name="label_host_trips_count">• %1$d организирани пътувания</string>
+    <string name="label_host_trips_zero">• 0 организирани пътувания</string>
+
+    <!-- Chat -->
+    <string name="label_group_chat_prefix">Група: %1$s</string>
+    <string name="label_direct_message">Лично съобщение</string>
+    <string name="label_direct_message_type">ЛИЧНО СЪОБЩЕНИЕ</string>
+    <string name="label_no_messages_yet">Все още няма съобщения</string>
+    <string name="label_adventure_default">Приключение</string>
+    <string name="label_trip_suffix">ПЪТУВАНЕ</string>
+    <string name="label_adventure_uppercase">ПРИКЛЮЧЕНИЕ</string>
+    <string name="label_yesterday">Вчера</string>
+
+    <!-- Chat activity labels -->
+    <string name="chat_activity_hiking">Поход</string>
+    <string name="chat_activity_camping">Къмпинг</string>
+    <string name="chat_activity_road_trip">Пътуване с кола</string>
+    <string name="chat_activity_city_explore">Уикенд в град</string>
+    <string name="chat_activity_festival">Фестивал</string>
+    <string name="chat_activity_photography">Фотография</string>
+    <string name="chat_activity_outdoor_sports">Спорт</string>
+    <string name="chat_activity_backpacking">Бекпекинг</string>
+    <string name="chat_activity_weekend">Уикенд</string>
+
+    <!-- Rating errors -->
+    <string name="error_rate_completed_only">Можете да оценявате само завършени пътувания</string>
+    <string name="error_rate_own_trip">Не можете да оценявате собственото си пътуване</string>
+    <string name="error_already_rated_trip">Вече сте оценили това пътуване</string>
+    <string name="label_host_default">Организатор</string>
+
+    <!-- Validation messages (extra) -->
+    <string name="error_add_description">Моля, добавете описание</string>
+    <string name="error_add_cover_photo">Моля, добавете снимка за приключението</string>
+    <string name="error_enter_title">Моля, въведете заглавие</string>
+    <string name="error_enter_group_size">Моля, въведете размер на групата</string>
+    <string name="error_enter_budget">Моля, въведете бюджет</string>
+    <string name="label_organizer_default">Организатор</string>
+
+    <!-- Activity type dropdown labels -->
+    <string name="activity_dropdown_road_trip">Пътуване с кола</string>
+    <string name="activity_dropdown_hiking">Поход</string>
+    <string name="activity_dropdown_beach">Плаж</string>
+    <string name="activity_dropdown_city_break">Уикенд в град</string>
+    <string name="activity_dropdown_camping">Къмпинг</string>
+    <string name="activity_dropdown_festival">Фестивал</string>
+    <string name="activity_dropdown_other">Друго...</string>
+
+    <!-- Dialog strings (additional) -->
+    <string name="dialog_logout_title">Изход</string>
+    <string name="dialog_cancel">Отказ</string>
+
+    <!-- Reviews -->
+    <string name="label_reviews_title">Отзиви (%1$d)</string>
+    <string name="label_reviews_count">(%1$d отзиви)</string>
+    <string name="label_reviews_count_one">(%1$d отзив)</string>
 </resources>

@@ -250,12 +250,12 @@ public class ChatListFragment extends Fragment {
         if (chatData.chatName != null && !chatData.chatName.isEmpty()) {
             item.displayName = chatData.chatName;
         } else {
-            item.displayName = "Direct Message";
+            item.displayName = getString(R.string.label_direct_message);
         }
 
-        item.tripType = "DIRECT MESSAGE";
+        item.tripType = getString(R.string.label_direct_message_type);
         item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty()
-            ? chatData.lastMessage : "No messages yet";
+            ? chatData.lastMessage : getString(R.string.label_no_messages_yet);
         item.lastMessageTime = chatData.lastMessageTime != null ? chatData.lastMessageTime : System.currentTimeMillis();
         item.lastMessageSenderId = chatData.lastMessageSenderId;
         item.unreadCount = 0;
@@ -320,15 +320,15 @@ public class ChatListFragment extends Fragment {
                             item.isDirectMessage = false;
 
                             if (chatData.chatName != null && !chatData.chatName.isEmpty()) {
-                                item.displayName = "Group: " + chatData.chatName;
+                                item.displayName = getString(R.string.label_group_chat_prefix, chatData.chatName);
                             } else {
-                                item.displayName = "Group: " + generateTripTitle(trip);
+                                item.displayName = getString(R.string.label_group_chat_prefix, generateTripTitle(trip));
                             }
 
                             item.tripType = generateTripTypeLabel(trip);
                             item.avatarUrl = trip.imageUrl;
                             item.lastMessage = chatData.lastMessage != null && !chatData.lastMessage.isEmpty()
-                                ? chatData.lastMessage : "No messages yet";
+                                ? chatData.lastMessage : getString(R.string.label_no_messages);
                             item.lastMessageTime = chatData.lastMessageTime != null ? chatData.lastMessageTime : trip.createdAt;
                             item.lastMessageSenderId = chatData.lastMessageSenderId;
                             item.unreadCount = 0;
@@ -526,9 +526,9 @@ public class ChatListFragment extends Fragment {
                         item.isOrganizer = isOrganizer;
 
                         if (isOrganizer) {
-                            item.displayName = "Group: " + generateTripTitle(trip);
+                            item.displayName = getString(R.string.label_group_chat_prefix, generateTripTitle(trip));
                         } else {
-                            item.displayName = trip.driverName != null ? trip.driverName : "Unknown";
+                            item.displayName = trip.driverName != null ? trip.driverName : getString(R.string.label_someone);
                         }
 
                         item.tripType = generateTripTypeLabel(trip);
@@ -557,12 +557,12 @@ public class ChatListFragment extends Fragment {
                                     item.lastMessage = latestText;
                                 }
                             } else {
-                                item.lastMessage = "No messages yet";
+                                item.lastMessage = getString(R.string.label_no_messages_yet);
                             }
                             item.lastMessageTime = latestTimestamp;
                             item.lastMessageSenderId = latestSenderId;
                         } else {
-                            item.lastMessage = "No messages yet";
+                            item.lastMessage = getString(R.string.label_no_messages_yet);
                             item.lastMessageTime = trip.createdAt;
                             item.lastMessageSenderId = null;
                         }
@@ -589,7 +589,7 @@ public class ChatListFragment extends Fragment {
             return trip.carModel;
         }
         // Fallback to destination if no title
-        return trip.destinationCity != null ? trip.destinationCity : "Adventure";
+        return trip.destinationCity != null ? trip.destinationCity : getString(R.string.label_adventure_default);
     }
 
     private String generateTripTypeLabel(Trip trip) {
@@ -601,23 +601,23 @@ public class ChatListFragment extends Fragment {
         } else if (activityLabel != null) {
             return activityLabel.toUpperCase();
         } else if (!destination.isEmpty()) {
-            return destination.toUpperCase() + " TRIP";
+            return destination.toUpperCase() + " " + getString(R.string.label_trip_suffix);
         }
-        return "ADVENTURE";
+        return getString(R.string.label_adventure_uppercase);
     }
 
     private String getActivityLabel(String activityType) {
         if (activityType == null) return null;
         switch (activityType) {
-            case "hiking": return "Hiking";
-            case "camping": return "Camping";
-            case "road_trip": return "Road Trip";
-            case "city_explore": return "City Break";
-            case "festival": return "Festival Trip";
-            case "photography": return "Photography";
-            case "outdoor_sports": return "Sports";
-            case "backpacking": return "Backpacking";
-            case "weekend": return "Weekend";
+            case "hiking": return getString(R.string.chat_activity_hiking);
+            case "camping": return getString(R.string.chat_activity_camping);
+            case "road_trip": return getString(R.string.chat_activity_road_trip);
+            case "city_explore": return getString(R.string.chat_activity_city_explore);
+            case "festival": return getString(R.string.chat_activity_festival);
+            case "photography": return getString(R.string.chat_activity_photography);
+            case "outdoor_sports": return getString(R.string.chat_activity_outdoor_sports);
+            case "backpacking": return getString(R.string.chat_activity_backpacking);
+            case "weekend": return getString(R.string.chat_activity_weekend);
             default: return null;
         }
     }
@@ -766,7 +766,7 @@ public class ChatListFragment extends Fragment {
                 yesterday.add(Calendar.DAY_OF_YEAR, -1);
                 if (yesterday.get(Calendar.YEAR) == messageTime.get(Calendar.YEAR) &&
                     yesterday.get(Calendar.DAY_OF_YEAR) == messageTime.get(Calendar.DAY_OF_YEAR)) {
-                    return "Yesterday";
+                    return getString(R.string.label_yesterday);
                 }
 
                 if (now.get(Calendar.WEEK_OF_YEAR) == messageTime.get(Calendar.WEEK_OF_YEAR) &&

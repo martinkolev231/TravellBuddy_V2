@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,7 +29,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class TripDetailsActivity extends AppCompatActivity {
+public class TripDetailsActivity extends BaseActivity {
 
     public static final String EXTRA_TRIP_ID = "trip_id";
     public static final String RESULT_TRIP_DELETED = "trip_deleted";
@@ -150,9 +149,9 @@ public class TripDetailsActivity extends AppCompatActivity {
             // Spots left badge for non-hosts
             int spotsLeft = currentTrip.availableSeats;
             if (spotsLeft == 1) {
-                binding.tvSpotsLeft.setText("1 SPOT LEFT");
+                binding.tvSpotsLeft.setText(getString(R.string.label_spot_left_badge, spotsLeft));
             } else {
-                binding.tvSpotsLeft.setText(spotsLeft + " SPOTS LEFT");
+                binding.tvSpotsLeft.setText(getString(R.string.label_spots_left_badge, spotsLeft));
             }
             binding.tvSpotsLeft.setVisibility(spotsLeft > 0 ? View.VISIBLE : View.GONE);
         }
@@ -166,10 +165,10 @@ public class TripDetailsActivity extends AppCompatActivity {
         // Location
         binding.tvLocation.setText(currentTrip.destinationCity);
 
-        // Dates - Display in compact format like "Apr 28 - 30" (same month) or "Apr 28 - May 2"
+        // Dates - Display in compact format like "28 апр - 30" (same month) or "28 апр - 2 май"
         if (currentTrip.departureTime > 0 && currentTrip.estimatedArrivalTime > 0) {
-            DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("MMM d", Locale.ENGLISH);
-            DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", Locale.ENGLISH);
+            DateTimeFormatter monthDayFormatter = DateTimeFormatter.ofPattern("d MMM", new Locale("bg"));
+            DateTimeFormatter dayOnlyFormatter = DateTimeFormatter.ofPattern("d", new Locale("bg"));
             LocalDateTime startDate = LocalDateTime.ofInstant(
                     Instant.ofEpochMilli(currentTrip.departureTime), ZoneId.systemDefault());
             LocalDateTime endDate = LocalDateTime.ofInstant(
@@ -185,25 +184,25 @@ public class TripDetailsActivity extends AppCompatActivity {
             }
             binding.tvDates.setText(dateRange);
         } else {
-            binding.tvDates.setText("Dates TBD");
+            binding.tvDates.setText(getString(R.string.label_dates_tbd));
         }
 
         // Budget - Display as €amount format
         if (currentTrip.pricePerSeat > 0) {
             binding.tvBudget.setText(String.format(Locale.getDefault(), "€%.0f", currentTrip.pricePerSeat));
         } else {
-            binding.tvBudget.setText("Free");
+            binding.tvBudget.setText(getString(R.string.label_free));
         }
 
         // Description
         String description = currentTrip.description != null && !currentTrip.description.isEmpty()
                 ? currentTrip.description
-                : "No description provided.";
+                : getString(R.string.label_no_description);
         binding.tvDescription.setText(description);
 
-        // Host info - Show "(You)" if current user is the host
+        // Host info - Show "(Вие)" if current user is the host
         if (isHost) {
-            binding.tvHostName.setText(currentTrip.driverName + " (You)");
+            binding.tvHostName.setText(currentTrip.driverName + getString(R.string.label_host_you_suffix));
         } else {
             binding.tvHostName.setText(currentTrip.driverName);
         }
@@ -244,7 +243,7 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         // Participants
         int totalParticipants = currentTrip.totalSeats - currentTrip.availableSeats;
-        binding.tvParticipantsTitle.setText(String.format("Participants (%d/%d)", totalParticipants, currentTrip.totalSeats));
+        binding.tvParticipantsTitle.setText(getString(R.string.label_participants_count, totalParticipants, currentTrip.totalSeats));
 
         // Load participant avatars
         loadParticipantAvatars();
@@ -405,28 +404,28 @@ public class TripDetailsActivity extends AppCompatActivity {
     }
 
     private String formatActivityType(String type) {
-        if (type == null) return "Adventure";
+        if (type == null) return getString(R.string.activity_type_adventure);
         switch (type) {
-            case "road_trip": return "Road Trip";
-            case "hiking": return "Hiking";
-            case "beach": return "Beach";
-            case "city_break": return "City Break";
-            case "camping": return "Camping";
-            case "festival": return "Festival";
-            case "city_explore": return "City Explore";
-            case "photography": return "Photography";
-            case "outdoor_sports": return "Outdoor Sports";
-            case "backpacking": return "Backpacking";
-            case "weekend": return "Weekend";
+            case "road_trip": return getString(R.string.activity_type_road_trip);
+            case "hiking": return getString(R.string.activity_type_hiking);
+            case "beach": return getString(R.string.activity_type_beach);
+            case "city_break": return getString(R.string.activity_type_city_break);
+            case "camping": return getString(R.string.activity_type_camping);
+            case "festival": return getString(R.string.activity_type_festival);
+            case "city_explore": return getString(R.string.activity_type_city_explore);
+            case "photography": return getString(R.string.activity_type_photography);
+            case "outdoor_sports": return getString(R.string.activity_type_outdoor_sports);
+            case "backpacking": return getString(R.string.activity_type_backpacking);
+            case "weekend": return getString(R.string.activity_type_weekend);
             default: return type.substring(0, 1).toUpperCase() + type.substring(1).replace("_", " ");
         }
     }
 
     private String getBudgetText(double price) {
-        if (price <= 0) return "Free";
-        if (price <= 100) return "$ Budget";
-        if (price <= 500) return "$$ Moderate";
-        return "$$$ Premium";
+        if (price <= 0) return getString(R.string.budget_label_free);
+        if (price <= 100) return getString(R.string.budget_label_budget);
+        if (price <= 500) return getString(R.string.budget_label_moderate);
+        return getString(R.string.budget_label_premium);
     }
 
 
@@ -531,7 +530,7 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         RateUserDialogFragment dialog = RateUserDialogFragment.newInstance(
                 hostUidToRate,
-                hostNameToRate != null ? hostNameToRate : "Host",
+                hostNameToRate != null ? hostNameToRate : getString(R.string.label_host_default),
                 tripId
         );
         dialog.setOnRatingSubmittedListener(() -> {
@@ -681,7 +680,7 @@ public class TripDetailsActivity extends AppCompatActivity {
 
     private void fetchHostTripsCount(String hostUid) {
         if (hostUid == null || hostUid.isEmpty()) {
-            binding.tvHostTrips.setText("• 0 trips hosted");
+            binding.tvHostTrips.setText(getString(R.string.label_host_trips_zero));
             return;
         }
         
@@ -692,13 +691,15 @@ public class TripDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         int tripCount = (int) snapshot.getChildrenCount();
-                        String tripText = tripCount == 1 ? "• 1 trip hosted" : "• " + tripCount + " trips hosted";
+                        String tripText = tripCount == 1 
+                                ? getString(R.string.label_host_trips_count_one) 
+                                : getString(R.string.label_host_trips_count, tripCount);
                         binding.tvHostTrips.setText(tripText);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        binding.tvHostTrips.setText("• 0 trips hosted");
+                        binding.tvHostTrips.setText(getString(R.string.label_host_trips_zero));
                     }
                 });
     }

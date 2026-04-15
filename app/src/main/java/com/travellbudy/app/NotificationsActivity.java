@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -37,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class NotificationsActivity extends AppCompatActivity {
+public class NotificationsActivity extends BaseActivity {
 
     private ActivityNotificationsBinding binding;
     private NotificationsAdapter adapter;
@@ -367,14 +366,14 @@ public class NotificationsActivity extends AppCompatActivity {
         // Get trip name from original notification, or use default
         String tripName = originalNotification.tripName != null && !originalNotification.tripName.isEmpty()
                 ? originalNotification.tripName
-                : "the trip";
+                : getString(R.string.label_the_trip);
 
         Notification responseNotification = new Notification();
         responseNotification.type = approved ? "request_approved" : "request_denied";
-        responseNotification.title = approved ? "Request Approved!" : "Request Declined";
+        responseNotification.title = approved ? getString(R.string.notif_title_approved) : getString(R.string.notif_title_declined);
         responseNotification.message = approved 
-                ? "Your request to join " + tripName + " has been approved!"
-                : "Your request to join " + tripName + " has been declined.";
+                ? getString(R.string.notif_message_approved, tripName)
+                : getString(R.string.notif_message_declined, tripName);
         responseNotification.tripId = originalNotification.tripId;
         responseNotification.tripName = originalNotification.tripName;
         responseNotification.fromUserId = currentUser.getUid();
@@ -533,26 +532,26 @@ public class NotificationsActivity extends AppCompatActivity {
             }
 
             private String buildNotificationMessage(Notification notification) {
-                String userName = notification.fromUserName != null ? notification.fromUserName : "Someone";
-                String tripName = notification.tripName != null ? notification.tripName : "a trip";
+                String userName = notification.fromUserName != null ? notification.fromUserName : getString(R.string.label_someone);
+                String tripName = notification.tripName != null ? notification.tripName : getString(R.string.label_a_trip);
                 
                 if (notification.type == null) {
-                    return notification.message != null ? notification.message : "New notification";
+                    return notification.message != null ? notification.message : getString(R.string.notif_new_notification);
                 }
                 
                 switch (notification.type) {
                     case "join_request":
-                        return userName + " wants to join your " + tripName + " trip.";
+                        return getString(R.string.notif_join_request, userName, tripName);
                     case "request_approved":
-                        return "Your request to join " + tripName + " has been approved!";
+                        return getString(R.string.notif_message_approved, tripName);
                     case "request_denied":
-                        return "Your request to join " + tripName + " has been declined.";
+                        return getString(R.string.notif_message_declined, tripName);
                     case "new_message":
-                        return userName + " sent you a message.";
+                        return getString(R.string.notif_new_message, userName);
                     case "trip_update":
-                        return tripName + " has been updated.";
+                        return getString(R.string.notif_trip_update, tripName);
                     default:
-                        return notification.message != null ? notification.message : "New notification";
+                        return notification.message != null ? notification.message : getString(R.string.notif_new_notification);
                 }
             }
         }

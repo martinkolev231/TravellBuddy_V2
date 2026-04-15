@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,19 +35,15 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class CreateTripActivity extends AppCompatActivity {
+public class CreateTripActivity extends BaseActivity {
 
     private ActivityCreateTripBinding binding;
     private LocalDate selectedStartDate;
     private LocalDate selectedEndDate;
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault());
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", new Locale("bg"));
     private Uri selectedCoverPhotoUri = null;
 
-    private final String[] activityTypes = {
-            "Hiking", "Camping", "Road Trip", "City Explore",
-            "Festival / Event", "Photography", "Outdoor Sports",
-            "Backpacking", "Weekend Getaway", "Other"
-    };
+    private String[] activityTypes;
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -63,6 +58,20 @@ public class CreateTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCreateTripBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Initialize activity types from string resources
+        activityTypes = new String[] {
+            getString(R.string.activity_dropdown_hiking),
+            getString(R.string.activity_dropdown_camping),
+            getString(R.string.activity_dropdown_road_trip),
+            getString(R.string.activity_dropdown_city_break),
+            getString(R.string.activity_dropdown_festival),
+            getString(R.string.activity_label_photography),
+            getString(R.string.activity_label_outdoor_sports),
+            getString(R.string.activity_label_backpacking),
+            getString(R.string.activity_label_weekend),
+            getString(R.string.activity_dropdown_other)
+        };
 
         binding.btnBack.setOnClickListener(v -> finish());
 
@@ -201,7 +210,7 @@ public class CreateTripActivity extends AppCompatActivity {
         }
 
         if (TextUtils.isEmpty(description)) {
-            Toast.makeText(this, "Please add a description", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_add_description, Toast.LENGTH_SHORT).show();
             return;
         }
 

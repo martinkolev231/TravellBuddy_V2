@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,7 +21,7 @@ import com.travellbudy.app.models.SeatRequest;
 import com.travellbudy.app.models.Trip;
 import com.travellbudy.app.utils.TestDataHelper;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseActivity {
 
     private ActivitySettingsBinding binding;
 

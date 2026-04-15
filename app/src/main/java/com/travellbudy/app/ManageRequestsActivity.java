@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,7 +25,7 @@ import com.travellbudy.app.models.TripMember;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ManageRequestsActivity extends AppCompatActivity {
+public class ManageRequestsActivity extends BaseActivity {
 
     public static final String EXTRA_TRIP_ID = "trip_id";
 

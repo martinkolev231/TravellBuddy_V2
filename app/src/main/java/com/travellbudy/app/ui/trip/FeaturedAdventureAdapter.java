@@ -96,13 +96,13 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
             if (trip.pricePerSeat > 0) {
                 binding.tvPrice.setText(String.format(java.util.Locale.getDefault(), "€ %.0f", trip.pricePerSeat));
             } else {
-                binding.tvPrice.setText("Free");
+                binding.tvPrice.setText(context.getString(R.string.label_free));
             }
 
             // Date - format as "Apr 28 - 30" (same month) or "Apr 28 - May 2"
             if (trip.departureTime > 0 && trip.estimatedArrivalTime > 0) {
-                java.time.format.DateTimeFormatter monthDayFormatter = java.time.format.DateTimeFormatter.ofPattern("MMM d", java.util.Locale.ENGLISH);
-                java.time.format.DateTimeFormatter dayOnlyFormatter = java.time.format.DateTimeFormatter.ofPattern("d", java.util.Locale.ENGLISH);
+                java.time.format.DateTimeFormatter monthDayFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMM", new java.util.Locale("bg"));
+                java.time.format.DateTimeFormatter dayOnlyFormatter = java.time.format.DateTimeFormatter.ofPattern("d", new java.util.Locale("bg"));
                 java.time.LocalDateTime startDate = java.time.LocalDateTime.ofInstant(
                         java.time.Instant.ofEpochMilli(trip.departureTime), java.time.ZoneId.systemDefault());
                 java.time.LocalDateTime endDate = java.time.LocalDateTime.ofInstant(
@@ -110,30 +110,33 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
                 
                 String dateRange;
                 if (startDate.getMonth() == endDate.getMonth() && startDate.getYear() == endDate.getYear()) {
-                    dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(dayOnlyFormatter);
+                    dateRange = startDate.format(dayOnlyFormatter) + " - " + endDate.format(monthDayFormatter);
                 } else {
                     dateRange = startDate.format(monthDayFormatter) + " - " + endDate.format(monthDayFormatter);
                 }
                 binding.tvDate.setText(dateRange);
             } else {
-                binding.tvDate.setText("Dates TBD");
+                binding.tvDate.setText(context.getString(R.string.label_dates_tbd));
             }
 
             // Joined count
             int joined = trip.totalSeats - trip.availableSeats;
-            binding.tvJoined.setText(String.format(java.util.Locale.getDefault(), "%d/%d joined", joined, trip.totalSeats));
+            binding.tvJoined.setText(context.getString(R.string.label_joined_count, joined, trip.totalSeats));
 
             // Status badge - show X SPOTS LEFT (pink) or FULL (dark navy)
             int spotsLeft = trip.availableSeats;
             if (spotsLeft > 0) {
-                // Format: "2 SPOTS LEFT" or "1 SPOT LEFT"
-                binding.tvStatusBadge.setText(String.format(java.util.Locale.getDefault(), 
-                        "%d SPOT%s LEFT", spotsLeft, spotsLeft == 1 ? "" : "S"));
+                // Format: "ОСТАВАТ 2 МЕСТА" or "ОСТАВА 1 МЯСТО"
+                if (spotsLeft == 1) {
+                    binding.tvStatusBadge.setText(context.getString(R.string.label_spot_left_badge, spotsLeft));
+                } else {
+                    binding.tvStatusBadge.setText(context.getString(R.string.label_spots_left_badge, spotsLeft));
+                }
                 binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_spots_pink);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             } else {
                 // Trip is full - show FULL badge with dark navy background
-                binding.tvStatusBadge.setText("FULL");
+                binding.tvStatusBadge.setText(context.getString(R.string.label_full));
                 binding.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_full_dark);
                 binding.tvStatusBadge.setVisibility(View.VISIBLE);
             }
@@ -164,7 +167,7 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
 
         /**
          * Generate a proper title from activity type and destination.
-         * e.g., "Hiking in Switzerland", "Road Trip to Paris"
+         * e.g., "Поход в Швейцария", "Пътуване с кола до Париж"
          */
         private String generateTitle(Trip trip) {
             String activityLabel = getActivityLabel(trip.activityType);
@@ -172,13 +175,13 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
                     ? trip.destinationCity : trip.originCity;
 
             if (activityLabel != null && destination != null && !destination.isEmpty()) {
-                // Format: "Activity in/to Destination"
+                // Format: "Дейност в/до Дестинация"
                 String preposition = getPrepositionForActivity(trip.activityType);
                 return activityLabel + " " + preposition + " " + destination;
             } else if (activityLabel != null) {
-                return activityLabel + " Adventure";
+                return activityLabel;
             } else if (destination != null && !destination.isEmpty()) {
-                return "Adventure in " + destination;
+                return context.getString(R.string.activity_adventure_in, destination);
             } else {
                 return trip.originCity + " → " + trip.destinationCity;
             }
@@ -187,25 +190,25 @@ public class FeaturedAdventureAdapter extends RecyclerView.Adapter<FeaturedAdven
         private String getActivityLabel(String activityType) {
             if (activityType == null || activityType.isEmpty()) return null;
             switch (activityType) {
-                case "hiking":          return "Hiking";
-                case "camping":         return "Camping";
-                case "road_trip":       return "Road Trip";
-                case "city_explore":    return "City Exploration";
-                case "festival":        return "Festival";
-                case "photography":     return "Photography Trip";
-                case "outdoor_sports":  return "Outdoor Sports";
-                case "backpacking":     return "Backpacking";
-                case "weekend":         return "Weekend Getaway";
+                case "hiking":          return context.getString(R.string.activity_label_hiking);
+                case "camping":         return context.getString(R.string.activity_label_camping);
+                case "road_trip":       return context.getString(R.string.activity_label_road_trip);
+                case "city_explore":    return context.getString(R.string.activity_label_city_explore);
+                case "festival":        return context.getString(R.string.activity_label_festival);
+                case "photography":     return context.getString(R.string.activity_label_photography);
+                case "outdoor_sports":  return context.getString(R.string.activity_label_outdoor_sports);
+                case "backpacking":     return context.getString(R.string.activity_label_backpacking);
+                case "weekend":         return context.getString(R.string.activity_label_weekend);
                 default:                return null;
             }
         }
 
         private String getPrepositionForActivity(String activityType) {
-            if (activityType == null) return "in";
+            if (activityType == null) return context.getString(R.string.preposition_in);
             switch (activityType) {
-                case "road_trip":       return "to";
-                case "backpacking":     return "through";
-                default:                return "in";
+                case "road_trip":       return context.getString(R.string.preposition_to);
+                case "backpacking":     return context.getString(R.string.preposition_through);
+                default:                return context.getString(R.string.preposition_in);
             }
         }
     }

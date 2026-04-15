@@ -309,7 +309,7 @@ public class AdminViewModel extends ViewModel {
     }
 
     public void refreshDashboardStats() {
-        dashboardStats = adminRepository.getDashboardStats();
+        adminRepository.refreshDashboardStats();
     }
 
     // =========================================================================

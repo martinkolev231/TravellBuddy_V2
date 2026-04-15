@@ -77,39 +77,8 @@ public class AdminPostsFragment extends Fragment implements AdminTripsAdapter.On
         });
     }
 
-
     private void setupFilterButton() {
-        binding.btnFilter.setOnClickListener(v -> showFilterDialog());
-    }
-
-    private void showFilterDialog() {
-        String[] filterOptions = {
-            getString(R.string.admin_tab_all),
-            getString(R.string.admin_tab_pending),
-            getString(R.string.admin_tab_reported),
-            getString(R.string.admin_tab_active),
-            getString(R.string.admin_chip_full)
-        };
-
-        String[] filterValues = {"all", "pending", "reported", "active", "full"};
-
-        int currentIndex = 0;
-        for (int i = 0; i < filterValues.length; i++) {
-            if (filterValues[i].equals(currentFilter)) {
-                currentIndex = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(requireContext())
-            .setTitle(R.string.admin_filter_all)
-            .setSingleChoiceItems(filterOptions, currentIndex, (dialog, which) -> {
-                currentFilter = filterValues[which];
-                applyFilters();
-                dialog.dismiss();
-            })
-            .setNegativeButton(R.string.action_cancel, null)
-            .show();
+        // Filter button removed from UI
     }
 
     private void applyFilters() {
@@ -117,39 +86,16 @@ public class AdminPostsFragment extends Fragment implements AdminTripsAdapter.On
         String searchText = binding.etSearch.getText().toString().toLowerCase();
 
         for (Trip trip : allTrips) {
-            boolean matchesFilter = false;
-
-            switch (currentFilter) {
-                case "all":
-                    matchesFilter = true;
-                    break;
-                case "pending":
-                    matchesFilter = "pending".equals(trip.status) || "open".equals(trip.status);
-                    break;
-                case "reported":
-                    // Assuming trips have a reported flag or status
-                    matchesFilter = "reported".equals(trip.status);
-                    break;
-                case "active":
-                    matchesFilter = "open".equals(trip.status) || "in_progress".equals(trip.status);
-                    break;
-                case "full":
-                    matchesFilter = "full".equals(trip.status) || trip.availableSeats <= 0;
-                    break;
-            }
-
-            if (matchesFilter) {
-                // Also apply search filter
-                if (searchText.isEmpty()) {
+            // Apply search filter
+            if (searchText.isEmpty()) {
+                filtered.add(trip);
+            } else {
+                boolean matchesSearch = 
+                    (trip.carModel != null && trip.carModel.toLowerCase().contains(searchText)) ||
+                    (trip.destinationCity != null && trip.destinationCity.toLowerCase().contains(searchText)) ||
+                    (trip.driverName != null && trip.driverName.toLowerCase().contains(searchText));
+                if (matchesSearch) {
                     filtered.add(trip);
-                } else {
-                    boolean matchesSearch = 
-                        (trip.carModel != null && trip.carModel.toLowerCase().contains(searchText)) ||
-                        (trip.destinationCity != null && trip.destinationCity.toLowerCase().contains(searchText)) ||
-                        (trip.driverName != null && trip.driverName.toLowerCase().contains(searchText));
-                    if (matchesSearch) {
-                        filtered.add(trip);
-                    }
                 }
             }
         }

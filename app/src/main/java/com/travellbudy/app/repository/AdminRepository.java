@@ -533,102 +533,152 @@ public class AdminRepository {
     // Dashboard Stats
     // =========================================================================
 
+    private MutableLiveData<DashboardStats> dashboardStatsLiveData;
+    private final DashboardStats currentStats = new DashboardStats();
+    private ValueEventListener usersListener;
+    private ValueEventListener tripsListener;
+    private ValueEventListener newUsersListener;
+    private ValueEventListener bannedUsersListener;
+    private ValueEventListener adminsListener;
+
     /**
-     * Gets dashboard statistics.
+     * Gets dashboard statistics with real-time updates.
      */
     public LiveData<DashboardStats> getDashboardStats() {
-        MutableLiveData<DashboardStats> result = new MutableLiveData<>();
-        DashboardStats stats = new DashboardStats();
+        if (dashboardStatsLiveData == null) {
+            dashboardStatsLiveData = new MutableLiveData<>();
+            setupDashboardListeners();
+        }
+        return dashboardStatsLiveData;
+    }
 
-        // Count total users
-        dbRef.child(PATH_USERS).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void setupDashboardListeners() {
+        // Remove old listeners if any
+        removeDashboardListeners();
+
+        // Count total users - real-time listener
+        usersListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                stats.totalUsers = (int) snapshot.getChildrenCount();
-                checkAndPostStats(stats, result);
+                currentStats.totalUsers = (int) snapshot.getChildrenCount();
+                postDashboardStats();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                stats.totalUsers = 0;
-                checkAndPostStats(stats, result);
+                currentStats.totalUsers = 0;
+                postDashboardStats();
             }
-        });
+        };
+        dbRef.child(PATH_USERS).addValueEventListener(usersListener);
 
-        // Count total trips
-        dbRef.child(PATH_TRIPS).addListenerForSingleValueEvent(new ValueEventListener() {
+        // Count total trips - real-time listener
+        tripsListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                stats.totalTrips = (int) snapshot.getChildrenCount();
-                checkAndPostStats(stats, result);
+                currentStats.totalTrips = (int) snapshot.getChildrenCount();
+                postDashboardStats();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                stats.totalTrips = 0;
-                checkAndPostStats(stats, result);
+                currentStats.totalTrips = 0;
+                postDashboardStats();
             }
-        });
+        };
+        dbRef.child(PATH_TRIPS).addValueEventListener(tripsListener);
 
-        // Count new users in last 7 days
+        // Count new users in last 7 days - real-time listener
         long sevenDaysAgo = System.currentTimeMillis() - (7 * 24L * 60L * 60L * 1000L);
+        newUsersListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentStats.newUsersLast7Days = (int) snapshot.getChildrenCount();
+                postDashboardStats();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                currentStats.newUsersLast7Days = 0;
+                postDashboardStats();
+            }
+        };
         dbRef.child(PATH_USERS)
             .orderByChild("createdAt")
             .startAt(sevenDaysAgo)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    stats.newUsersLast7Days = (int) snapshot.getChildrenCount();
-                    checkAndPostStats(stats, result);
-                }
+            .addValueEventListener(newUsersListener);
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    stats.newUsersLast7Days = 0;
-                    checkAndPostStats(stats, result);
-                }
-            });
-
-        // Count banned users
-        dbRef.child(PATH_USERS)
-            .orderByChild("isBanned")
-            .equalTo(true)
-            .addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    stats.bannedUsers = (int) snapshot.getChildrenCount();
-                    checkAndPostStats(stats, result);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    stats.bannedUsers = 0;
-                    checkAndPostStats(stats, result);
-                }
-            });
-
-        // Count admin users
-        dbRef.child(PATH_ADMINS).addListenerForSingleValueEvent(new ValueEventListener() {
+        // Count banned users - real-time listener
+        bannedUsersListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                stats.adminCount = (int) snapshot.getChildrenCount();
-                checkAndPostStats(stats, result);
+                currentStats.bannedUsers = (int) snapshot.getChildrenCount();
+                postDashboardStats();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                stats.adminCount = 0;
-                checkAndPostStats(stats, result);
+                currentStats.bannedUsers = 0;
+                postDashboardStats();
             }
-        });
+        };
+        dbRef.child(PATH_USERS)
+            .orderByChild("isBanned")
+            .equalTo(true)
+            .addValueEventListener(bannedUsersListener);
 
-        return result;
+        // Count admin users - real-time listener
+        adminsListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentStats.adminCount = (int) snapshot.getChildrenCount();
+                postDashboardStats();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                currentStats.adminCount = 0;
+                postDashboardStats();
+            }
+        };
+        dbRef.child(PATH_ADMINS).addValueEventListener(adminsListener);
     }
 
-    private void checkAndPostStats(DashboardStats stats, MutableLiveData<DashboardStats> result) {
-        stats.loadedCount++;
-        if (stats.loadedCount >= 5) { // All 5 queries completed
-            result.postValue(stats);
+    private void postDashboardStats() {
+        // Create a copy to avoid mutation issues
+        DashboardStats statsCopy = new DashboardStats();
+        statsCopy.totalUsers = currentStats.totalUsers;
+        statsCopy.totalTrips = currentStats.totalTrips;
+        statsCopy.newUsersLast7Days = currentStats.newUsersLast7Days;
+        statsCopy.bannedUsers = currentStats.bannedUsers;
+        statsCopy.adminCount = currentStats.adminCount;
+        dashboardStatsLiveData.postValue(statsCopy);
+    }
+
+    private void removeDashboardListeners() {
+        if (usersListener != null) {
+            dbRef.child(PATH_USERS).removeEventListener(usersListener);
+        }
+        if (tripsListener != null) {
+            dbRef.child(PATH_TRIPS).removeEventListener(tripsListener);
+        }
+        if (newUsersListener != null) {
+            dbRef.child(PATH_USERS).removeEventListener(newUsersListener);
+        }
+        if (bannedUsersListener != null) {
+            dbRef.child(PATH_USERS).removeEventListener(bannedUsersListener);
+        }
+        if (adminsListener != null) {
+            dbRef.child(PATH_ADMINS).removeEventListener(adminsListener);
+        }
+    }
+
+    /**
+     * Force refresh dashboard stats by resetting listeners.
+     */
+    public void refreshDashboardStats() {
+        if (dashboardStatsLiveData != null) {
+            setupDashboardListeners();
         }
     }
 

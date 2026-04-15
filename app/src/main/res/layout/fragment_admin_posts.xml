@@ -54,14 +54,12 @@
 
                 <!-- Search Field -->
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:background="@drawable/bg_admin_search"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginEnd="12dp">
+                    android:paddingHorizontal="16dp">
 
                     <ImageView
                         android:layout_width="24dp"
@@ -87,25 +85,6 @@
 
                 </LinearLayout>
 
-                <!-- Filter Button -->
-                <FrameLayout
-                    android:id="@+id/btnFilter"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:background="@drawable/bg_admin_filter_button"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_gravity="center"
-                        android:src="@drawable/ic_filter"
-                        android:contentDescription="@string/admin_filter_all"
-                        app:tint="#616161" />
-
-                </FrameLayout>
 
             </LinearLayout>
 

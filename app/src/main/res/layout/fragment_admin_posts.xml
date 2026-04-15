@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_light"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Header Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="16dp"
+            android:background="@android:color/white">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_posts_title"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:fontFamily="sans-serif-medium" />
+
+            <!-- Subtitle -->
+            <TextView
+                android:id="@+id/tvTripCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_posts_subtitle"
+                android:textSize="15sp"
+                android:textColor="#757575"
+                android:layout_marginTop="4dp" />
+
+            <!-- Search and Filter Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:gravity="center_vertical"
+                android:baselineAligned="false">
+
+                <!-- Search Field -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_admin_search"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginEnd="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_search"
+                        android:contentDescription="@null"
+                        app:tint="#9E9E9E" />
+
+                    <EditText
+                        android:id="@+id/etSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:hint="@string/admin_search_posts_hint"
+                        android:textSize="16sp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="#9E9E9E"
+                        android:background="@null"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:layout_marginStart="12dp"
+                        android:autofillHints="username"
+                        android:importantForAutofill="no" />
+
+                </LinearLayout>
+
+                <!-- Filter Button -->
+                <FrameLayout
+                    android:id="@+id/btnFilter"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_admin_filter_button"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_filter"
+                        android:contentDescription="@string/admin_filter_all"
+                        app:tint="#616161" />
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            android:visibility="gone" />
+
+        <!-- Empty View -->
+        <LinearLayout
+            android:id="@+id/emptyView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="48dp">
+
+            <ImageView
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:src="@drawable/ic_trip"
+                android:contentDescription="@null"
+                app:tint="#9E9E9E"
+                android:alpha="0.5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/admin_no_posts"
+                android:textSize="17sp"
+                android:textColor="#757575"
+                android:layout_marginTop="20dp" />
+
+        </LinearLayout>
+
+        <!-- Trips List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerTrips"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            tools:listitem="@layout/item_admin_trip" />
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -328,4 +328,12 @@
         <item name="fontFamily">sans-serif-medium</item>
     </style>
 
+    <!-- Admin Panel Navigation Indicator -->
+    <style name="Widget.TravellBuddy.AdminNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">#E0F2F1</item>
+        <item name="android:width">56dp</item>
+        <item name="android:height">32dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TravellBuddy.NavIndicator</item>
+    </style>
+
 </resources>

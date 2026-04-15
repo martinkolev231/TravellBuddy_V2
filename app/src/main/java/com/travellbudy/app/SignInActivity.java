@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.Credential;
 import androidx.credentials.CredentialManager;
@@ -25,7 +26,10 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.travellbudy.app.databinding.ActivitySignInBinding;
 import com.travellbudy.app.models.User;
 
@@ -94,13 +98,72 @@ public class SignInActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    showLoading(false);
                     if (task.isSuccessful()) {
-                        navigateToHome();
+                        checkUserStatusAndNavigate();
                     } else {
+                        showLoading(false);
                         Toast.makeText(this, R.string.error_auth_failed, Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    // =========================================================================
+    // Check user status (banned/admin) and navigate
+    // =========================================================================
+
+    private void checkUserStatusAndNavigate() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            showLoading(false);
+            return;
+        }
+
+        String uid = currentUser.getUid();
+        FirebaseDatabase.getInstance().getReference("users").child(uid)
+            .addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    showLoading(false);
+                    
+                    User user = snapshot.getValue(User.class);
+                    if (user == null) {
+                        // New user or no profile yet - proceed to home
+                        navigateToHome();
+                        return;
+                    }
+
+                    // Check if user is banned
+                    if (user.isBanned) {
+                        // Sign out and show banned message
+                        mAuth.signOut();
+                        showBannedDialog();
+                        return;
+                    }
+
+                    // Check if user is admin
+                    if (user.isAdmin()) {
+                        navigateToAdminPanel();
+                    } else {
+                        navigateToHome();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    showLoading(false);
+                    // Error reading user data - proceed to home
+                    navigateToHome();
+                }
+            });
+    }
+
+    private void showBannedDialog() {
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.admin_account_banned_title)
+            .setMessage(R.string.admin_account_banned_message)
+            .setPositiveButton(R.string.action_close, null)
+            .setCancelable(false)
+            .show();
     }
 
     // =========================================================================
@@ -189,7 +252,6 @@ public class SignInActivity extends AppCompatActivity {
 
         mAuth.signInWithCredential(authCredential)
                 .addOnCompleteListener(this, task -> {
-                    showLoading(false);
                     if (task.isSuccessful()) {
                         FirebaseUser firebaseUser = mAuth.getCurrentUser();
                         if (firebaseUser != null) {
@@ -200,10 +262,19 @@ public class SignInActivity extends AppCompatActivity {
 
                             if (isNewUser) {
                                 createUserRecord(firebaseUser);
+                                // New users go directly to home
+                                showLoading(false);
+                                navigateToHome();
+                            } else {
+                                // Existing users - check status
+                                checkUserStatusAndNavigate();
                             }
+                        } else {
+                            showLoading(false);
+                            navigateToHome();
                         }
-                        navigateToHome();
                     } else {
+                        showLoading(false);
                         Log.e(TAG, "Firebase auth with Google failed", task.getException());
                         Toast.makeText(this, R.string.error_google_sign_in,
                                 Toast.LENGTH_SHORT).show();
@@ -265,6 +336,11 @@ public class SignInActivity extends AppCompatActivity {
         finish();
     }
 
+    private void navigateToAdminPanel() {
+        startActivity(new Intent(this, AdminPanelActivity.class));
+        finish();
+    }
+
     private void showLoading(boolean show) {
         binding.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         binding.btnSignIn.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
@@ -272,4 +348,3 @@ public class SignInActivity extends AppCompatActivity {
         binding.btnGoogleSignIn.setEnabled(!show);
     }
 }
-

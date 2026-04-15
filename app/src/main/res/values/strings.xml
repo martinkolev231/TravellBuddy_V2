@@ -688,4 +688,146 @@
     <string name="label_reviews_title">Отзиви (%1$d)</string>
     <string name="label_reviews_count">(%1$d отзиви)</string>
     <string name="label_reviews_count_one">(%1$d отзив)</string>
+
+    <!-- ======================= ADMIN PANEL ======================= -->
+
+    <!-- Admin Panel General -->
+    <string name="admin_panel_title">Администраторски панел</string>
+    <string name="admin_access_denied">Нямате достъп до администраторския панел</string>
+    <string name="admin_refreshing">Обновяване...</string>
+    <string name="admin_refresh">Обнови</string>
+    <string name="admin_exit">Изход от панела</string>
+
+    <!-- Admin Navigation -->
+    <string name="admin_nav_dashboard">Табло</string>
+    <string name="admin_nav_users">Потребители</string>
+    <string name="admin_nav_posts">Пътувания</string>
+    <string name="admin_nav_categories">Категории</string>
+    <string name="admin_nav_notifications">Известия</string>
+
+    <!-- Admin Dashboard -->
+    <string name="admin_dashboard">Табло</string>
+    <string name="admin_dashboard_subtitle">Преглед на статистиката на приложението</string>
+    <string name="admin_stat_total_users">Общо потребители</string>
+    <string name="admin_stat_total_trips">Общо пътувания</string>
+    <string name="admin_stat_new_users">Нови (7 дни)</string>
+    <string name="admin_stat_banned_users">Блокирани</string>
+    <string name="admin_stat_admin_count">Администратори</string>
+    <string name="admin_refresh_stats">Обнови статистиката</string>
+
+    <!-- Admin Users -->
+    <string name="admin_users">Потребители</string>
+    <string name="admin_users_title">Управление на потребители</string>
+    <string name="admin_users_subtitle">Управлявайте и модерирайте акаунти</string>
+    <string name="admin_user_count">%1$d потребители</string>
+    <string name="admin_search_users">Търсене на потребители...</string>
+    <string name="admin_search_users_hint">Търсене на потребители…</string>
+    <string name="admin_no_users">Няма намерени потребители</string>
+    <string name="admin_user_details">Детайли за потребителя</string>
+    <string name="admin_role_admin">АДМИН</string>
+    <string name="admin_role_user">ПОТРЕБИТЕЛ</string>
+    <string name="admin_status_active">АКТИВЕН</string>
+    <string name="admin_status_banned">БЛОКИРАН</string>
+    <string name="admin_status_verified">ВЕРИФИЦИРАН</string>
+    <string name="admin_status_inactive">Неактивен</string>
+    <string name="admin_status_expired">Изтекъл</string>
+    <string name="admin_badge">АДМИН</string>
+
+    <!-- Admin User Filters -->
+    <string name="admin_filter_all">Всички</string>
+    <string name="admin_filter_users">Потребители</string>
+    <string name="admin_filter_admins">Администратори</string>
+    <string name="admin_filter_verified">Верифицирани</string>
+    <string name="admin_filter_active">Активни</string>
+    <string name="admin_filter_banned">Блокирани</string>
+
+    <!-- Admin User Actions -->
+    <string name="admin_ban_user_title">Блокиране на потребител</string>
+    <string name="admin_ban_user_message">Сигурни ли сте, че искате да блокирате %1$s?</string>
+    <string name="admin_promote_user_title">Повишаване до администратор</string>
+    <string name="admin_promote_user_message">Сигурни ли сте, че искате да повишите %1$s до администратор?</string>
+    <string name="admin_demote_user_title">Понижаване от администратор</string>
+    <string name="admin_demote_user_message">Сигурни ли сте, че искате да понижите %1$s до обикновен потребител?</string>
+    <string name="admin_delete_user_title">Изтриване на потребител</string>
+    <string name="admin_delete_user_message">Сигурни ли сте, че искате да изтриете %1$s? Това действие не може да бъде отменено.</string>
+
+    <!-- Admin Trips/Posts -->
+    <string name="admin_posts">Пътувания</string>
+    <string name="admin_posts_title">Управление на пътувания</string>
+    <string name="admin_posts_subtitle">Преглед и управление на приключения</string>
+    <string name="admin_trip_count">%1$d пътувания</string>
+    <string name="admin_search_trips">Търсене на пътувания...</string>
+    <string name="admin_search_posts_hint">Търсене на публикации…</string>
+    <string name="admin_no_trips">Няма намерени пътувания</string>
+    <string name="admin_no_posts">Няма намерени публикации</string>
+    <string name="admin_trip_details">Детайли за пътуването</string>
+    <string name="admin_trip_seats_format">%1$d/%2$d места</string>
+    <string name="admin_delete_trip_title">Изтриване на пътуване</string>
+    <string name="admin_delete_trip_message">Сигурни ли сте, че искате да изтриете \"%1$s\"?</string>
+
+    <!-- Admin Posts Tabs -->
+    <string name="admin_tab_all">Всички</string>
+    <string name="admin_tab_pending">Чакащи</string>
+    <string name="admin_tab_reported">Докладвани</string>
+    <string name="admin_tab_active">Активни</string>
+
+    <!-- Admin Trip Status Chips -->
+    <string name="admin_chip_spots_left">%d СВОБОДНИ</string>
+    <string name="admin_chip_full">ПЪЛНО</string>
+    <string name="admin_chip_hosted">ПРОВЕДЕНО</string>
+
+    <!-- Admin Categories -->
+    <string name="admin_categories">Категории</string>
+    <string name="admin_category_count">%1$d категории</string>
+    <string name="admin_no_categories">Няма категории</string>
+    <string name="admin_add_category">Добавяне на категория</string>
+    <string name="admin_edit_category">Редактиране на категория</string>
+    <string name="admin_category_name">Име на категорията</string>
+    <string name="admin_category_icon">Икона (емоджи)</string>
+    <string name="admin_category_description">Описание</string>
+    <string name="admin_delete_category_title">Изтриване на категория</string>
+    <string name="admin_delete_category_message">Сигурни ли сте, че искате да изтриете категорията \"%1$s\"?</string>
+
+    <!-- Admin Notifications/Announcements -->
+    <string name="admin_notifications">Известия</string>
+    <string name="admin_announcement_count">%1$d съобщения</string>
+    <string name="admin_no_announcements">Няма съобщения</string>
+    <string name="admin_new_announcement">Ново съобщение</string>
+    <string name="admin_send_push">Изпрати Push</string>
+    <string name="admin_create_announcement">Създаване на съобщение</string>
+    <string name="admin_announcement_title">Заглавие</string>
+    <string name="admin_announcement_message">Съобщение</string>
+    <string name="admin_announcement_type">Тип на съобщението</string>
+    <string name="admin_announcement_expiry">Дата на изтичане (незадължително)</string>
+    <string name="admin_select_date">Изберете дата</string>
+    <string name="admin_announcement_details">Детайли за съобщението</string>
+    <string name="admin_delete_announcement_title">Изтриване на съобщение</string>
+    <string name="admin_delete_announcement_message">Сигурни ли сте, че искате да изтриете \"%1$s\"?</string>
+    <string name="admin_expires_on">Изтича: %1$s</string>
+    <string name="admin_send_push_notification">Изпращане на Push известие</string>
+    <string name="admin_push_notification_info">Това известие ще бъде изпратено до всички потребители на приложението.</string>
+    <string name="admin_notification_title">Заглавие на известието</string>
+    <string name="admin_notification_message">Съобщение</string>
+
+    <!-- Admin Actions -->
+    <string name="action_ban">Блокирай</string>
+    <string name="action_unban">Отблокирай</string>
+    <string name="action_promote">Повиши</string>
+    <string name="action_demote">Понижи</string>
+    <string name="action_delete">Изтрий</string>
+    <string name="action_edit">Редактирай</string>
+    <string name="action_feature">Препоръчай</string>
+    <string name="action_unfeature">Премахни от препоръчани</string>
+    <string name="action_deactivate">Деактивирай</string>
+    <string name="action_create">Създай</string>
+    <string name="action_save">Запази</string>
+    <string name="action_send">Изпрати</string>
+    <string name="action_close">Затвори</string>
+    <string name="action_cancel">Отказ</string>
+    <string name="action_menu">Меню</string>
+
+    <!-- Admin Banned User Message -->
+    <string name="admin_account_banned_title">Профилът е блокиран</string>
+    <string name="admin_account_banned_message">Вашият профил е блокиран. Свържете се с поддръжката за повече информация.</string>
+
 </resources>

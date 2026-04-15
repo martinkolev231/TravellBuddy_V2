@@ -1,72 +1,35 @@
 {
   "rules": {
-
-    // =========================================================================
-    // DEFAULT: deny-all at root level
-    // Every node below must explicitly grant access.
-    // =========================================================================
     ".read": false,
     ".write": false,
-
-    // =========================================================================
-    // ADMIN WHITELIST
-    // Lists admin UIDs. Only admins can read/write to sensitive nodes.
-    // =========================================================================
     "admins": {
-      // Only existing admins can read or modify admin list
       ".read": "auth != null && root.child('admins').child(auth.uid).val() == true",
       ".write": "auth != null && root.child('admins').child(auth.uid).val() == true",
       "$uid": {
         ".validate": "newData.isBoolean()"
       }
     },
-
-    // =========================================================================
-    // 1. /users/{uid}
-    //
-    // - Owner (auth.uid == $uid): full read + write on own profile
-    // - Other authenticated users: read-only on public fields
-    // - Admin: full read/write access
-    // - No regular user can write role or isBanned (admin-only)
-    // =========================================================================
     "users": {
       ".indexOn": ["email", "displayName", "isBanned", "role", "createdAt"],
-      // Admins can read all users
       ".read": "auth != null && root.child('admins').child(auth.uid).val() == true",
       "$uid": {
-        // Owner or other auth users can read profile
         ".read": "auth != null",
-
-        // Owner can write their own profile, OR admin can write any profile
         ".write": "(auth != null && auth.uid == $uid) || (auth != null && root.child('admins').child(auth.uid).val() == true)",
-
-        // Required fields on create
         ".validate": "newData.hasChildren(['uid', 'displayName', 'email', 'createdAt'])",
-
-        // Prevent uid from being changed after creation
         "uid": {
           ".validate": "newData.val() == $uid"
         },
-
-        // Only admin can set role field
         "role": {
           ".validate": "newData.isString() && (newData.val() == 'user' || newData.val() == 'admin')",
           ".write": "auth != null && root.child('admins').child(auth.uid).val() == true"
         },
-
-        // Only admin can set isBanned field
         "isBanned": {
           ".validate": "newData.isBoolean()",
           ".write": "auth != null && root.child('admins').child(auth.uid).val() == true"
         },
-
-        // Prevent privilege escalation: isVerified can only be set to false
-        // by the user. Setting it to true requires admin/Cloud Function.
         "isVerified": {
           ".validate": "newData.isBoolean() && (auth.uid == $uid ? newData.val() == false || data.val() == newData.val() : root.child('admins').child(auth.uid).val() == true)"
         },
-
-        // WORKAROUND: ratingSummary must be writable by any authenticated user
         "ratingSummary": {
           ".write": "auth != null",
           ".validate": "newData.hasChildren(['averageRating', 'totalRatings'])",
@@ -77,8 +40,6 @@
             ".validate": "newData.isNumber() && newData.val() >= 0"
           }
         },
-
-        // tripCounters: writable by any auth user
         "tripCounters": {
           ".write": "auth != null",
           ".validate": "newData.hasChildren(['tripsAsDriver', 'tripsAsRider'])",
@@ -89,8 +50,6 @@
             ".validate": "newData.isNumber() && newData.val() >= 0"
           }
         },
-
-        // Validate specific field types
         "displayName": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
         },
@@ -105,61 +64,36 @@
         }
       }
     },
-
-    // =========================================================================
-    // 2. /trips/{tripId}
-    //
-    // - Any authenticated user can read all trips (Home Feed)
-    // - Only driverUid can update after creation, OR admin
-    // =========================================================================
     "trips": {
       ".read": "auth != null",
       ".indexOn": ["departureTime", "driverUid", "status", "originCity", "destinationCity", "createdAt"],
       "$tripId": {
-        // Create: any auth user; Update/Delete: only the driver OR admin
         ".write": "auth != null && (!data.exists() || data.child('driverUid').val() == auth.uid || root.child('admins').child(auth.uid).val() == true)",
-
-        // Required fields (only validated when creating/updating, not deleting)
         ".validate": "!newData.exists() || newData.hasChildren(['tripId', 'driverUid', 'driverName', 'originCity', 'destinationCity', 'departureTime', 'availableSeats', 'totalSeats', 'pricePerSeat', 'status', 'createdAt'])",
-
-        // tripId must match the push key
         "tripId": {
           ".validate": "!newData.exists() || newData.val() == $tripId"
         },
-
-        // IMMUTABLE: driverUid cannot be changed after creation
         "driverUid": {
           ".validate": "!newData.exists() || (newData.isString() && (!data.exists() || newData.val() == data.val()))"
         },
-
-        // Departure must be in the future (only enforced on create)
         "departureTime": {
           ".validate": "!newData.exists() || (newData.isNumber() && (!data.exists() ? newData.val() > now : true))"
         },
-
-        // Seats: 0 <= available <= total
         "availableSeats": {
           ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('totalSeats').val())"
         },
         "totalSeats": {
           ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 1 && newData.val() <= 20)"
         },
-
-        // Price: non-negative (0 = free ride)
         "pricePerSeat": {
           ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0)"
         },
-
-        // Status enum
         "status": {
           ".validate": "!newData.exists() || (newData.isString() && (newData.val() == 'open' || newData.val() == 'full' || newData.val() == 'in_progress' || newData.val() == 'completed' || newData.val() == 'canceled'))"
         },
-
-        // createdAt is immutable after creation
         "createdAt": {
           ".validate": "!newData.exists() || (newData.isNumber() && (!data.exists() || newData.val() == data.val()))"
         },
-
         "originLat": {
           ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -90 && newData.val() <= 90)"
         },
@@ -172,21 +106,14 @@
         "destLng": {
           ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= -180 && newData.val() <= 180)"
         },
-
-        // Participants: users who have been approved to join the trip
         "participants": {
           "$participantUid": {
-            // Trip driver or admin can add participants
             ".write": "auth != null && (root.child('trips').child($tripId).child('driverUid').val() == auth.uid || root.child('admins').child(auth.uid).val() == true)",
             ".validate": "!newData.exists() || newData.isBoolean()"
           }
         }
       }
     },
-
-    // =========================================================================
-    // 3. /tripRequests/{tripId}/{requestId}
-    // =========================================================================
     "tripRequests": {
       "$tripId": {
         ".read": "auth != null",
@@ -197,19 +124,13 @@
         }
       }
     },
-
-    // =========================================================================
-    // 4. /tripMembers/{tripId}/{uid}
-    // =========================================================================
     "tripMembers": {
       "$tripId": {
         ".read": "auth != null && (root.child('trips').child($tripId).child('driverUid').val() == auth.uid || data.child(auth.uid).exists() || root.child('admins').child(auth.uid).val() == true)",
         "$uid": {
           ".read": "auth != null && auth.uid == $uid",
           ".write": "auth != null && (root.child('trips').child($tripId).child('driverUid').val() == auth.uid || root.child('admins').child(auth.uid).val() == true)",
-
           ".validate": "newData.hasChildren(['uid', 'role', 'joinedAt', 'seatsOccupied'])",
-
           "uid": {
             ".validate": "newData.val() == $uid"
           },
@@ -225,22 +146,15 @@
         }
       }
     },
-
-    // =========================================================================
-    // 5. /chats/{chatId}
-    // =========================================================================
     "chats": {
       "$chatId": {
         ".read": "auth != null && (data.child('participants').child(auth.uid).val() == true || data.child('info').child('participants').child(auth.uid).val() == true || root.child('admins').child(auth.uid).val() == true)",
-
         ".write": "auth != null && (data.child('participants').child(auth.uid).val() == true || data.child('info').child('participants').child(auth.uid).val() == true || newData.child('participants').child(auth.uid).val() == true || newData.child('info').child('participants').child(auth.uid).val() == true || !data.exists() || root.child('admins').child(auth.uid).val() == true)",
-
         "participants": {
           "$participantUid": {
             ".validate": "newData.isBoolean()"
           }
         },
-
         "info": {
           ".validate": "newData.hasChildren(['chatId', 'tripId', 'name', 'createdBy']) && newData.child('participants').child(auth.uid).val() == true",
           "participants": {
@@ -249,33 +163,26 @@
             }
           }
         },
-
         "messages": {
           "$messageId": {
             ".validate": "newData.hasChildren(['messageId', 'senderUid', 'text', 'timestamp'])",
-
             "messageId": {
               ".validate": "newData.isString()"
             },
-
             "senderUid": {
               ".validate": "newData.isString() && newData.val() == auth.uid"
             },
-
             "senderName": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100"
             },
-
             "text": {
               ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 1000"
             },
-
             "timestamp": {
               ".validate": "newData.isNumber() && newData.val() <= now"
             }
           }
         },
-
         "lastMessage": {
           ".validate": "newData.isString()"
         },
@@ -284,10 +191,6 @@
         }
       }
     },
-
-    // =========================================================================
-    // 6. /userChats/{uid}
-    // =========================================================================
     "userChats": {
       "$uid": {
         ".read": "auth != null && (auth.uid == $uid || root.child('admins').child(auth.uid).val() == true)",
@@ -298,10 +201,6 @@
         }
       }
     },
-
-    // =========================================================================
-    // 7. /ratings/{tripId}/{ratingId}
-    // =========================================================================
     "ratings": {
       ".read": "auth != null",
       "$tripId": {
@@ -310,91 +209,65 @@
         "$ratingId": {
           ".write": "auth != null && (!data.exists() && $ratingId.contains(auth.uid) || root.child('admins').child(auth.uid).val() == true)",
           ".validate": "newData.hasChildren(['ratingId', 'tripId', 'reviewerUid', 'revieweeUid', 'score', 'createdAt']) && newData.child('reviewerUid').val() == auth.uid",
-
           "ratingId": {
             ".validate": "newData.isString()"
           },
-
           "tripId": {
             ".validate": "newData.val() == $tripId"
           },
-
           "reviewerUid": {
             ".validate": "newData.isString() && newData.val() == auth.uid"
           },
-
           "revieweeUid": {
             ".validate": "newData.isString() && newData.val() != auth.uid"
           },
-
           "score": {
             ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 5 && newData.val() % 1 === 0.0"
           },
-
           "createdAt": {
             ".validate": "newData.isNumber() && newData.val() <= now"
           },
-
           "comment": {
             ".validate": "!newData.exists() || newData.isString()"
           },
-
           "reviewerName": {
             ".validate": "!newData.exists() || newData.isString()"
           },
-
           "isEditable": {
             ".validate": "!newData.exists() || newData.isBoolean()"
           }
         }
       }
     },
-
-    // =========================================================================
-    // 8. /reports/{reportId}
-    // =========================================================================
     "reports": {
-      // Admin can read reports
       ".read": "auth != null && root.child('admins').child(auth.uid).val() == true",
       ".indexOn": ["reporterUid", "reportedUid", "status"],
       "$reportId": {
         ".write": "(auth != null && !data.exists()) || (auth != null && root.child('admins').child(auth.uid).val() == true)",
-
         ".validate": "newData.hasChildren(['reportId', 'reporterUid', 'reportedUid', 'reason', 'createdAt', 'status'])",
-
         "reportId": {
           ".validate": "newData.isString()"
         },
-
         "reporterUid": {
           ".validate": "newData.isString() && newData.val() == auth.uid"
         },
-
         "reportedUid": {
           ".validate": "newData.isString() && newData.val() != auth.uid"
         },
-
         "reason": {
           ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
         },
-
         "description": {
           ".validate": "newData.isString() && newData.val().length <= 2000"
         },
-
         "createdAt": {
           ".validate": "newData.isNumber() && newData.val() <= now"
         },
-
         "status": {
           ".validate": "newData.isString() && (newData.val() == 'open' || (root.child('admins').child(auth.uid).val() == true && (newData.val() == 'reviewed' || newData.val() == 'resolved')))"
         }
       }
     },
-
-    // =========================================================================
-    // NOTIFICATIONS
-    // =========================================================================
     "notifications": {
       "$userId": {
         ".read": "auth != null && (auth.uid == $userId || root.child('admins').child(auth.uid).val() == true)",
@@ -403,44 +276,27 @@
           ".validate": "newData.hasChildren(['type', 'createdAt'])"
         }
       },
-      // Admin can write to send node to trigger push notifications
       "send": {
         ".read": "auth != null && root.child('admins').child(auth.uid).val() == true",
         ".write": "auth != null && root.child('admins').child(auth.uid).val() == true"
       }
     },
-
-    // =========================================================================
-    // ANNOUNCEMENTS (Admin feature)
-    // =========================================================================
     "announcements": {
-      // Anyone can read announcements
       ".read": "auth != null",
       ".indexOn": ["createdAt", "isActive"],
-      // Only admin can write
       ".write": "auth != null && root.child('admins').child(auth.uid).val() == true",
       "$announcementId": {
         ".validate": "newData.hasChildren(['announcementId', 'title', 'message', 'createdAt', 'isActive'])"
       }
     },
-
-    // =========================================================================
-    // CATEGORIES (Admin feature)
-    // =========================================================================
     "categories": {
-      // Anyone can read categories
       ".read": "auth != null",
       ".indexOn": ["order", "isActive"],
-      // Only admin can write
       ".write": "auth != null && root.child('admins').child(auth.uid).val() == true",
       "$categoryId": {
         ".validate": "newData.hasChildren(['categoryId', 'name', 'isActive'])"
       }
     },
-
-    // =========================================================================
-    // FEATURED TRIPS (Admin feature)
-    // =========================================================================
     "featuredTrips": {
       ".read": "auth != null",
       ".write": "auth != null && root.child('admins').child(auth.uid).val() == true",

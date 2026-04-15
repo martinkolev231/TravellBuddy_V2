@@ -162,4 +162,28 @@
     <color name="search_bar_bg">#EBEBEB</color>
     <color name="icon_orange">#FF6B35</color>
     <color name="icon_green">#4CAF50</color>
+
+    <!-- Admin Panel -->
+    <color name="background_light">#F5F7FA</color>
+
+    <!-- Admin User Management Chips -->
+    <color name="chip_user_bg">#ECEFF1</color>
+    <color name="chip_user_text">#546E7A</color>
+    <color name="chip_admin_bg">#EDE7F6</color>
+    <color name="chip_admin_text">#7C4DFF</color>
+    <color name="chip_active_bg">#E0F2F1</color>
+    <color name="chip_active_text">#00897B</color>
+    <color name="chip_verified_bg">#E3F2FD</color>
+    <color name="chip_verified_text">#1976D2</color>
+    <color name="chip_banned_bg">#FFEBEE</color>
+    <color name="chip_banned_text">#E53935</color>
+
+    <!-- Admin Header -->
+    <color name="admin_title">#1A237E</color>
+    <color name="admin_subtitle">#757575</color>
+
+    <!-- Admin Search/Filter -->
+    <color name="admin_search_bg">#F0F2F5</color>
+    <color name="admin_filter_bg">#F0F2F5</color>
+    <color name="admin_overflow_bg">#F5F5F5</color>
 </resources>

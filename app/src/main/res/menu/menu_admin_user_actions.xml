@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_ban"
+        android:title="@string/action_ban" />
+
+    <item
+        android:id="@+id/action_unban"
+        android:title="@string/action_unban" />
+
+    <item
+        android:id="@+id/action_promote"
+        android:title="@string/action_promote" />
+
+    <item
+        android:id="@+id/action_demote"
+        android:title="@string/action_demote" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/action_delete" />
+
+</menu>
+

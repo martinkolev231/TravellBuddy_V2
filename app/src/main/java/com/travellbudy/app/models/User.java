@@ -16,12 +16,18 @@ public class User {
     public String bio;
     public String location;
     public boolean isVerified;
+    public boolean isBanned;           // Admin system: whether user is banned
+    public String role;                 // Admin system: "user" or "admin"
     public String fcmToken;
     public long createdAt;
 
     // Denormalized sub-objects
     public RatingSummary ratingSummary;
     public TripCounters tripCounters;
+
+    // Constants for roles
+    public static final String ROLE_USER = "user";
+    public static final String ROLE_ADMIN = "admin";
 
     public User() {
         // Required empty constructor for Firebase
@@ -37,10 +43,16 @@ public class User {
         this.bio = "";
         this.location = "";
         this.isVerified = false;
+        this.isBanned = false;
+        this.role = ROLE_USER;           // Default role is user
         this.fcmToken = "";
         this.createdAt = System.currentTimeMillis();
         this.ratingSummary = new RatingSummary();
         this.tripCounters = new TripCounters();
+    }
+
+    public boolean isAdmin() {
+        return ROLE_ADMIN.equals(role);
     }
 
     public Map<String, Object> toMap() {
@@ -54,6 +66,8 @@ public class User {
         result.put("bio", bio);
         result.put("location", location);
         result.put("isVerified", isVerified);
+        result.put("isBanned", isBanned);
+        result.put("role", role != null ? role : ROLE_USER);
         result.put("fcmToken", fcmToken);
         result.put("createdAt", createdAt);
         if (ratingSummary != null) {
@@ -107,4 +121,3 @@ public class User {
         }
     }
 }
-

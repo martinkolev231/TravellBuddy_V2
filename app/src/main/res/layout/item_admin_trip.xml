@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@android:color/white"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Trip Image -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivTripImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_trip"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.TravellBuddy.RoundedImage"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Featured Badge -->
+        <TextView
+            android:id="@+id/badgeFeatured"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⭐"
+            android:textSize="12sp"
+            android:padding="4dp"
+            android:background="@drawable/bg_badge_featured"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="@id/ivTripImage"
+            app:layout_constraintTop_toTopOf="@id/ivTripImage" />
+
+        <!-- Overflow Menu Button -->
+        <ImageButton
+            android:id="@+id/btnTripMenu"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_admin_overflow_button"
+            android:src="@drawable/ic_more_vert"
+            android:contentDescription="@string/action_menu"
+            app:tint="#9E9E9E"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Trip Title -->
+        <TextView
+            android:id="@+id/tvTripTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toEndOf="@id/ivTripImage"
+            app:layout_constraintEnd_toStartOf="@id/btnTripMenu"
+            app:layout_constraintTop_toTopOf="@id/ivTripImage"
+            tools:text="Sunrise Hike at Mount Rainier" />
+
+        <!-- Host Username -->
+        <TextView
+            android:id="@+id/tvTripHost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#00897B"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/tvTripTitle"
+            app:layout_constraintEnd_toEndOf="@id/tvTripTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvTripTitle"
+            tools:text="\@sarah_hikes" />
+
+        <!-- Status Chips Row -->
+        <LinearLayout
+            android:id="@+id/chipsContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="@id/tvTripTitle"
+            app:layout_constraintEnd_toEndOf="@id/tvTripTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvTripHost">
+
+            <!-- Category Chip -->
+            <TextView
+                android:id="@+id/tvTripCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#616161"
+                android:background="@drawable/bg_chip_category"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:fontFamily="sans-serif-medium"
+                tools:text="HIKING" />
+
+            <!-- Status Chip -->
+            <TextView
+                android:id="@+id/tvTripStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:textColor="#616161"
+                android:background="@drawable/bg_chip_category"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginStart="8dp"
+                tools:text="5 SPOTS LEFT" />
+
+        </LinearLayout>
+
+        <!-- Hidden fields for backwards compatibility -->
+        <TextView
+            android:id="@+id/tvTripDestination"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTripSeats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTripPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTripDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

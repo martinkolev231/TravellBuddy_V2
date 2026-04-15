@@ -65,6 +65,12 @@
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".UserProfileActivity" android:exported="false" />
 
+        <!-- Admin Panel -->
+        <activity
+            android:name=".AdminPanelActivity"
+            android:exported="false"
+            android:theme="@style/Theme.TravellBuddy" />
+
         <!-- Keep old MainActivity for reference, but it's no longer the launcher -->
         <activity android:name=".MainActivity" android:exported="false" />
 

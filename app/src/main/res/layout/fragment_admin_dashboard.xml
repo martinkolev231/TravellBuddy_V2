@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F7FA"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
+
+        <!-- ============================================ -->
+        <!-- TOP ADMIN HEADER -->
+        <!-- ============================================ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="20dp"
+            android:background="@android:color/white">
+
+            <!-- Admin Avatar -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivAdminAvatar"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_default_avatar"
+                android:background="#E0F7FA"
+                app:shapeAppearanceOverlay="@style/CircleImageView" />
+
+            <!-- Name, Role, Badge -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="14dp">
+
+                <TextView
+                    android:id="@+id/tvAdminName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A2B4A"
+                    tools:text="Мартин Колев" />
+
+                <TextView
+                    android:id="@+id/tvAdminRole"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#6B7B8A"
+                    android:layout_marginTop="2dp"
+                    tools:text="Системен администратор" />
+
+                <TextView
+                    android:id="@+id/badgeAdmin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/admin_badge"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:background="@drawable/bg_badge_admin_pill"
+                    android:layout_marginTop="6dp" />
+
+            </LinearLayout>
+
+            <!-- Settings Button -->
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_circle_button_light"
+                android:src="@drawable/ic_settings"
+                android:scaleType="center"
+                android:contentDescription="@string/title_settings"
+                app:tint="#4A5568" />
+
+        </LinearLayout>
+
+        <!-- Divider/Shadow line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E8ECF0" />
+
+        <!-- Content area with padding -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- ============================================ -->
+            <!-- MAIN SUMMARY CARD - Total Users -->
+            <!-- ============================================ -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardTotalUsers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/white"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="24dp">
+
+                    <!-- Left: Label + Number -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/admin_stat_total_users"
+                            android:textSize="14sp"
+                            android:textColor="#6B7B8A" />
+
+                        <TextView
+                            android:id="@+id/tvTotalUsers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="42sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2B4A"
+                            android:layout_marginTop="4dp"
+                            tools:text="1,248" />
+
+                    </LinearLayout>
+
+                    <!-- Right: Icon container -->
+                    <FrameLayout
+                        android:layout_width="72dp"
+                        android:layout_height="72dp"
+                        android:background="@drawable/bg_icon_container_teal">
+
+                        <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_people"
+                            app:tint="#00BCD4" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ============================================ -->
+            <!-- STATS GRID - 2x2 -->
+            <!-- ============================================ -->
+
+            <!-- Row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Total Trips Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTotalTrips"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp">
+
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_icon_container_blue">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_trip"
+                                app:tint="#3B82F6" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvTotalTrips"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2B4A"
+                            android:layout_marginTop="12dp"
+                            tools:text="856" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/admin_stat_total_trips"
+                            android:textSize="12sp"
+                            android:textColor="#6B7B8A"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Administrators Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAdmins"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp">
+
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_icon_container_purple">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_admin_panel"
+                                app:tint="#8B5CF6" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvAdminCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2B4A"
+                            android:layout_marginTop="12dp"
+                            tools:text="6" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/admin_stat_admin_count"
+                            android:textSize="12sp"
+                            android:textColor="#6B7B8A"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Blocked Users Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardBlockedUsers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp">
+
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_icon_container_red">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_block"
+                                app:tint="#EF4444" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvBannedUsers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2B4A"
+                            android:layout_marginTop="12dp"
+                            tools:text="34" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/admin_stat_banned_users"
+                            android:textSize="12sp"
+                            android:textColor="#6B7B8A"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- New Users Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardNewUsers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="22dp"
+                    app:cardElevation="0dp"
+                    app:cardBackgroundColor="@android:color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="20dp">
+
+                        <FrameLayout
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@drawable/bg_icon_container_green">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_person_add"
+                                app:tint="#10B981" />
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:id="@+id/tvNewUsers"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A2B4A"
+                            android:layout_marginTop="12dp"
+                            tools:text="+42" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/admin_stat_new_users"
+                            android:textSize="12sp"
+                            android:textColor="#6B7B8A"
+                            android:layout_marginTop="4dp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Loading indicator -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
+
